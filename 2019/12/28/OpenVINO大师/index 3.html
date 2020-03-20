@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"primemhd.tech","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":true,"lazyload":false,"nav":null,"activeClass":"valine"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":-1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="关于OpenVINO的入门指导，使用python的整个workflow以及重要API">
+<meta property="og:type" content="article">
+<meta property="og:title" content="OpenVINO大师">
+<meta property="og:url" content="https://primemhd.tech/2019/12/28/OpenVINO%E5%A4%A7%E5%B8%88/index.html">
+<meta property="og:site_name" content="Primemhd小栈">
+<meta property="og:description" content="关于OpenVINO的入门指导，使用python的整个workflow以及重要API">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://docs.openvinotoolkit.org/latest/workflow_steps.png">
+<meta property="article:published_time" content="2019-12-28T06:41:34.000Z">
+<meta property="article:modified_time" content="2020-03-19T14:43:49.865Z">
+<meta property="article:author" content="Mi HD">
+<meta property="article:tag" content="机器学习">
+<meta property="article:tag" content="OpenVINO">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://docs.openvinotoolkit.org/latest/workflow_steps.png">
+
+<link rel="canonical" href="https://primemhd.tech/2019/12/28/OpenVINO%E5%A4%A7%E5%B8%88/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>OpenVINO大师 | Primemhd小栈</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Primemhd小栈</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories" rel="section"><i class="fa fa-fw fa-th"></i>Categories<span class="badge">2</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives" rel="section"><i class="fa fa-fw fa-archive"></i>Archives<span class="badge">2</span></a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags" rel="section"><i class="fa fa-fw fa-tags"></i>Tags<span class="badge">4</span></a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about" rel="section"><i class="fa fa-fw fa-user"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-fw fa-sitemap"></i>Sitemap</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="search-pop-overlay">
+  <div class="popup search-popup">
+      <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+  </div>
+</div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="https://primemhd.tech/2019/12/28/OpenVINO%E5%A4%A7%E5%B8%88/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Mi HD">
+      <meta itemprop="description" content="Progress Day By Day">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Primemhd小栈">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          OpenVINO大师
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2019-12-28 14:41:34" itemprop="dateCreated datePublished" datetime="2019-12-28T14:41:34+08:00">2019-12-28</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-03-19 22:43:49" itemprop="dateModified" datetime="2020-03-19T22:43:49+08:00">2020-03-19</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">机器学习</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2019/12/28/OpenVINO%E5%A4%A7%E5%B8%88/" class="post-meta-item leancloud_visitors" data-flag-title="OpenVINO大师" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine: </span>
+    
+    <a title="valine" href="/2019/12/28/OpenVINO%E5%A4%A7%E5%B8%88/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2019/12/28/OpenVINO%E5%A4%A7%E5%B8%88/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+            <div class="post-description">关于OpenVINO的入门指导，使用python的整个workflow以及重要API</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <html><head></head><body><h1 id="OpenVINO-Workflow"><span class="post-title-index">1. </span><a href="#OpenVINO-Workflow" class="headerlink" title="OpenVINO Workflow"></a>OpenVINO Workflow</h1><p><img src="https://docs.openvinotoolkit.org/latest/workflow_steps.png" alt="workflow_steps.png"></p>
+<h1 id="使用Model-Optimizer"><span class="post-title-index">2. </span><a href="#使用Model-Optimizer" class="headerlink" title="使用Model Optimizer"></a>使用Model Optimizer</h1><h1 id="使用Inference-Engine"><span class="post-title-index">3. </span><a href="#使用Inference-Engine" class="headerlink" title="使用Inference Engine"></a>使用Inference Engine</h1><h2 id="Inference-Engine介绍"><span class="post-title-index">3.1. </span><a href="#Inference-Engine介绍" class="headerlink" title="Inference Engine介绍"></a>Inference Engine介绍</h2><p>详细介绍，请参照官方在线文档：</p>
+<p><a href="https://docs.openvinotoolkit.org/latest/_docs_IE_DG_Deep_Learning_Inference_Engine_DevGuide.html" target="_blank" rel="noopener">Inference Engine Developer Guide Online Doc</a></p>
+<p><code>inference Engine</code>是整个OpenVINO工作流的终端，用于和User Application进行交互。他主要包括两个组件：</p>
+<ul>
+<li><p>Core Inference Engine Libraries</p>
+<ul>
+<li>Read the network(<code>InferenceEngine::CNNNetReader</code>)</li>
+<li>Manipulate network information(<code>InferenceEngine::CNNNetwork</code>)</li>
+<li>Create inference engine core to manage plugins(<code>InferenceEngine::Core</code>)</li>
+<li>Execute and pass inputs and outputs(<code>InferenceEngine::ExecutableNetwork</code>)</li>
+</ul>
+</li>
+<li><p>Device-specific Plugin Libraries</p>
+<p>  对于不同的目标设备，会链接不同的devicce-specific plugin library</p>
+</li>
+</ul>
+<p>在整个OpenVINO工作流中，它接手Model Optimizer产出的IR，然后实例化网络，并根据特定的目标设备加载到plugin中使之成为可执行的网络。python借口最终也是调用C++的inference engine库。</p>
+<p><code>plugin</code>的概念：它是一个软件组件，向上提供统一的API，向下根据具体目标设备有所不同，操纵设备。</p>
+<h2 id="python工作流"><span class="post-title-index">3.2. </span><a href="#python工作流" class="headerlink" title="python工作流"></a>python工作流</h2><h3 id="创建IECore"><span class="post-title-index">3.2.1. </span><a href="#创建IECore" class="headerlink" title="创建IECore"></a>创建IECore</h3><p><code>IECore</code>是Inference Engine的核心，用于管理plugins，提供平台无关的接口。</p>
+<ul>
+<li><p><strong>实例化方法</strong></p>
+  <figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">ie=IECore( xml_config_file=<span class="string">""</span>)</span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">参数：</span></span><br><span class="line"><span class="string">  xml_config_file=默认不指定，这个是IECore的总配置文件，里面会指向plugin的配置文件在哪</span></span><br><span class="line"><span class="string">'''</span></span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p><strong>常用方法</strong></p>
+<ul>
+<li><p><strong>ie.load_network(network, device_name, num_requests, config) 这个方法被用在3.2.3中，把静态网路加载到plugin上</strong></p>
+  <figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">参数:</span></span><br><span class="line"><span class="string">  network= 传入一个实例化的network（非可执行）</span></span><br><span class="line"><span class="string">  device_name=</span></span><br><span class="line"><span class="string">  num_requests=1 整数，infer request to be created的个数</span></span><br><span class="line"><span class="string">  config=None 字典类型，plugin的配置</span></span><br><span class="line"><span class="string">返回值:</span></span><br><span class="line"><span class="string">  返回一个ExecutableNetwork对象</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line">network=IENetwork(model=model_xml, weights=model_bin)</span><br><span class="line">ie=IECore( )</span><br><span class="line">exec_net=ie.load_network(network=network, device_name=<span class="string">"CPU"</span>, num_requests=<span class="number">2</span>)</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p><strong>ie.query_network(network, device_name, config=None) 查询某个静态网络在某个插件上的支持情况</strong></p>
+  <figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">参数：</span></span><br><span class="line"><span class="string">  network=传入一个实例化的静态network</span></span><br><span class="line"><span class="string">  device_name=</span></span><br><span class="line"><span class="string">  config=None 字典类型，插件的配置</span></span><br><span class="line"><span class="string">返回值：</span></span><br><span class="line"><span class="string">  字典{'层的名字':'支持的设备'}</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line">ie.query(network=net, device_name=<span class="string">'CPU'</span>)</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p><strong>还有很多感觉不常用</strong></p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="实例化静态网络IENetwork"><span class="post-title-index">3.2.2. </span><a href="#实例化静态网络IENetwork" class="headerlink" title="实例化静态网络IENetwork"></a>实例化静态网络IENetwork</h3><p>读取IR文件，得到实例化网络对象<code>IENetwork</code>，这个静态网络对象是平台无关的。</p>
+<ul>
+<li><p><strong>实例化方法</strong></p>
+  <figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">network=IENetwork(model=, weights=，init_from_buffer=<span class="literal">False</span>)</span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">参数：</span></span><br><span class="line"><span class="string">  model= xml文件的路径</span></span><br><span class="line"><span class="string">  weights=bin文件的路径</span></span><br><span class="line"><span class="string">  init_from_buffer=False，False代表将model和weights参数作为文件名，True表示将model和weights作为Ptyhon bytes对象</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line">model_xml=<span class="string">"face_recog.xml"</span></span><br><span class="line">model_bin=<span class="string">"facce_recong.bin"</span></span><br><span class="line">network=IENetwork(model=model_xml, weights=model_bin)</span><br><span class="line"></span><br><span class="line"><span class="comment">#另一种情况</span></span><br><span class="line"><span class="keyword">with</span> open(path_to_xml,<span class="string">'rb'</span>) <span class="keyword">as</span> f:</span><br><span class="line">	model_xml=f.read()</span><br><span class="line"><span class="keyword">with</span> open(path_to_bin,<span class="string">'rb'</span>) <span class="keyword">as</span> f:</span><br><span class="line">	model_bin=f.read()</span><br><span class="line"> network=IENetwork(model=model_xml, model=model_bin, init_from_buffer=<span class="literal">True</span>)</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p><strong>数据成员</strong></p>
+<ul>
+<li><p><strong>name：加载网络的名字</strong></p>
+</li>
+<li><p><strong>inputs：字典类型，映射输入层的名字to输入信息InputInfo( precision, layout, shape )</strong></p>
+  <figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">>>> </span>net=IENetwork(model=model_xml, weights=model_bin)</span><br><span class="line"><span class="meta">>>> </span>net.inputs</span><br><span class="line">{<span class="string">'data'</span>:<一个InputInfo对象>}</span><br><span class="line"><span class="comment">#特别提示！这里的'data'只是个例子，不同的网络输入层的名字是不一样的！不要乱套</span></span><br><span class="line"><span class="meta">>>> </span>net.inputs[<span class="string">'data'</span>].shape <span class="comment">#获取输入层的形状</span></span><br><span class="line">[<span class="number">1</span>, <span class="number">3</span>, <span class="number">224</span>, <span class="number">224</span>]</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p><strong>outputs：字典类型，映射输层的名字to输出信息</strong>OutputInfo( precision, layout, shape )</p>
+  <figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">>>>net.outputs</span><br><span class="line">{<span class="string">'prob'</span>:<一个OutputInfo对象>}</span><br><span class="line"><span class="comment">#特别提示！这里的'prob'只是个例子，不同的网络输出层的名字是不一样的！不要乱套</span></span><br><span class="line">>>>net.outputs[<span class="string">'prob'</span>].shape</span><br><span class="line">[<span class="number">1</span>,<span class="number">1000</span>]</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p><strong>batch_size：整数，可修改，影响输入层的shape</strong></p>
+  <figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">>>>net.intputs[<span class="string">'data'</span>].shape</span><br><span class="line">[<span class="number">1</span>, <span class="number">3</span>, <span class="number">224</span>, <span class="number">224</span>]</span><br><span class="line">>>>net.batch_size</span><br><span class="line"><span class="number">1</span></span><br><span class="line">>>>net.batch_size=<span class="number">5</span></span><br><span class="line">>>>net.intputs[<span class="string">'data'</span>].shape</span><br><span class="line">[<span class="number">5</span>, <span class="number">3</span>, <span class="number">224</span>, <span class="number">224</span>]    <span class="comment">#可以看到，输入层的结构已经发生了变化</span></span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p><strong>还有其他数据成员</strong></p>
+</li>
+</ul>
+</li>
+<li><p><strong>常用方法</strong></p>
+<ul>
+<li><p><strong>ienetwork.add_outputs(outputs) 提前截取某层作为一个输出，加入到net.outputs中</strong></p>
+  <figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">参数：</span></span><br><span class="line"><span class="string">  outputs=[层的名字的列表]</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line">>>>net.outputs</span><br><span class="line">{<span class="string">'prob'</span>:<OutputInfo对象>}</span><br><span class="line">>>>net.add_outputs([<span class="string">"conv5_1/dwise"</span>,<span class="string">"conv2_1/expand"</span>])</span><br><span class="line">>>>net.outputs</span><br><span class="line">{<span class="string">'prob'</span>:<OutputInfo对象>, <span class="string">'conv5_1/dwise'</span>:<OutputInfo对象>, <span class="string">'conv2_1/expand'</span>:<OutputInfo对象>}</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p><strong>ienetwork.reshape(input_shapes) 修改输入层的结构，前面已经提过一个通过修改属性batch_size影响输入层结构的方法，这里则提供一个函数直接修改，但是不要乱改哦</strong></p>
+  <figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">参数：</span></span><br><span class="line"><span class="string">  input_shapes=一个字典{'输入层的名字': （n, c, h, w）}</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="comment">#因为输入层的名字不确定，需要先获取一下</span></span><br><span class="line">>>>input_layer_name=next(iter(net.inputs))  <span class="comment">#iter是获得dict的key的迭代器，next则返回第一个</span></span><br><span class="line">>>>n,c,h,w=net.inputs[<span class="string">'input_layer_name'</span>].shape</span><br><span class="line"><span class="comment">#将输入的长和宽乘2</span></span><br><span class="line">>>>net.reshape({input_layer_name:(n, c, <span class="number">2</span>*h, <span class="number">2</span>*w)})</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p><strong>还有其他方法</strong></p>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="将网络加载到plugin获得ExecutableNetwork"><span class="post-title-index">3.2.3. </span><a href="#将网络加载到plugin获得ExecutableNetwork" class="headerlink" title="将网络加载到plugin获得ExecutableNetwork"></a>将网络加载到plugin获得ExecutableNetwork</h3><p>这一步获得<code>ExecutableNetwork</code>的方式不唯一，主要有两种。一种是通过<code>IECore</code>，前面已经说过，IECore是用于管理plugins的。另一种方式不通过IECore，直接操作<code>IEPlugin</code>。</p>
+<h4 id="通过IECore的方式"><span class="post-title-index">3.2.3.1. </span><a href="#通过IECore的方式" class="headerlink" title="通过IECore的方式"></a>通过IECore的方式</h4><p>借助IECore，将现有的静态网络，指定目标设备，加载到plugin中，得到可执行网络。使用的函数见3.2.1。</p>
+<figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">net=IENetwork(model=<span class="string">''</span>, weights=<span class="string">''</span>)</span><br><span class="line">exec_net=ie.load_network(network=net, device_name=<span class="string">'CPU'</span>, num_requests=<span class="number">2</span>)</span><br></pre></td></tr></tbody></table></figure>
+
+
+
+<h4 id="通过IEPlugin这个类"><span class="post-title-index">3.2.3.2. </span><a href="#通过IEPlugin这个类" class="headerlink" title="通过IEPlugin这个类"></a>通过IEPlugin这个类</h4><ul>
+<li><p><strong>实例化方法</strong></p>
+  <figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">ieplugin=IEPlugin(device, plugin_dirs=<span class="literal">None</span>)</span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">参数：</span></span><br><span class="line"><span class="string">  device：字符串类型，有CPU, GPU, FPGA, MYRAID, HETERO, 注意这里是device，iecore里面是device_name</span></span><br><span class="line"><span class="string">  plugin_dirs：列表，plugin目录</span></span><br><span class="line"><span class="string">'''</span></span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p><strong>常用方法</strong></p>
+<ul>
+<li><p><strong>ieplugin.load(network, num_requests=1, config=None)加载静态网络得到可执行网络</strong></p>
+  <figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">参数：</span></span><br><span class="line"><span class="string">  network=静态网络IENetwork实例</span></span><br><span class="line"><span class="string">  num_requests=1</span></span><br><span class="line"><span class="string">  config=None 字典类型，插件的配置</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line">ieplugin=IEPlugin(device=<span class="string">'CPU'</span>)</span><br><span class="line">exec_net=ieplugin.load(network=net, num_requests=<span class="number">2</span>)</span><br><span class="line"><span class="comment">#对比一下可以发现，感觉就是把IECore执行的ie.load_network(network,device_name,num_requests)拆成了两行</span></span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p><strong>ieplugin.get_supported_layers(net) 获得一个静态网络在某插件上受支持的层，和IECore.query_network(network, device_name, config=None)功能接近</strong></p>
+  <figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">参数：</span></span><br><span class="line"><span class="string">  net=静态网络IENetwork实例</span></span><br><span class="line"><span class="string">返回值：</span></span><br><span class="line"><span class="string">  集合，受支持的层</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line">supported_layer=ieplugin.get_supported_layers(net)</span><br></pre></td></tr></tbody></table></figure>
+
+
+
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="构造Inference请求（可选）"><span class="post-title-index">3.2.4. </span><a href="#构造Inference请求（可选）" class="headerlink" title="构造Inference请求（可选）"></a>构造Inference请求（可选）</h3><ul>
+<li><p><strong>实例化方法</strong></p>
+<p>  没有显式构造，它暗藏在<code>ExecutableNetwork</code>的数据成员中。会在构造<code>ExecutableNetwork</code>的时候被指定。</p>
+</li>
+<li><p><strong>数据成员</strong></p>
+<ul>
+<li><p><strong>inputs</strong>：</p>
+<p>  一个字典{输入层的名字:numpy.ndarray}。注意区分<code>IENetwork</code>中的数据成员inputs，那里也是字典，但是由于是静态网络结构，并没有分配真实的空间，所以名字对应的是InputInfo对象仅保存信息。</p>
+</li>
+<li><p><strong>outputs</strong>:</p>
+<p>  跟inputs类似，不再赘述。</p>
+</li>
+</ul>
+</li>
+<li><p><strong>常用方法</strong></p>
+<ul>
+<li><p><strong>infer(inputs=None)开始同步推理</strong></p>
+<p>  ==不建议直接使用InferRequest的infer方法，推荐通过ExecutbleNetwork==</p>
+  <figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">参数：</span></span><br><span class="line"><span class="string">  inputs=None字典类型，{输入层名：输入numpy.ndarray}</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line">exec_net=iecore.load_network(network=net,device_name=<span class="string">'CPU'</span>, num_requests=<span class="number">2</span>)</span><br><span class="line">exec_net.requests[<span class="number">0</span>].infer({<span class="string">'input_layer_name'</span>:image})</span><br><span class="line">res=exec_net.requests[<span class="number">0</span>].outputs[<span class="string">'output_layer_name'</span>]</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p><strong>async_infer(request_id, inputs=None)开始异步推理</strong></p>
+  <figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">参数：</span></span><br><span class="line"><span class="string">  request_id=启动哪一个推理</span></span><br><span class="line"><span class="string">  inputs={输入层名：输入numpy.ndarray}</span></span><br><span class="line"><span class="string">返回值：</span></span><br><span class="line"><span class="string">  该request的handler</span></span><br><span class="line"><span class="string">'''</span></span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p><strong>wait(timeout=-1)等待异步推理的时间</strong></p>
+  <figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">陷入阻塞，直到推理结果可用或者达到了timeout毫秒，注意0和-1有特殊的含义。</span></span><br><span class="line"><span class="string">'''</span></span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p>set_completion_callback(py_callback, py_data=None)</p>
+  <figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">参数：</span></span><br><span class="line"><span class="string">  py_callback=</span></span><br><span class="line"><span class="string">  py_data=None传递给callback的参数</span></span><br><span class="line"><span class="string">'''</span></span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p><strong>set_batch(size)在动态batching模式下为单个request调整batch size</strong></p>
+  <figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">exe_net.requests[<span class="number">0</span>].set_batch(<span class="number">5</span>)</span><br></pre></td></tr></tbody></table></figure>
+</li>
+<li><p><strong>一个综合的例子</strong></p>
+  <figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">callback=<span class="keyword">lambda</span> status, py_data: print(<span class="string">"Request with id {} finished with status {}"</span>.format(py_data,status))</span><br><span class="line"><span class="keyword">for</span> id, req <span class="keyword">in</span> enumerate(exec_net.requests):</span><br><span class="line">      req.set_completion_callback(py_callback=callback, py_data=id)</span><br><span class="line"><span class="keyword">for</span> req <span class="keyword">in</span> exec_net.request:</span><br><span class="line">        req.async_infer({<span class="string">'data'</span>:img})</span><br></pre></td></tr></tbody></table></figure>
+
+
+
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="使用ExecutableNetwork进行推理"><span class="post-title-index">3.2.5. </span><a href="#使用ExecutableNetwork进行推理" class="headerlink" title="使用ExecutableNetwork进行推理"></a>使用ExecutableNetwork进行推理</h3><p><code>ExecutableNetwork</code>代表这已经加载到plugin上的网络实例，准备好用于inference了。</p>
+<p><code>excel</code></p>
+<h4 id="同步推理"><span class="post-title-index">3.2.5.1. </span><a href="#同步推理" class="headerlink" title="同步推理"></a>同步推理</h4><ul>
+<li><p><strong>infer(inputs=None)开始exec_net的同步推理</strong></p>
+  <figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">res=exec_net.infer({<span class="string">'data'</span>:images})</span><br><span class="line"><span class="comment">#res得到的就是requests.outputs</span></span><br></pre></td></tr></tbody></table></figure>
+
+
+
+</li>
+</ul>
+<h4 id="异步推理"><span class="post-title-index">3.2.5.2. </span><a href="#异步推理" class="headerlink" title="异步推理"></a>异步推理</h4><ul>
+<li><p><strong>start_async(request_id, inputs=None)开始exec_net的某个request的异步推理，是对InferRequest的异步推理方法的封装</strong></p>
+  <figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">返回值：</span></span><br><span class="line"><span class="string">  是该request的handler</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line">infer_req_handler=exec_net.start_async(request_id=<span class="number">1</span>, inputs={<span class="string">'data'</span>:imgs})</span><br><span class="line">infer_req_handler.wait()</span><br><span class="line">res=infer_req_handler.outputs[<span class="string">'output_layer_name'</span>]</span><br><span class="line"><span class="comment">#也可以通过exec_net.request[request_id].outputs来直接得到推理结果</span></span><br></pre></td></tr></tbody></table></figure>
+
+
+
+</li>
+</ul>
+<h3 id="准备输入输出格式"><span class="post-title-index">3.2.6. </span><a href="#准备输入输出格式" class="headerlink" title="准备输入输出格式"></a>准备输入输出格式</h3><p>一般人们常用的输入的维度为：<code>n, h, w, c</code>，但是<code>Inference Engine</code>采用的数据顺序为：<code>n, c, h, w</code></p>
+<p>所以通过opencv的<code>cv2</code>模块读取进来的图像需要做顺序的调整。</p>
+<figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(n):</span><br><span class="line">    image=cv2.imread(args.input[i])<span class="comment">#将图片转化为矩阵</span></span><br><span class="line">    <span class="keyword">if</span> image.shape[:<span class="number">-1</span>] !=(h, w):</span><br><span class="line">        <span class="comment">#调整图片大小</span></span><br><span class="line">        <span class="comment">#应该是先padding再resize</span></span><br><span class="line">        image=cv2.resize(image,(w,h))  <span class="comment">#注意cv2的维度顺序，太狗了！</span></span><br><span class="line">    image=image.transpose((<span class="number">2</span>,<span class="number">0</span>,<span class="number">1</span>)) <span class="comment">#从HWC换成CHW</span></span><br><span class="line">    images[i]=image</span><br><span class="line"><span class="comment">#整理之后的images可以作为输入了</span></span><br></pre></td></tr></tbody></table></figure>
+
+
+
+<h3 id="开始推理"><span class="post-title-index">3.2.7. </span><a href="#开始推理" class="headerlink" title="开始推理"></a>开始推理</h3><h1 id="Trouble-Shooting"><span class="post-title-index">4. </span><a href="#Trouble-Shooting" class="headerlink" title="Trouble Shooting"></a>Trouble Shooting</h1><h2 id="运行环境问题"><span class="post-title-index">4.1. </span><a href="#运行环境问题" class="headerlink" title="运行环境问题"></a>运行环境问题</h2><h3 id="用python2-7或者python3-6时导入openvino报错"><span class="post-title-index">4.1.1. </span><a href="#用python2-7或者python3-6时导入openvino报错" class="headerlink" title="用python2.7或者python3.6时导入openvino报错"></a>用<code>python2.7</code>或者<code>python3.6</code>时导入openvino报错</h3><ul>
+<li><p><strong>问题原因</strong></p>
+<p>  在设置环境变量的时候，默认是以python3.7作为支持的版本，如果需要使用其他版本的python就会出现不匹配的情况。</p>
+</li>
+<li><p><strong>解决方法</strong></p>
+<p>  在shell中设置环境变量的时候指定python的版本。通过<code>-pyver</code>选项。</p>
+  <figure class="highlight shell"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">source /opt/intel/openvino/bin/setupvars.sh -pyver 2.7</span><br></pre></td></tr></tbody></table></figure>
+
+</li>
+</ul>
+</body></html>
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div>Thanks for buying me a cup of coffee!</div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wxpay.png" alt="Mi HD WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.png" alt="Mi HD Alipay">
+        <p>Alipay</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:  </strong>Mi HD
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link: </strong>
+    <a href="https://primemhd.tech/2019/12/28/OpenVINO%E5%A4%A7%E5%B8%88/" title="OpenVINO大师">https://primemhd.tech/2019/12/28/OpenVINO大师/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/en" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" rel="tag"><i class="fa fa-tag"></i> 机器学习</a>
+              <a href="/tags/OpenVINO/" rel="tag"><i class="fa fa-tag"></i> OpenVINO</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2019/09/22/interview-cpp/" rel="prev" title="面试知识：C++">
+      <i class="fa fa-chevron-left"></i> 面试知识：C++
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#OpenVINO-Workflow"><span class="nav-number">1.</span> <span class="nav-text">1. OpenVINO Workflow</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#使用Model-Optimizer"><span class="nav-number">2.</span> <span class="nav-text">2. 使用Model Optimizer</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#使用Inference-Engine"><span class="nav-number">3.</span> <span class="nav-text">3. 使用Inference Engine</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Inference-Engine介绍"><span class="nav-number">3.1.</span> <span class="nav-text">3.1. Inference Engine介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#python工作流"><span class="nav-number">3.2.</span> <span class="nav-text">3.2. python工作流</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#创建IECore"><span class="nav-number">3.2.1.</span> <span class="nav-text">3.2.1. 创建IECore</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实例化静态网络IENetwork"><span class="nav-number">3.2.2.</span> <span class="nav-text">3.2.2. 实例化静态网络IENetwork</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#将网络加载到plugin获得ExecutableNetwork"><span class="nav-number">3.2.3.</span> <span class="nav-text">3.2.3. 将网络加载到plugin获得ExecutableNetwork</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#通过IECore的方式"><span class="nav-number">3.2.3.1.</span> <span class="nav-text">3.2.3.1. 通过IECore的方式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#通过IEPlugin这个类"><span class="nav-number">3.2.3.2.</span> <span class="nav-text">3.2.3.2. 通过IEPlugin这个类</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#构造Inference请求（可选）"><span class="nav-number">3.2.4.</span> <span class="nav-text">3.2.4. 构造Inference请求（可选）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用ExecutableNetwork进行推理"><span class="nav-number">3.2.5.</span> <span class="nav-text">3.2.5. 使用ExecutableNetwork进行推理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#同步推理"><span class="nav-number">3.2.5.1.</span> <span class="nav-text">3.2.5.1. 同步推理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#异步推理"><span class="nav-number">3.2.5.2.</span> <span class="nav-text">3.2.5.2. 异步推理</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#准备输入输出格式"><span class="nav-number">3.2.6.</span> <span class="nav-text">3.2.6. 准备输入输出格式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#开始推理"><span class="nav-number">3.2.7.</span> <span class="nav-text">3.2.7. 开始推理</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Trouble-Shooting"><span class="nav-number">4.</span> <span class="nav-text">4. Trouble Shooting</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#运行环境问题"><span class="nav-number">4.1.</span> <span class="nav-text">4.1. 运行环境问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#用python2-7或者python3-6时导入openvino报错"><span class="nav-number">4.1.1.</span> <span class="nav-text">4.1.1. 用python2.7或者python3.6时导入openvino报错</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Mi HD"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Mi HD</p>
+  <div class="site-description" itemprop="description">Progress Day By Day</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+        
+          <span class="site-state-item-count">2</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/PrimeMHD" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;PrimeMHD" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:primemhd@foxmail.com" title="E-Mail → mailto:primemhd@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-fw fa-rss"></i>RSS</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://instagram.com/intelligent.mi" title="Instagram → https:&#x2F;&#x2F;instagram.com&#x2F;intelligent.mi" rel="noopener" target="_blank"><i class="fa fa-fw fa-instagram"></i>Instagram</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/en" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mi HD</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.2
+  </div><script color="0,0,255" opacity="0.5" zIndex="-1" count="99" src="https://cdn.jsdelivr.net/npm/canvas-nest.js@1/dist/canvas-nest.js"></script>
+
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script size="300" alpha="0.6" zIndex="-1" src="//cdn.jsdelivr.net/gh/theme-next/theme-next-canvas-ribbon@1/canvas-ribbon.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : true,
+      notify     : true,
+      appId      : 'P8FEvuQgjEvJlyauAdThzmno-gzGzoHsz',
+      appKey     : 'Y6y7RduGPwDw9Yl8n7Xq1ldg',
+      placeholder: "Just go go",
+      avatar     : 'monsterid',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : true,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>
