@@ -320,7 +320,7 @@
 <li><p>所有成员从同一内存开始，union共用体的大小为其中占空间最大的成员的大小。</p>
 </li>
 <li><p>给共用体的一个成员赋值之后，会覆盖其他成员的值，因此只有最后一次存放的成员是有效的。</p>
-<p><img src="interview-cpp/1567838897988.png" alt="1567838897988"></p>
+<p><img src="/.tech//1567838897988.png" alt="1567838897988"></p>
 </li>
 </ul>
 <figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">/*通过union来判断机器是大端序还是小端序*/</span></span><br><span class="line"><span class="keyword">union</span> data{</span><br><span class="line">  <span class="keyword">int</span> a;</span><br><span class="line">  <span class="keyword">char</span> b;</span><br><span class="line">};</span><br><span class="line"></span><br><span class="line"><span class="keyword">union</span> data d;</span><br><span class="line">d.a=<span class="number">0x11223344</span>;</span><br><span class="line"><span class="keyword">if</span>(d.b==<span class="number">0x11</span>){</span><br><span class="line">    <span class="built_in">cout</span><<<span class="string">"大端序"</span><<<span class="built_in">endl</span>;</span><br><span class="line">}<span class="keyword">else</span> <span class="keyword">if</span>(d.b==<span class="number">0x44</span>){</span><br><span class="line">    <span class="built_in">cout</span><<<span class="string">"小端序"</span><<<span class="built_in">endl</span>;</span><br><span class="line">}<span class="keyword">else</span>{</span><br><span class="line">    <span class="built_in">cout</span><<<span class="string">"这段程序错误"</span><<<span class="built_in">endl</span>;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
@@ -374,7 +374,7 @@
 <li>栈：栈和C程序的栈相同。<br>C和C++的内存布局大致上是相同的，主要区别在于C++引进了对象，C++对象中的成员函数存储在代码段中，数据成员才会存储在栈中，同样静态变量会存储在在全局/静态存储区，并且必须初始化。当然C++对象内存布局会涉及到继承，多态而出现多种变化，以及内存对齐的影响。</li>
 </ul>
 <p><strong>C函数栈帧的样子</strong></p>
-<img src="interview-cpp/1568560299990.png" alt="1568560299990" style="zoom:50%;">
+<img src="/.tech//1568560299990.png" alt="1568560299990" style="zoom:50%;">
 
 <h3 id="C-中的变量"><span class="post-title-index">1.1.3. </span><a href="#C-中的变量" class="headerlink" title="C++中的变量"></a>C++中的变量</h3><table>
 <thead>
@@ -503,7 +503,7 @@
 <p>含有虚函数的类，其对象中包含一个<code>_vfptr</code>，这是一个<code>指向数组（即虚函数表）的指针</code></p>
 </blockquote>
 <p>*<em>一个类的不同对象，共用一份虚函数表。 *</em></p>
-<p><img src="interview-cpp/1568601998932.png" alt="1568601998932"></p>
+<p><img src="/.tech//1568601998932.png" alt="1568601998932"></p>
 <h2 id="STL专题"><span class="post-title-index">1.4. </span><a href="#STL专题" class="headerlink" title="STL专题"></a>STL专题</h2><h3 id="分类"><span class="post-title-index">1.4.1. </span><a href="#分类" class="headerlink" title="分类"></a>分类</h3><ul>
 <li><p>顺序容器(Sequence Container)</p>
 <ul>
@@ -559,7 +559,7 @@
 </li>
 <li><p><strong>C++11中新定义了右值引用</strong></p>
 <p>临时对象即将消亡，但里面的数据还是要用的，所以用移动构造</p>
-<p><img src="interview-cpp/6634703-5168dde8f970e1f6.webp" alt="img"></p>
+<p><img src="/.tech//6634703-5168dde8f970e1f6.webp" alt="img"></p>
 </li>
 </ul>
 <h4 id="移动语义"><span class="post-title-index">1.5.1.3. </span><a href="#移动语义" class="headerlink" title="移动语义"></a>移动语义</h4><ul>
