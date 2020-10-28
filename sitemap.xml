@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://primemhd.tech/about/index.html</loc>
+    
+    <lastmod>2020-10-28</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://primemhd.tech/%E5%AE%9D%E8%97%8F%E8%B5%84%E6%BA%90.html</loc>
     
     <lastmod>2020-10-28</lastmod>
@@ -19,13 +26,6 @@
     <loc>https://primemhd.tech/b%E7%AB%99%E7%BE%A4%E4%BD%93%E8%A7%A3%E6%9E%84.html</loc>
     
     <lastmod>2020-04-21</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://primemhd.tech/about/index.html</loc>
-    
-    <lastmod>2020-03-20</lastmod>
     
   </url>
   
