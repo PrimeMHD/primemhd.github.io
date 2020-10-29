@@ -49,13 +49,13 @@ x_{i\times strides+u,j\times strides+v} & &{(i\times strides+u,j\times strides+v
 <script type="math/tex; mode=display">
   \pmb{Y}\in \mathbb{R}^{YH\times YW}</script><h2 id="求偏导"><span class="post-title-index">3.2. </span><a href="#求偏导" class="headerlink" title="求偏导"></a>求偏导</h2><script type="math/tex; mode=display">
 \begin{aligned}
-\frac{\partial f(\pmb{Y})}{\partial w_{u,v}}
-&= \sum_{i=0}^{YH-1}\sum_{j=0}^{YW-1}\frac{\partial y_{i,j}}{\partial w_{u,v}}\frac{\partial f(\pmb{Y})}{\partial y_{i,j}} \\
-&= \sum_{i=0}^{YH-1}\sum_{j=0}^{YW-1} x_{i\times strides+u,j\times strides+v}^{'} \frac{\partial f(\pmb{Y})}{\partial y_{i,j}}\end{aligned}</script><script type="math/tex; mode=display">
+\frac{\part f(\pmb{Y})}{\part w_{u,v}}
+&= \sum_{i=0}^{YH-1}\sum_{j=0}^{YW-1}\frac{\part y_{i,j}}{\part w_{u,v}}\frac{\part f(\pmb{Y})}{\part y_{i,j}} \\
+&= \sum_{i=0}^{YH-1}\sum_{j=0}^{YW-1} x_{i\times strides+u,j\times strides+v}^{'} \frac{\part f(\pmb{Y})}{\part y_{i,j}}\end{aligned}</script><script type="math/tex; mode=display">
 \begin{aligned}
-\frac{\partial f(\pmb{Y})}{\partial x_{s,t}}
-&= \sum_{i=0}^{YH-1}\sum_{j=0}^{YW-1}\frac{\partial y_{i,j}}{\partial x_{s,t}}\frac{\partial f(\pmb{Y})}{\partial y_{i,j}} \\
-&= \sum_{i=0}^{YH-1}\sum_{j=0}^{YW-1} w_{s-i\times strides,t-j\times strides} \frac{\partial f(\pmb{Y})}{\partial y_{i,j}}\end{aligned}</script><h1 id="基于Direct-Conv的卷积层实现"><span class="post-title-index">4. </span><a href="#基于Direct-Conv的卷积层实现" class="headerlink" title="基于Direct Conv的卷积层实现"></a>基于Direct Conv的卷积层实现</h1><p>==未完待续(稍后再转成markdown)==</p>
+\frac{\part f(\pmb{Y})}{\part x_{s,t}}
+&= \sum_{i=0}^{YH-1}\sum_{j=0}^{YW-1}\frac{\part y_{i,j}}{\part x_{s,t}}\frac{\part f(\pmb{Y})}{\part y_{i,j}} \\
+&= \sum_{i=0}^{YH-1}\sum_{j=0}^{YW-1} w_{s-i\times strides,t-j\times strides} \frac{\part f(\pmb{Y})}{\part y_{i,j}}\end{aligned}</script><h1 id="基于Direct-Conv的卷积层实现"><span class="post-title-index">4. </span><a href="#基于Direct-Conv的卷积层实现" class="headerlink" title="基于Direct Conv的卷积层实现"></a>基于Direct Conv的卷积层实现</h1><p>==未完待续(稍后再转成markdown)==</p>
 <p><img src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/20201029152932_conv.png" alt="image-20201029152924926"></p>
 <div id="refer-anchor"></div>
 
