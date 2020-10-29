@@ -29,13 +29,11 @@
 <meta property="og:site_name" content="Primemhd妙妙屋">
 <meta property="og:description" content="Direct Convolution（直接卷积）的数学推导，为使用C语言实现CNN提供指导。">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/20201029152932_conv.png">
 <meta property="article:published_time" content="2020-10-29T07:48:02.000Z">
-<meta property="article:modified_time" content="2020-10-29T07:59:50.813Z">
+<meta property="article:modified_time" content="2020-10-29T11:42:02.077Z">
 <meta property="article:author" content="Mi HD">
 <meta property="article:tag" content="机器学习">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/20201029152932_conv.png">
 
 <link rel="canonical" href="https://primemhd.tech/DirectConv%E7%9B%B4%E6%8E%A5%E5%8D%B7%E7%A7%AF.html">
 
@@ -239,7 +237,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2020-10-29 15:48:02 / Modified: 15:59:50" itemprop="dateCreated datePublished" datetime="2020-10-29T15:48:02+08:00">2020-10-29</time>
+              <time title="Created: 2020-10-29 15:48:02 / Modified: 19:42:02" itemprop="dateCreated datePublished" datetime="2020-10-29T15:48:02+08:00">2020-10-29</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -336,9 +334,29 @@ x_{i\times strides+u,j\times strides+v} & &{(i\times strides+u,j\times strides+v
 \begin{aligned}
 \frac{\partial f(\pmb{Y})}{\partial x_{s,t}}
 &= \sum_{i=0}^{YH-1}\sum_{j=0}^{YW-1}\frac{\partial y_{i,j}}{\partial x_{s,t}}\frac{\partial f(\pmb{Y})}{\partial y_{i,j}} \\
-&= \sum_{i=0}^{YH-1}\sum_{j=0}^{YW-1} w_{s-i\times strides,t-j\times strides} \frac{\partial f(\pmb{Y})}{\partial y_{i,j}}\end{aligned}</script><h1 id="基于Direct-Conv的卷积层实现"><span class="post-title-index">4. </span><a href="#基于Direct-Conv的卷积层实现" class="headerlink" title="基于Direct Conv的卷积层实现"></a>基于Direct Conv的卷积层实现</h1><p>==未完待续(稍后再转成markdown)==</p>
-<p><img src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/20201029152932_conv.png" alt="image-20201029152924926"></p>
-<div id="refer-anchor"></div>
+&= \sum_{i=0}^{YH-1}\sum_{j=0}^{YW-1} w_{s-i\times strides,t-j\times strides} \frac{\partial f(\pmb{Y})}{\partial y_{i,j}}\end{aligned}</script><h1 id="基于Direct-Conv的卷积层实现"><span class="post-title-index">4. </span><a href="#基于Direct-Conv的卷积层实现" class="headerlink" title="基于Direct Conv的卷积层实现"></a>基于Direct Conv的卷积层实现</h1><blockquote>
+<p>本章的<code>卷积层</code>，是借助前一章的<code>卷积</code>操作，两者有区别和联系。</p>
+<p>注意：第4章中的卷积核$\pmb{W}$、数据$\pmb{X}$的形状和第3章中的差别。第3章的$\pmb{W}$和$\pmb{X}$都是二维的，第4张到了卷积层这里，$\pmb{X}$是三维的（加上了通道）。但是不影响，实际做的时候就还是每个通道分别做二维卷积，然后求个和。</p>
+</blockquote>
+<h2 id="正向传播"><span class="post-title-index">4.1. </span><a href="#正向传播" class="headerlink" title="正向传播"></a>正向传播</h2><p>卷积层有两种设计方法，</p>
+<ul>
+<li><p>卷积层=激活（卷积+偏置）</p>
+</li>
+<li><p>卷积层=卷积+偏置</p>
+</li>
+</ul>
+<p>tensorflow里的卷积层是有个activation的选项，也就是第一种。我手撸的python版本的CNN中激活层是单独的，是第二种。</p>
+<p>以第$l$层为例：</p>
+<p>该层的输入为：$\pmb{X}\in \mathbb{R}^{M\times N\times D}$</p>
+<p>该层的权重为：$\pmb{W}\in \mathbb{R}^{P\times U\times V\times D}$</p>
+<p>$P$是卷积核的个数，$M$、$N$是该层输入的高和宽，$U$、$V$分别是卷积核的高和宽，$D$是通道数。</p>
+<p>第$p$个卷积核，对输入$\pmb{X}$进行卷积偏置，计算输出的feature map的方式为：</p>
+<script type="math/tex; mode=display">
+\pmb{Z}^{(l,p)}=\sum_{d=1}^D\pmb{W}^{(l,p,d)}\pmb{\otimes} \pmb{X}^{(l-1,d)}+b^{(l,p)}</script><p>就是每个通道上执行卷积的operation（参照公式5），然后求和。</p>
+<h2 id="反向传播"><span class="post-title-index">4.2. </span><a href="#反向传播" class="headerlink" title="反向传播"></a>反向传播</h2><script type="math/tex; mode=display">
+\frac{\partial \mathcal{L}}{\partial w_{u,v}}=\sum_{i=0}^{ZH-1}\sum_{j=0}^{ZW-1}x_{i\times strides+u,j\times strides+v}\frac{\partial\mathcal{L}}{\partial z_{i,j}}</script><script type="math/tex; mode=display">
+\frac{\partial \mathcal{L}}{\partial b}=\sum_{i=0}^{ZH-1}\sum_{j=0}^{ZW-1}\frac{\partial \mathcal{L}}{\partial z_{i,j}}</script><script type="math/tex; mode=display">
+\frac{\partial \mathcal{L}}{\partial x_{s,t}}=\sum_{i=0}^{ZH-1}\sum_{j=0}^{ZW-1}w_{s-i\times strides,t-j\times strides}\frac{\partial \mathcal{L}}{\partial z_{i,j}}</script><div id="refer-anchor"></div>
 
 <h1 id="参考资料"><span class="post-title-index">5. </span><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p>[1] <a href="https://nndl.github.io/" target="_blank" rel="noopener">《神经网络与深度学习》</a>邱锡鹏</p>
 <p>[2] 《深度学习入门——基于Python的理论与实现》斋藤康毅</p>
@@ -463,7 +481,7 @@ x_{i\times strides+u,j\times strides+v} & &{(i\times strides+u,j\times strides+v
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#本文的由来"><span class="nav-number">1.</span> <span class="nav-text">1. 本文的由来</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#烂大街的im2col"><span class="nav-number">2.</span> <span class="nav-text">2. 烂大街的im2col</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Direct-Conv的数学推导"><span class="nav-number">3.</span> <span class="nav-text">3. Direct Conv的数学推导</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#正向计算"><span class="nav-number">3.1.</span> <span class="nav-text">3.1. 正向计算</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#求偏导"><span class="nav-number">3.2.</span> <span class="nav-text">3.2. 求偏导</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#基于Direct-Conv的卷积层实现"><span class="nav-number">4.</span> <span class="nav-text">4. 基于Direct Conv的卷积层实现</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考资料"><span class="nav-number">5.</span> <span class="nav-text">5. 参考资料</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#本文的由来"><span class="nav-number">1.</span> <span class="nav-text">1. 本文的由来</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#烂大街的im2col"><span class="nav-number">2.</span> <span class="nav-text">2. 烂大街的im2col</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Direct-Conv的数学推导"><span class="nav-number">3.</span> <span class="nav-text">3. Direct Conv的数学推导</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#正向计算"><span class="nav-number">3.1.</span> <span class="nav-text">3.1. 正向计算</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#求偏导"><span class="nav-number">3.2.</span> <span class="nav-text">3.2. 求偏导</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#基于Direct-Conv的卷积层实现"><span class="nav-number">4.</span> <span class="nav-text">4. 基于Direct Conv的卷积层实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#正向传播"><span class="nav-number">4.1.</span> <span class="nav-text">4.1. 正向传播</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#反向传播"><span class="nav-number">4.2.</span> <span class="nav-text">4.2. 反向传播</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考资料"><span class="nav-number">5.</span> <span class="nav-text">5. 参考资料</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
