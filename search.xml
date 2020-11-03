@@ -173,7 +173,7 @@ w_{s-i\times strides+padding,t-j\times strides+padding} & &{(s-i\times strides+p
 </ul>
 <p>在教程资源方面，本着「学新不学旧」的原则，涉及代码的只关注<code>Tensorflow 2.0</code>以上的教程。其他一些库的教程，同样是学习相对较新的版本。</p>
 <h2 id="Tensorflow-2-0-无痛教程"><span class="post-title-index">2.1. </span><a href="#Tensorflow-2-0-无痛教程" class="headerlink" title="Tensorflow 2.0 无痛教程"></a>Tensorflow 2.0 无痛教程</h2><p>在“机器之心”<a href="https://mp.weixin.qq.com/s/ARcR-xg4i8eV5n2BAkcoCg" target="_blank" rel="noopener">公众号</a>上看到的，北京吃饭大学学霸出品。</p>
-<p><img src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/20201029163537.png" alt="img"></p>
+<p><img src="https://mmbiz.qpic.cn/mmbiz_png/KmXPKA19gW8N2sqn6vibgNIV1cz8flqNiaOq1icaPPnM8YMeFhDibuickEvJHCs11UI6EumbUibtKCsmHZiawJpDsaicyg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" alt="img"></p>
 <p>开源电子书：<a href="https://lyhue1991.github.io/eat_tensorflow2_in_30_days/" target="_blank" rel="noopener">https://lyhue1991.github.io/eat_tensorflow2_in_30_days/</a></p>
 <p>github项目地址：<a href="https://github.com/lyhue1991/eat_tensorflow2_in_30_days" target="_blank" rel="noopener">https://github.com/lyhue1991/eat_tensorflow2_in_30_days</a></p>
 <h2 id="《动手深度学习》配套教程"><span class="post-title-index">2.2. </span><a href="#《动手深度学习》配套教程" class="headerlink" title="《动手深度学习》配套教程"></a>《动手深度学习》配套教程</h2><p><img src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/20201029163332_handsonml.png" alt="image-20200410162307598"></p>
