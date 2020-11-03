@@ -34,11 +34,11 @@
 <script type="math/tex; mode=display">
 \pmb{Y}=\pmb{W\otimes X}</script><p>$\pmb{X}$是input feature map，$\pmb{Y}$是output feature map，也是二维的矩阵。</p>
 <script type="math/tex; mode=display">
-y_{i,j}=\sum_{u=0}^{U-1}\sum_{v=0}^{V-1}w_{u,v}\times x_{i\times strides+u,j\times strides+v}^{'}</script><script type="math/tex; mode=display">
-x_{i\times strides+u,j\times strides+v}^{'}=
+y_{i,j}=\sum_{u=0}^{U-1}\sum_{v=0}^{V-1}w_{u,v}\times x_{-padding+i\times strides+u,-padding+j\times strides+v}^{'}</script><script type="math/tex; mode=display">
+x_{-padding+i\times strides+u,-padding+j\times strides+v}^{'}=
 \left\{
 \begin{array}{rcl}
-x_{i\times strides+u,j\times strides+v} & &{(i\times strides+u,j\times strides+v)在\pmb{X}坐标范围内}\\
+x_{-padding+i\times strides+u,-padding+j\times strides+v} & &{(-padding+i\times strides+u,-padding+j\times strides+v)在\pmb{X}坐标范围内}\\
 0     &      & \text{else}\\
 \end{array} \right.</script></li>
 </ul>
@@ -51,11 +51,11 @@ x_{i\times strides+u,j\times strides+v} & &{(i\times strides+u,j\times strides+v
 \begin{aligned}
 \frac{\partial f(\pmb{Y})}{\partial w_{u,v}}
 &= \sum_{i=0}^{YH-1}\sum_{j=0}^{YW-1}\frac{\partial y_{i,j}}{\partial w_{u,v}}\frac{\partial f(\pmb{Y})}{\partial y_{i,j}} \\
-&= \sum_{i=0}^{YH-1}\sum_{j=0}^{YW-1} x_{i\times strides+u,j\times strides+v}^{'} \frac{\partial f(\pmb{Y})}{\partial y_{i,j}}\end{aligned}</script><script type="math/tex; mode=display">
+&= \sum_{i=0}^{YH-1}\sum_{j=0}^{YW-1} x_{-padding+i\times strides+u,-padding+j\times strides+v}^{'} \frac{\partial f(\pmb{Y})}{\partial y_{i,j}}\end{aligned}</script><script type="math/tex; mode=display">
 \begin{aligned}
 \frac{\partial f(\pmb{Y})}{\partial x_{s,t}}
 &= \sum_{i=0}^{YH-1}\sum_{j=0}^{YW-1}\frac{\partial y_{i,j}}{\partial x_{s,t}}\frac{\partial f(\pmb{Y})}{\partial y_{i,j}} \\
-&= \sum_{i=0}^{YH-1}\sum_{j=0}^{YW-1} w_{s-i\times strides,t-j\times strides} \frac{\partial f(\pmb{Y})}{\partial y_{i,j}}\end{aligned}</script><h1 id="基于Direct-Conv的卷积层实现"><span class="post-title-index">4. </span><a href="#基于Direct-Conv的卷积层实现" class="headerlink" title="基于Direct Conv的卷积层实现"></a>基于Direct Conv的卷积层实现</h1><blockquote>
+&= \sum_{i=0}^{YH-1}\sum_{j=0}^{YW-1} w_{s-i\times strides+padding,t-j\times strides+padding} \frac{\partial f(\pmb{Y})}{\partial y_{i,j}}\end{aligned}</script><h1 id="基于Direct-Conv的卷积层实现"><span class="post-title-index">4. </span><a href="#基于Direct-Conv的卷积层实现" class="headerlink" title="基于Direct Conv的卷积层实现"></a>基于Direct Conv的卷积层实现</h1><blockquote>
 <p>本章的<code>卷积层</code>，是借助前一章的<code>卷积</code>操作，两者有区别和联系。</p>
 <p>注意：第4章中的卷积核$\pmb{W}$、数据$\pmb{X}$的形状和第3章中的差别。第3章的$\pmb{W}$和$\pmb{X}$都是二维的，第4张到了卷积层这里，$\pmb{X}$是三维的（加上了通道）。但是不影响，实际做的时候就还是每个通道分别做二维卷积，然后求个和。</p>
 </blockquote>
