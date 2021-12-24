@@ -1,9 +1,337 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>智能计算系统实验总结</title>
+    <url>/%E6%99%BA%E8%83%BD%E8%AE%A1%E7%AE%97%E7%B3%BB%E7%BB%9F%E5%AE%9E%E9%AA%8C%E6%80%BB%E7%BB%93.html</url>
+    <content><![CDATA[<html><head></head><body><h1 id="实验"><span class="post-title-index">1. </span><a href="#实验" class="headerlink" title="实验"></a>实验</h1><h2 id="第二章：从MLP入手"><span class="post-title-index">1.1. </span><a href="#第二章：从MLP入手" class="headerlink" title="第二章：从MLP入手"></a>第二章：从MLP入手</h2><h3 id="python神经网络"><span class="post-title-index">1.1.1. </span><a href="#python神经网络" class="headerlink" title="python神经网络"></a>python神经网络</h3><p>python实现简单的三层神经网络，用于手写数字识别任务。</p>
+<p>类似于斋藤的那本书，用python实现神经网络的各个层，包括前向、后向、参数更新等基础功能。</p>
+<p>然后上层写一个类完成网络组合、数据加载、推导等过程。</p>
+<h3 id="依然是python，但基于pycnml使用DLP"><span class="post-title-index">1.1.2. </span><a href="#依然是python，但基于pycnml使用DLP" class="headerlink" title="依然是python，但基于pycnml使用DLP"></a>依然是python，但基于pycnml使用DLP</h3><p>pycnml的地位大概就类似tensorflow-python。</p>
+<p>深度学习编程库 pycnml，通过调用 DLP 上 CNML 库中的高性能算子实现了全连接层、 卷积层、池化层、ReLU 激活层、Softmax 损失层等常用的网络层的基本功能，并提供了常用 网络层的 Python 接口。pycnml 提供的编程接口可以用于在 DLP 上加速神经网络算法，具体接口说明如表2.2所示。pycnml 用 Python 封装了一个 C++ 类 CnmlNet，该类的成员函数 定义了神经网络中层的创建、网络前向传播、参数加载等操作。</p>
+<figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MLP</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        self.net=pycnml.CnmlNet(<span class="number">16</span>)</span><br><span class="line">        ...</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">build_model</span><span class="params">(self,bs=<span class="number">100</span>,input_size=<span class="number">16</span>*<span class="number">16</span>,hidden=<span class="number">100</span>,out_size=<span class="number">10</span>)</span>:</span></span><br><span class="line">        <span class="comment">#类似1-gen DL框架的风格</span></span><br><span class="line">        self.net.setInputMlpShape(bs, input_size, <span class="number">1</span>, <span class="number">1</span>)</span><br><span class="line">        self.net.createMlpLayer(<span class="string">'fc1'</span>, hidden)</span><br><span class="line">        self.net.createReLuLayer(<span class="string">'relu1'</span>)</span><br><span class="line">        self.net.createMlpLayer(<span class="string">'fc2'</span>,out_class)</span><br><span class="line">        self.net.CreateSoftmaxLayer(<span class="string">'softmax'</span>, axis=<span class="number">1</span>)</span><br></pre></td></tr></tbody></table></figure>
+
+<p>注意，需要先设置env环境变量，才能在DLP上正常执行。</p>
+<figure class="highlight shell"><table><tbody><tr><td class="code"><pre><span class="line">export NEUWARE_HOME=/usr/local/neuware</span><br><span class="line">export PYTHONPATH=$PYTHONPATH</span><br><span class="line">export ATEN_CNML_COREVERSION="MLU200"</span><br><span class="line">export mcore="MLU200"</span><br><span class="line">export PATH=$PATH:$NEUWARE_HOME/bin</span><br><span class="line">export LD_LIBRARY_PATH=$NEUWARE_HOME/lib64</span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="第三章：在CNN上搞事"><span class="post-title-index">1.2. </span><a href="#第三章：在CNN上搞事" class="headerlink" title="第三章：在CNN上搞事"></a>第三章：在CNN上搞事</h2><h3 id="基于python自定义层，实现VGG"><span class="post-title-index">1.2.1. </span><a href="#基于python自定义层，实现VGG" class="headerlink" title="基于python自定义层，实现VGG"></a>基于python自定义层，实现VGG</h3><p>还是使用自己实现的python神经网络层，搭建一个VGG网络，然后再ImageNet上进行推理（1000个class），不含训练。在2-1自定义层的基础上，加上卷积神经网络需要用到的层，如Conv2D, MaxPool2D等。</p>
+<figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">VGG19</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        self.param_layer_name = (</span><br><span class="line">            <span class="string">'conv1_1'</span>, <span class="string">'relu1_1'</span>, <span class="string">'conv1_2'</span>, <span class="string">'relu1_2'</span>, <span class="string">'pool1'</span>,</span><br><span class="line">            <span class="string">'conv2_1'</span>, <span class="string">'relu2_1'</span>, <span class="string">'conv2_2'</span>, <span class="string">'relu2_2'</span>, <span class="string">'pool2'</span>,</span><br><span class="line">            <span class="string">'conv3_1'</span>, <span class="string">'relu3_1'</span>, <span class="string">'conv3_2'</span>, <span class="string">'relu3_2'</span>, <span class="string">'conv3_3'</span>, <span class="string">'relu3_3'</span>, <span class="string">'conv3_4'</span>, <span class="string">'relu3_4'</span>, <span class="string">'pool3'</span>,</span><br><span class="line">            <span class="string">'conv4_1'</span>, <span class="string">'relu4_1'</span>, <span class="string">'conv4_2'</span>, <span class="string">'relu4_2'</span>, <span class="string">'conv4_3'</span>, <span class="string">'relu4_3'</span>, <span class="string">'conv4_4'</span>, <span class="string">'relu4_4'</span>, <span class="string">'pool4'</span>,</span><br><span class="line">            <span class="string">'conv5_1'</span>, <span class="string">'relu5_1'</span>, <span class="string">'conv5_2'</span>, <span class="string">'relu5_2'</span>, <span class="string">'conv5_3'</span>, <span class="string">'relu5_3'</span>, <span class="string">'conv5_4'</span>, <span class="string">'relu5_4'</span>, <span class="string">'pool5'</span>,</span><br><span class="line">            <span class="string">'flatten'</span>, <span class="string">'fc6'</span>, <span class="string">'relu6'</span>, <span class="string">'fc7'</span>, <span class="string">'relu7'</span>, <span class="string">'fc8'</span>, <span class="string">'softmax'</span></span><br><span class="line">        )  </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">build_model</span><span class="params">(self)</span>:</span></span><br><span class="line">        self.layers=OrderedDict()</span><br><span class="line">        self.layers[<span class="string">'conv1_1'</span>]=ConvolutionalLayer(<span class="number">3</span>,<span class="number">3</span>,<span class="number">64</span>,<span class="number">1</span>,<span class="number">1</span>)</span><br><span class="line">        self.layers[<span class="string">'relu1_1'</span>]=ReLULayer()</span><br><span class="line">        ...</span><br><span class="line">        self.update_layer_list=[]</span><br><span class="line">        <span class="keyword">for</span> layer_name <span class="keyword">in</span> self.layers.keys():</span><br><span class="line">            <span class="keyword">if</span> <span class="string">'conv'</span> <span class="keyword">in</span> layer_name <span class="keyword">or</span> <span class="string">'fc'</span> <span class="keyword">in</span> layer_name:</span><br><span class="line">                self.update_layer_list.append(layer_name)</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">forward</span><span class="params">(self)</span>:</span></span><br><span class="line">        current=self.input_image <span class="comment">#先要调用load_data</span></span><br><span class="line">        <span class="keyword">for</span> layer_name <span class="keyword">in</span> self.param_layer_name:</span><br><span class="line">            current=self.layers[layer_name].forward(current)</span><br><span class="line">        <span class="keyword">return</span> current</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="VGG，-基于pycnml"><span class="post-title-index">1.2.2. </span><a href="#VGG，-基于pycnml" class="headerlink" title="VGG， 基于pycnml"></a>VGG， 基于pycnml</h3><p>跟第二章的实验基本是一样的思路，就是从self-defined layers转到pycnml提供的轮子，在DLP上运行，从而体现DLP相对于CPU在推理任务上的优越性。</p>
+<p>这个里面加了一个评估top5的功能，回顾一下工程技巧：</p>
+<figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">is_in_top5</span><span class="params">(self, label)</span>:</span></span><br><span class="line">    in_top1, in_top5 = <span class="literal">False</span>, <span class="literal">False</span></span><br><span class="line">    result = self.net.getOututData() <span class="comment">#先得到网络softmax的结果</span></span><br><span class="line">    prob = sorted(list(result), reverse=<span class="literal">True</span>)[:<span class="number">5</span>] <span class="comment">#1000个类的概率从大到小排列，取top5</span></span><br><span class="line">    <span class="keyword">if</span> result.index(prob[<span class="number">0</span>]) == label:</span><br><span class="line">        <span class="comment">#index是list的一个方法，找到对应值的索引（第一个）</span></span><br><span class="line">        in_top1=<span class="literal">True</span></span><br><span class="line">    <span class="keyword">for</span> p <span class="keyword">in</span> prob:</span><br><span class="line">        <span class="keyword">if</span> result.index(p) == label:</span><br><span class="line">            in_top5=<span class="literal">True</span></span><br><span class="line">    <span class="keyword">return</span> in_top1, in_top5</span><br></pre></td></tr></tbody></table></figure>
+
+<h3 id="VGG-自写python层-，非实时风格迁移实验"><span class="post-title-index">1.2.3. </span><a href="#VGG-自写python层-，非实时风格迁移实验" class="headerlink" title="VGG(自写python层)，非实时风格迁移实验"></a>VGG(自写python层)，非实时风格迁移实验</h3><p>在2.2的基础上的具体场景应用。</p>
+<ul>
+<li>实时风格迁移：训练一个模型，对任意内容的图像都可以生成风格化的图像，实现相对复杂</li>
+<li>非实时风格迁移：对每张输入的内容图像进行训练。</li>
+</ul>
+<p>输入两张图片，目标风格图片+目标内容图片。</p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112211116427.png" alt="image-20211221111643277" style="zoom:50%;">
+
+<p>算法上最为核心的是损失函数的设计，为什么风格损失函数可以表示风格上的接近程度，而内容损失函数可以表示内容上的接近程度。</p>
+<ul>
+<li><strong>内容损失函数</strong></li>
+</ul>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112211117978.png" alt="image-20211221111758925" style="zoom:50%;">
+
+<p>​    每个像素点的差距加起来。</p>
+<p>​    $\bf{X}$是trainable的变量，是需要通过反向传播获得梯度然后做优化的变量。</p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112211122266.png" alt="image-20211221112230207" style="zoom:50%;">
+
+<ul>
+<li><p><strong>风格损失函数</strong></p>
+<p>  风格损失函数更加难以理解了。实验书上含糊的说用的是Gram矩来计算风格特征$\bf{A}$和$\bf{G}$。</p>
+  <img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112211127081.png" alt="image-20211221112709043" style="zoom:50%;">
+
+  <img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211221112841761.png" alt="image-20211221112841761" style="zoom:50%;">
+
+</li>
+</ul>
+<p>​    风格损失函数的梯度为</p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211221113007431.png" alt="image-20211221113007431" style="zoom:50%;">    
+
+<ul>
+<li><p><strong>总的损失函数</strong></p>
+<p>  总的损失函数是风格损失和内容损失的加权和。</p>
+  <img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211221113204183.png" alt="image-20211221113204183" style="zoom:50%;">
+
+</li>
+</ul>
+<p><strong>VGG19使用的是2.1中基于python自定义层实现的VGG</strong>，forward函数增加了输出指定某些中间层结果的功能。</p>
+<p>另外再实现两个计算损失函数的层，<code>content_loss_layer</code>和<code>style_loss_layer</code>.</p>
+<figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ContentLossLayer</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">forward</span><span class="params">(self, input_layer, content_layer)</span>:</span></span><br><span class="line">        <span class="comment">#分别是输入图像和内容图像在第l层上的特征图</span></span><br><span class="line">        N,C,H,W = input_layer.shape</span><br><span class="line">        loss=np.sum((input_layer-content_layer)**<span class="number">2</span>)/(<span class="number">2</span>*N*C*H*W)</span><br><span class="line">        <span class="keyword">return</span> loss</span><br><span class="line">    </span><br><span class="line">vgg = VGG19(param_path=<span class="string">'../imagenet-vgg-verydeep-19.mat'</span>)</span><br><span class="line">vgg.build_model()</span><br><span class="line">vgg.init_model()</span><br><span class="line">vgg.load_model()</span><br><span class="line">content_loss_layer = ContentLossLayer()</span><br><span class="line">style_loss_layer = StyleLossLayer()</span><br></pre></td></tr></tbody></table></figure>
+
+<p>先在vgg19中进行forward，得到中间层的输出，这些中间层的计算结果将参与<code>内容损失</code>和<code>风格损失</code>的计算。</p>
+<figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line">CONTENT_LOSS_LAYERS = [<span class="string">'relu4_2'</span>]</span><br><span class="line">STYLE_LOSS_LAYERS = [<span class="string">'relu1_1'</span>, <span class="string">'relu2_1'</span>, <span class="string">'relu3_1'</span>, <span class="string">'relu4_1'</span>, <span class="string">'relu5_1'</span>]</span><br><span class="line"><span class="keyword">for</span> step <span class="keyword">in</span> range(TRAIN_STEP_NUM):</span><br><span class="line">    content_loss=np.array([]) <span class="comment">#清零</span></span><br><span class="line">    style_loss=np.array([]) <span class="comment">#清零</span></span><br><span class="line">    content_diff = np.zeros(transfer_image.shape) <span class="comment">#内容损失关于X的梯度</span></span><br><span class="line">    style_diff = np.zeros(transfer_image.shape)   <span class="comment">#风格损失关于X的梯度</span></span><br><span class="line">    <span class="comment">##############################################################</span></span><br><span class="line">    transfer_layers = vgg.forward(transfer_image, CONTENT_LOSS_LAYERS+STYLE_LOSS_LAYERS)</span><br><span class="line">    content_layers = vgg.forward(content_image, CONTENT_LOSS_LAYERS)</span><br><span class="line">    style_layers = vgg.forward(style_image, STYLE_LOSS_LAYERS)</span><br><span class="line">    <span class="comment">#上面是中间层的计算结果</span></span><br><span class="line">    <span class="comment">##############################################################</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">#内容损失的forward和backward</span></span><br><span class="line">    <span class="keyword">for</span> layer <span class="keyword">in</span> CONTENT_LOSS_LAYERS:</span><br><span class="line">        current_loss = content_loss_layer.forward(transfer_layers[layer], content_layers[layer]) <span class="comment"># 这一层的损失</span></span><br><span class="line">        content_loss = np.append(content_loss, current_loss) </span><br><span class="line">        <span class="comment">#先存着，后面算平均，虽然！content_loss在训练中没有用到！</span></span><br><span class="line">        </span><br><span class="line">        dloss = content_loss_layer.backward(transfer_layers[layer], content_layers[layer]) <span class="comment">#内容损失函数关于第l层的X的梯度</span></span><br><span class="line">        dloss = vgg.backward(dloss, layer) </span><br><span class="line">        <span class="comment">#从l层一直穿到input层，即内容损失函数（的l层分量）关于tranfer_image的梯度</span></span><br><span class="line">        content_diff += dloss</span><br><span class="line">    <span class="comment">#风格损失函数的省略...</span></span><br><span class="line">    </span><br><span class="line">    image_diff=ALPHA * content_diff / len(CONTENT_LOSS_LAYERS) + BETA * style_diff / len(STYLE_LOSS_LAYERS)</span><br><span class="line">    <span class="comment">#综合损失函数关于input层的transfer_image的梯度。</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">#更新参数</span></span><br><span class="line">    transfer_image = adam_optimizer.update(transfer_image, image_diff)</span><br></pre></td></tr></tbody></table></figure>
+
+<h2 id="第四章：开始用TF"><span class="post-title-index">1.3. </span><a href="#第四章：开始用TF" class="headerlink" title="第四章：开始用TF"></a>第四章：开始用TF</h2><h3 id="TF-VGG19-CPU图像识别"><span class="post-title-index">1.3.1. </span><a href="#TF-VGG19-CPU图像识别" class="headerlink" title="TF-VGG19-CPU图像识别"></a>TF-VGG19-CPU图像识别</h3><p>用的较低级的算子，从现有模型文件中读取参数，构建计算图。</p>
+<figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">_conv_layer</span><span class="params">(input, weights, bias)</span>：</span></span><br><span class="line">	output = tf.nn.conv2d(input, weights, [1,1,1,1], padding='SAME')</span><br><span class="line">    output = tf.nn.bias_add(output, bias[<span class="number">0</span>])</span><br><span class="line">    <span class="keyword">return</span> output</span><br><span class="line"></span><br><span class="line">def net(input_image:tf.placeholder):->dict</span><br><span class="line">    <span class="comment">#vgg19本身是序列模型，较为简单，所以定义顺序加载每一层的参数就行。</span></span><br><span class="line">    layers=[<span class="string">'conv1_1'</span>, <span class="string">'relu1_1'</span>, 略]</span><br><span class="line">    net = {}</span><br><span class="line">    current = input_image <span class="comment">#应为placeholder</span></span><br><span class="line">    <span class="keyword">for</span> i, name <span class="keyword">in</span> enumerate(layers):</span><br><span class="line">        <span class="keyword">if</span> name[:<span class="number">4</span>]==<span class="string">'relu'</span>:</span><br><span class="line">            current = tf.nn.relu(current)</span><br><span class="line">        <span class="keyword">elif</span> name[：<span class="number">4</span>]==<span class="string">'conv'</span>:</span><br><span class="line">            kernels, bias = 读取</span><br><span class="line">            current=_conv_layer(current, kernels, bias)</span><br><span class="line">        ...略</span><br><span class="line">        net[name]=current</span><br><span class="line">    <span class="keyword">return</span> net</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    input_image=读取</span><br><span class="line">    <span class="keyword">with</span> tf.Session() <span class="keyword">as</span> sess:</span><br><span class="line">        input_holder=tf.placeholder(tf.float32, shape=(<span class="number">1</span>,<span class="number">224</span>,<span class="number">224</span>,<span class="number">3</span>), name=<span class="string">'input_hold'</span>)</span><br><span class="line">        nets=net(input_holder)</span><br><span class="line">        preds=sess.run(nets, feed_dict{input_holder:input_image})</span><br><span class="line">        top1_idx = np.argmax(preds[<span class="string">'softmax'</span>][<span class="number">0</span>])</span><br></pre></td></tr></tbody></table></figure>
+
+
+
+<h3 id="TF-VGG-19-MLU图像识别"><span class="post-title-index">1.3.2. </span><a href="#TF-VGG-19-MLU图像识别" class="headerlink" title="TF-VGG-19-MLU图像识别"></a>TF-VGG-19-MLU图像识别</h3><p>tensorflow-dlp是继承了CNML的魔改版本，支持底层的DLP算子。==DLP平台仅支持量化过的模型文件==</p>
+<p>需要将原始的模型文件保存pb，然后量化为int8的数据类型形成新的.pb格式，还需要在程序中设置DLP的运行参数，整体上来说对用户并非是透明的。</p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223152858573.png" alt="image-20211223152858573" style="zoom:50%;">
+
+<p><strong>①转换模型文件</strong></p>
+<p>这一步是在3.1中顺带做的~</p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223153141763.png" alt="image-20211223153141763" style="zoom:50%;">
+
+<p>生成模型pb文件，然后用一个脚本转换成int8.pb文件</p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223153236752.png" alt="image-20211223153236752" style="zoom:50%;">
+
+<p><strong>② 从pb模型文件恢复计算图，在mlu上运行session</strong></p>
+<p>有意思的是，pb文件中不仅含有权重的数据，很显然还保存了计算图，不然是无法直接恢复的。</p>
+<figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line">model=<span class="string">'vgg19_int8.pb'</span></span><br><span class="line">config=tf.ConfigProto(allow_soft_placement=<span class="literal">True</span>, </span><br><span class="line">                      inter_op_parallelism_threads=<span class="number">1</span>,</span><br><span class="line">                      inter_op_parallelism_thread=<span class="number">1</span>)</span><br><span class="line">config.mlu_options.core_num=<span class="number">16</span></span><br><span class="line"><span class="meta">... </span><span class="comment">#其他config设置</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> g.as_default():</span><br><span class="line">    <span class="keyword">with</span> tf.gfile.FastGFile(model,<span class="string">'rb'</span>) <span class="keyword">as</span> f:</span><br><span class="line">        graph_def = tf.GraphDef()</span><br><span class="line">        graph_def.ParseFromString(f.read)</span><br><span class="line">        tf.import_graph_def(graph_def, name=<span class="string">''</span>)</span><br><span class="line">    <span class="keyword">with</span> tf.Session(config=config) <span class="keyword">as</span> sess:</span><br><span class="line">        ...<span class="comment">#跟cpu版本差不多</span></span><br></pre></td></tr></tbody></table></figure>
+
+<p>==创建session的时候传入config，这样就能设置运行的硬件了==</p>
+<h3 id="TF实时风格迁移-CPU-MLU"><span class="post-title-index">1.3.3. </span><a href="#TF实时风格迁移-CPU-MLU" class="headerlink" title="TF实时风格迁移-CPU/MLU"></a>TF实时风格迁移-CPU/MLU</h3><p>基于新的算法，能够实时快速地进图像风格迁移。这个实验不需要我们写模型，直接从pb文件加载就可以了。那也就是说，这个实验和3.1、3.2中的实验没有啥区别。就是图像识别模型vs实时风格迁移模型的区别。</p>
+<p><strong>模型（量化）转换</strong></p>
+<p>这章的实验指导更为详尽地介绍了模型量化和转换的过程。模型转换的过程是通过模型转换脚本实现的，这个转换脚本是课程提供的工具，不需要自己实现，但是还是要了解一下它都干了啥。<code>fppb_to_intpb.py</code></p>
+<p><img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223223048387.png" alt="image-20211223223048387"></p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223183003302.png" alt="image-20211223183003302" style="zoom:50%;">
+
+
+
+<p><strong>实时风格迁移算法</strong></p>
+<p>用一个<code>图像转换网络</code>和一个<code>特征提取网络</code>来做。大致结构如下：</p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223180013531.png" alt="image-20211223180013531" style="zoom:50%;">
+
+<h2 id="❤自定义TF-CPU算子"><span class="post-title-index">1.4. </span><a href="#❤自定义TF-CPU算子" class="headerlink" title="❤自定义TF-CPU算子"></a>❤自定义TF-CPU算子</h2><p>这是被算在第四章的一个实验，之所以单独拎出来，是因为这是最核心的也是比较有技术含量的一个实验，需要==对TensorFlow的整体设计机理也要有所了解。==</p>
+<ul>
+<li>使用Python构造新的Op</li>
+<li>使用C++构造更底层的Op</li>
+</ul>
+<p>本实验加的算子叫做PowerDiffence算子，可以替代原有的SquareDifference，更通用。<br>$$<br>PowerDifference=(\bf{X}-\bf{Y})^Z<br>$$</p>
+<h3 id="如何兼容替换现有模型中的op"><span class="post-title-index">1.4.1. </span><a href="#如何兼容替换现有模型中的op" class="headerlink" title="如何兼容替换现有模型中的op"></a>如何兼容替换现有模型中的op</h3><p>PowerDifference算子显然是兼容SquareDifference算子的，替换方法是：</p>
+<p>利用课程提供的两个脚本，<code>pb_to_pbtxt.py</code>和<code>pbtxt_to_pb.py</code>这两个工具，</p>
+<p><strong>① pb→pbtxt</strong></p>
+<p>​    先用前者把训练好的模型转换成文本格式，</p>
+<p><strong>② 编辑文本格式中的节点</strong></p>
+<p>添加一个输入节点</p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223231754566.png" alt="image-20211223231754566" style="zoom: 50%;">
+
+<p>把SquaredDifference节点修改为PowerDifference节点，还要把以SquaredDifference作为输入的节点的input也替换成PowerDifference。</p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223231946799.png" alt="image-20211223231946799" style="zoom: 50%;">
+
+
+
+<p><strong>③ pb→pbtxt</strong></p>
+<h3 id="添加c-cpu算子的基本流程"><span class="post-title-index">1.4.2. </span><a href="#添加c-cpu算子的基本流程" class="headerlink" title="添加c++ cpu算子的基本流程"></a>添加c++ cpu算子的基本流程</h3><p><strong>① C++编写Kernel函数</strong></p>
+<p><strong>② 在C++文件中注册新Op</strong></p>
+<p>Op的注册和实现是两个独立的，注册是为了定义其名字、输入和输出。</p>
+<p><strong>③ （可选）创建Python封装器</strong></p>
+<p><strong>④ （可选）编写该Op的梯度计算函数</strong></p>
+<h3 id="添加python-cpu算子的基本流程"><span class="post-title-index">1.4.3. </span><a href="#添加python-cpu算子的基本流程" class="headerlink" title="添加python cpu算子的基本流程"></a>添加python cpu算子的基本流程</h3><h2 id="自定义TF-MLU算子"><span class="post-title-index">1.5. </span><a href="#自定义TF-MLU算子" class="headerlink" title="自定义TF-MLU算子"></a>自定义TF-MLU算子</h2><h2 id="特别技术"><span class="post-title-index">1.6. </span><a href="#特别技术" class="headerlink" title="特别技术"></a>特别技术</h2><h3 id="量化quant"><span class="post-title-index">1.6.1. </span><a href="#量化quant" class="headerlink" title="量化quant"></a>量化quant</h3><p>浮点数的优点是精度高，但是缺点是内存带宽占用更高，计算更慢。解决方案是采用低精度的数来保存模型参数和计算结果，在精度损失可接受的范围内提升计算</p>
+<ul>
+<li><p><strong>定点量化</strong></p>
+<p>  定点量化即用一组共享指数位的定点数来表示<strong>一组</strong>浮点数。FLOAT32→INT8，存储空间可以减少到1/4。这样做的前提是：<u>权值、激活在一个小范围内</u>。</p>
+</li>
+<li><p><strong>计算流程</strong></p>
+<p>  <strong>① 获取校准数据集，统计数据</strong></p>
+<p>  校准数据集就是一些样本组成的集合。</p>
+<p>  在FP32下跑一下inference，获取每一层网络激活值的直方图</p>
+<p>  <strong>② 计算一组不同阈值的INT8表示的参数</strong></p>
+<p>  根据不同的阈值生成不同的量化分布，计算每个INT8分布与原FP32分布的量化误差（越小越好）。找到最佳的那个。</p>
+</li>
+</ul>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223174226710.png" style="zoom: 33%;">
+
+<p>【to be continue，参见第四章实验手册】。</p>
+<h2 id="一些问题"><span class="post-title-index">1.7. </span><a href="#一些问题" class="headerlink" title="一些问题"></a>一些问题</h2><h3 id="pycnml和tf-mlu有什么关系"><span class="post-title-index">1.7.1. </span><a href="#pycnml和tf-mlu有什么关系" class="headerlink" title="pycnml和tf-mlu有什么关系"></a>pycnml和tf-mlu有什么关系</h3><p>tf-mlu是集成了CNML的魔改版Tensorflow框架，自动支持MLU的硬件算子。</p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223154536117.png" alt="image-20211223154536117" style="zoom:50%;">
+
+<p>Pycnml也是基于CMNL的，它使用python接口封装了CnmlNet.</p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223154446278.png" alt="image-20211223154446278" style="zoom:50%;"></body></html>]]></content>
+      <categories>
+        <category>机器学习</category>
+      </categories>
+      <tags>
+        <tag>机器学习</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>DirectConv直接卷积</title>
+    <url>/DirectConv%E7%9B%B4%E6%8E%A5%E5%8D%B7%E7%A7%AF.html</url>
+    <content><![CDATA[<html><head></head><body><h1 id="本文的由来"><span class="post-title-index">1. </span><a href="#本文的由来" class="headerlink" title="本文的由来"></a>本文的由来</h1><p>最近在学习神经网络的基本原理、底层实现。之前跟着斋藤老师的书<a href="#refer-anchor"><sup>2</sup></a>，用Python手撸了一遍底层的东西，基本上只用了numpy，实现了各种激活函数、各种层。</p>
+<p>接着想用C语言再撸一遍，这就不能用numpy了，一开始想自己写一些函数把numpy用到的的一些功能实现以下，不久可以直接移植了吗？（实际上我都设计好了，仿照numpy的功能，matmul, transpose, squeeze, reshape, slicing等操作。有机会再写一篇文章介绍一下）</p>
+<p>但是想要移植到FPGA上的话，这种偏高级语言的思路还是不太行，现在的思路是使用Direct Convolution，也就是用nested loop来实现，很原始，写完再看看有什么地方可以优化一下。但是问题来了，网上找的资料都是im2col的，我就想找个Direct Convolution的数学推导都找不到。然鹅我还是找到了，复旦邱老师的《nndl》<a href="#refer-anchor"><sup>1</sup></a>就没有用im2col，是最old school的数学推导。有点遗憾的是这本书里的推导是窄卷积，strides为1，于是我在本文中稍微拓展了一下，strides和padding可以为任意合法值。</p>
+<p>本文的推导是为编程服务的，所以矩阵的index会从0而不是1开始。</p>
+<h1 id="烂大街的im2col"><span class="post-title-index">2. </span><a href="#烂大街的im2col" class="headerlink" title="烂大街的im2col"></a>烂大街的im2col</h1><p>首先声明这不是不尊重im2col，实际上我非常赞叹这个方法，太棒了。但是因为它太棒了，现在各种博客凡说卷积层推导99%都是用im2col。</p>
+<p>卷积层是CNN中最重要的层，这里不做科普，任何一本有关神经网络的书都会介绍。</p>
+<p>Google Research的一篇论文<a href="https://arxiv.org/abs/1907.02129" target="_blank" rel="noopener">The Indirect Convolution Algorithm</a>总结了常用的卷积算法：</p>
+<ul>
+<li>The direct convolution algorithm</li>
+<li>GEMM-based algorithms</li>
+<li>Fast Convolution Algorithms</li>
+</ul>
+<p>在底层实现上，现在最常见的就是<code>im2col</code>+<code>GEMM</code>的方法，目前几乎所有的主流计算框架包括<code>Caffe</code>, <code>MXNet</code> 等都实现了该方法。概括地说，该方法把卷积层的输入$\pmb{X}$通过<code>im2col</code>变换，把一个个的卷积窗口取出展平，变成了$\pmb{col_X}$。把卷积核也展平成二维矩阵，最终把卷积操作变换成了矩阵乘法。<br>$$<br>\pmb{Y}=\pmb{W\otimes X}=\pmb{col_X\cdot col_W}<br>$$</p>
+<blockquote>
+<p>注：矩阵乘法时，哪个在左边取决于im2col的细节差异。</p>
+</blockquote>
+<p>该方法把整个卷积过程转化成了GEMM过程，而GEMM在各种 BLAS 库中都是被极致优化的，一般来说，速度较快。</p>
+<h1 id="Direct-Conv的数学推导"><span class="post-title-index">3. </span><a href="#Direct-Conv的数学推导" class="headerlink" title="Direct Conv的数学推导"></a>Direct Conv的数学推导</h1><h2 id="正向计算"><span class="post-title-index">3.1. </span><a href="#正向计算" class="headerlink" title="正向计算"></a>正向计算</h2><blockquote>
+<p>特别提醒：本文所提的卷积默认是二维卷积。并且是不带通道的那种，也就是仅仅是两个二维矩阵之间的卷积。</p>
+</blockquote>
+<p>$$<br>\pmb{X}\in \mathbb{R}^{M\times N}<br>$$</p>
+<p>$$<br>\pmb{W}\in \mathbb{R}^{U\times V}<br>$$</p>
+<p>$\pmb{X}$是一个二维矩阵，表示二维图像（单通道）。</p>
+<p>$\pmb{W}$是一个二维矩阵，表示二维卷积核（单通道）。</p>
+<p>卷积操作直观上看是filter在input feature map上滑动，对每个窗口里的值做加权求和，就映射到output feature map上的一个格子。就从该直观操作除非，定义卷积运算吧！</p>
+<ul>
+<li><p>二维卷积运算定义<br>$$<br>\pmb{Y}=\pmb{W\otimes X}<br>$$<br>$\pmb{X}$是input feature map，$\pmb{Y}$是output feature map，也是二维的矩阵。<br>$$<br>y_{i,j}=\sum_{u=0}^{U-1}\sum_{v=0}^{V-1}w_{u,v}\times x_{-padding+i\times strides+u,-padding+j\times strides+v}^{‘}<br>$$</p>
+<p>$$<br>x_{-padding+i\times strides+u,-padding+j\times strides+v}^{‘}=<br>\left{<br>\begin{array}{rcl}<br>x_{-padding+i\times strides+u,-padding+j\times strides+v} & &{(-padding+i\times strides+u,-padding+j\times strides+v)在\pmb{X}坐标范围内}\<br>0     &      & \text{else}\<br>\end{array} \right.<br>$$</p>
+</li>
+</ul>
+<p>  $\pmb{Y}$的尺寸：<br>  $$<br>  YH=\lfloor\frac{M+2\times padding-U}{strides}\rfloor +1<br>  $$</p>
+<p>  $$<br>  YW=\lfloor\frac{N+2\times padding-V}{strides}\rfloor +1<br>  $$</p>
+<p>  即：<br>  $$<br>  \pmb{Y}\in \mathbb{R}^{YH\times YW}<br>  $$</p>
+<h2 id="求偏导"><span class="post-title-index">3.2. </span><a href="#求偏导" class="headerlink" title="求偏导"></a>求偏导</h2><p>$$<br>\begin{aligned}<br>\frac{\partial f(\pmb{Y})}{\partial w_{u,v}}<br>&= \sum_{i=0}^{YH-1}\sum_{j=0}^{YW-1}\frac{\partial y_{i,j}}{\partial w_{u,v}}\frac{\partial f(\pmb{Y})}{\partial y_{i,j}} \<br>&= \sum_{i=0}^{YH-1}\sum_{j=0}^{YW-1} x_{-padding+i\times strides+u,-padding+j\times strides+v}^{‘} \frac{\partial f(\pmb{Y})}{\partial y_{i,j}}\end{aligned}<br>$$</p>
+<p>$$<br>\begin{aligned}<br>\frac{\partial f(\pmb{Y})}{\partial x_{s,t}}<br>&= \sum_{i=0}^{YH-1}\sum_{j=0}^{YW-1}\frac{\partial y_{i,j}}{\partial x_{s,t}}\frac{\partial f(\pmb{Y})}{\partial y_{i,j}} \<br>&= \sum_{i=0}^{YH-1}\sum_{j=0}^{YW-1} w_{s-i\times strides+padding,t-j\times strides+padding}^{‘} \frac{\partial f(\pmb{Y})}{\partial y_{i,j}}\end{aligned}<br>$$</p>
+<p>$$<br>x_{-padding+i\times strides+u,-padding+j\times strides+v}^{‘}=<br>\left{<br>\begin{array}{rcl}<br>x_{-padding+i\times strides+u,-padding+j\times strides+v} & &{(-padding+i\times strides+u,-padding+j\times strides+v)在\pmb{X}坐标范围内}\<br>0     &      & \text{else}\<br>\end{array} \right.<br>$$</p>
+<p>$$<br>w_{s-i\times strides+padding,t-j\times strides+padding}^{‘}=<br>\left{<br>\begin{array}{rcl}<br>w_{s-i\times strides+padding,t-j\times strides+padding} & &{(s-i\times strides+padding,t-j\times strides+padding)在\pmb{W}坐标范围内}\<br>0     &      & \text{else}\<br>\end{array} \right.<br>$$</p>
+<h1 id="基于Direct-Conv的卷积层实现"><span class="post-title-index">4. </span><a href="#基于Direct-Conv的卷积层实现" class="headerlink" title="基于Direct Conv的卷积层实现"></a>基于Direct Conv的卷积层实现</h1><blockquote>
+<p>本章的<code>卷积层</code>，是借助前一章的<code>卷积</code>操作，两者有区别和联系。</p>
+<p>注意：第4章中的卷积核$\pmb{W}$、数据$\pmb{X}$的形状和第3章中的差别。第3章的$\pmb{W}$和$\pmb{X}$都是二维的，第4张到了卷积层这里，$\pmb{X}$是三维的（加上了通道）。但是不影响，实际做的时候就还是每个通道分别做二维卷积，然后求个和。</p>
+</blockquote>
+<h2 id="正向传播"><span class="post-title-index">4.1. </span><a href="#正向传播" class="headerlink" title="正向传播"></a>正向传播</h2><p>卷积层有两种设计方法，</p>
+<ul>
+<li><p>卷积层=激活（卷积+偏置）</p>
+</li>
+<li><p>卷积层=卷积+偏置</p>
+</li>
+</ul>
+<p>tensorflow里的卷积层是有个activation的选项，也就是第一种。我手撸的python版本的CNN中激活层是单独的，是第二种。</p>
+<p>以第$l$层为例：</p>
+<p>该层的输入为：$\pmb{X}\in \mathbb{R}^{M\times N\times D}$</p>
+<p>该层的权重为：$\pmb{W}\in \mathbb{R}^{P\times U\times V\times D}$</p>
+<p>$P$是卷积核的个数，$M$、$N$是该层输入的高和宽，$U$、$V$分别是卷积核的高和宽，$D$是通道数。</p>
+<p>第$p$个卷积核，对输入$\pmb{X}$进行卷积偏置，计算输出的feature map的方式为：<br>$$<br>\pmb{Z}^{(l,p)}=\sum_{d=1}^D\pmb{W}^{(l,p,d)}\pmb{\otimes} \pmb{X}^{(l-1,d)}+b^{(l,p)}<br>$$<br>就是每个通道上执行卷积的operation（参照公式5），然后求和。</p>
+<h2 id="反向传播"><span class="post-title-index">4.2. </span><a href="#反向传播" class="headerlink" title="反向传播"></a>反向传播</h2><p>$$<br>\frac{\partial \mathcal{L}}{\partial w_{u,v}}=\sum_{i=0}^{ZH-1}\sum_{j=0}^{ZW-1}x_{-padding+i\times strides+u,-padding+j\times strides+v}^{‘}\frac{\partial\mathcal{L}}{\partial z_{i,j}}<br>$$</p>
+<p>$$<br>\frac{\partial \mathcal{L}}{\partial b}=\sum_{i=0}^{ZH-1}\sum_{j=0}^{ZW-1}\frac{\partial \mathcal{L}}{\partial z_{i,j}}<br>$$</p>
+<p>$$<br>\frac{\partial \mathcal{L}}{\partial x_{s,t}}=\sum_{i=0}^{ZH-1}\sum_{j=0}^{ZW-1}w_{s-i\times strides+padding,t-j\times strides+padding}^{‘}\frac{\partial \mathcal{L}}{\partial z_{i,j}}<br>$$</p>
+<p>关于$w^{‘}$和$x^{‘}$就不多说了，分段函数，前面有。</p>
+<div id="refer-anchor"></div>
+
+<h1 id="参考资料"><span class="post-title-index">5. </span><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p>[1] <a href="https://nndl.github.io/" target="_blank" rel="noopener">《神经网络与深度学习》</a>邱锡鹏</p>
+<p>[2] 《深度学习入门——基于Python的理论与实现》斋藤康毅</p>
+<p>[3]  <a href="https://arxiv.org/abs/1907.02129" target="_blank" rel="noopener">The Indirect Convolution Algorithm</a> Google Research</p>
+<h1 id="Update"><span class="post-title-index">6. </span><a href="#Update" class="headerlink" title="Update"></a>Update</h1><ul>
+<li>【11.3更新】</li>
+</ul>
+<p>突然发现Microsoft的开源项目里有很好的数学推导，之前居然无视了，强烈推荐一波。</p>
+<p>链接：<a href="https://github.com/microsoft/ai-edu/tree/master/A-%E5%9F%BA%E7%A1%80%E6%95%99%E7%A8%8B/A2-%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86%E7%AE%80%E6%98%8E%E6%95%99%E7%A8%8B/Step8%20-%20CNN" target="_blank" rel="noopener">ai-edu/A2-神经网络基本原理简明教程/Step8-CNN</a></p>
+</body></html>]]></content>
+      <categories>
+        <category>机器学习</category>
+      </categories>
+      <tags>
+        <tag>机器学习</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>b站群体解构</title>
+    <url>/b%E7%AB%99%E7%BE%A4%E4%BD%93%E8%A7%A3%E6%9E%84.html</url>
+    <content><![CDATA[<html><head></head><body><blockquote>
+<p>本文节选自：现在b站有哪一点让你觉得不适？ - 陶韵的回答 - 知乎 <a href="https://www.zhihu.com/question/377144170/answer/1095559989" target="_blank" rel="noopener">https://www.zhihu.com/question/377144170/answer/1095559989</a></p>
+</blockquote>
+<p>弹幕最伟大的地方，就是他创造了地球上最厉害的群体解构现象。在弹幕面前，没有任何严肃的东西能够保持严肃。德里达说：</p>
+<blockquote>
+<p>一般的解构是不存在的，只存在既定文化、历史、政治情境下的一些解构姿态。针对每种情景，有某种必要的策略。。。解构一直都是对非正当的教条权威与霸权的对抗。</p>
+</blockquote>
+<p>在解构面前，所有严肃的东西都是不存在的，话语权给这个世界做出的所有定性都会变得荒诞不经。</p>
+<p>玩梗就是解构主义，弹幕就是解构主义中的王者。</p>
+<p>什么伦理道德，什么正义，什么忠诚，什么爱情，什么悲剧，经过解构之后都会变成毫无意义的笑话。</p>
+<p>当佐助躺在地上，鸣人爆气去大家的时候，弹幕突然弹出“佐助：我觉得我还可以再抢救一下”的时候，你就知道，为了凸显友情而制造的剧情多滑稽。</p>
+<p>当你看到恐怖片上突然蹦出的社会主义核心价值观，你就能从唯物主义的视角重新审视一个恐怖片。</p>
+<p><strong>弹幕的存在，就是为了通过群体的灵光一现，解构这世界上的一切严肃。</strong></p>
+<p>弹幕就是为了消解悲剧感，让你感到荒诞可笑才存在的啊！！！</p>
+<p>弹幕就是为了把你瞬间从股市中拔出来，让你感到荒诞可笑才存在的啊！！！</p>
+<p>要弹幕去配合剧情的思想感情，那弹幕还有什么用。</p>
+<p>这些弹幕的存在，就是对主流语境，对权威，对创作者的叛逆。</p>
+<p>一些所谓“不合时宜”的弹幕，只是因为场面话太恶心了，我们日常说的太多了，在弹幕中大家不想说这种套路的发言，所以才要猎奇，所以才要出人意料。用最简单的动物性，消解我们日常交往中的那种场面话。</p>
+<p>解构的意义，还在于帮你排除这些枝蔓，去质问这个世界上所有严肃的，你从来不曾怀疑过的东西存在的意义。当你将这些你习以为常的正当都打碎，意识到这些外界赋予你的自我认同的荒谬性，当你能够认识到，你之所以是一个人，不是因为你是“男人”、“女人”、“河南人”、“三年四班人”、“b站用户”，而是因为你就是你自己，所有的这些身份标签都只是塑造你的一部分。你才能从内心深处，找到自己无论如何都要坚守的东西，从根源上建立自我认同体系，那才是真正的底线。</p>
+</body></html>]]></content>
+      <categories>
+        <category>万象</category>
+      </categories>
+      <tags>
+        <tag>社会现象</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>碎碎念</title>
+    <url>/%E7%A2%8E%E7%A2%8E%E5%BF%B5.html</url>
+    <content><![CDATA[<html><head></head><body><p>【4.18】</p>
+<p>每一个今天，都是你余生第一天。如果时光能倒流到24小时前，我会想让今天重新开始吗？</p>
+<p>【4.5】</p>
+<p>看水刊论文完全是浪费时间，一定要看顶会、名作</p>
+<p>【4.2】</p>
+<p>一天不学自己知道，三天不学老师知道，一周不学同窗知道，一月不学路人知道。</p>
+<p>【3.3】</p>
+<p>生活中总有这样一种幻象：那就是总认为现在的生活就是生活应有的样子。实际上，没有什么是一成不变的。 </p>
+</body></html>]]></content>
+      <categories>
+        <category>随笔</category>
+      </categories>
+      <tags>
+        <tag>随笔</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>机器学习宝藏资源</title>
+    <url>/%E5%AE%9D%E8%97%8F%E8%B5%84%E6%BA%90.html</url>
+    <content><![CDATA[<html><head></head><body><p>【持续更新中。。。】</p>
+<h1 id="书籍"><span class="post-title-index">1. </span><a href="#书籍" class="headerlink" title="书籍"></a>书籍</h1><p><strong>深度学习四大名著：</strong></p>
+<blockquote>
+<p><a href="https://blog.csdn.net/red_stone1/article/details/84939224" target="_blank" rel="noopener">深度学习“四大名著”简介</a></p>
+<p>我们都知道现在机器学习、深度学习的资料太多了，面对海量资源，往往陷入到“无从下手”的困惑出境。而且并非所有的书籍都是优质资源，浪费大量的时间是得不偿失的。</p>
+</blockquote>
+<ul>
+<li><input checked disabled type="checkbox"> <p><strong>蜥蜴书《Hands on Machine-Learning with Scikit-Learn, Keras & Tensorflow-2th Edition》(Concept, Tools, and Techniques to Build Intelligent Systems)</strong></p>
+<p>作者Aurélien Géron。神书力荐，第一版有中文译本，但是推荐看第二版，多了很多新的内容，并且代码实现用了最新的tensorflow 2.0版本，所谓学新不学旧，这本书也是tensorflow.google.cn上的教程里所推荐的参考书。<a href="https://www.jianshu.com/p/4a94798f7dcc" target="_blank" rel="noopener">https://www.jianshu.com/p/4a94798f7dcc</a> 这个简书文章有这本书的介绍。<a href="https://redstonewill.com/2808/" target="_blank" rel="noopener">强烈推荐！最好用的《机器学习实用指南》第二版终于来了，代码已开源！</a></p>
+</li>
+<li><input checked disabled type="checkbox"> <p><strong>《Deep Learning with Python》</strong></p>
+<p>同样是tensorflow官方教程中的推荐参考书。</p>
+</li>
+<li><input checked disabled type="checkbox"> <p><strong>花书《深度学习》</strong></p>
+<h1 id="教程"><span class="post-title-index">2. </span><a href="#教程" class="headerlink" title="教程"></a>教程</h1></li>
+</ul>
+<p>在教程资源方面，本着「学新不学旧」的原则，涉及代码的只关注<code>Tensorflow 2.0</code>以上的教程。其他一些库的教程，同样是学习相对较新的版本。</p>
+<h2 id="Tensorflow-2-0-无痛教程"><span class="post-title-index">2.1. </span><a href="#Tensorflow-2-0-无痛教程" class="headerlink" title="Tensorflow 2.0 无痛教程"></a>Tensorflow 2.0 无痛教程</h2><p>在“机器之心”<a href="https://mp.weixin.qq.com/s/ARcR-xg4i8eV5n2BAkcoCg" target="_blank" rel="noopener">公众号</a>上看到的，北京吃饭大学学霸出品。</p>
+<p><img data-src="https://mmbiz.qpic.cn/mmbiz_png/KmXPKA19gW8N2sqn6vibgNIV1cz8flqNiaOq1icaPPnM8YMeFhDibuickEvJHCs11UI6EumbUibtKCsmHZiawJpDsaicyg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" alt="img"></p>
+<p>开源电子书：<a href="https://lyhue1991.github.io/eat_tensorflow2_in_30_days/" target="_blank" rel="noopener">https://lyhue1991.github.io/eat_tensorflow2_in_30_days/</a></p>
+<p>github项目地址：<a href="https://github.com/lyhue1991/eat_tensorflow2_in_30_days" target="_blank" rel="noopener">https://github.com/lyhue1991/eat_tensorflow2_in_30_days</a></p>
+<h2 id="《动手深度学习》配套教程"><span class="post-title-index">2.2. </span><a href="#《动手深度学习》配套教程" class="headerlink" title="《动手深度学习》配套教程"></a>《动手深度学习》配套教程</h2><p><img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/20201029163332_handsonml.png" alt="image-20200410162307598"></p>
+<p><a href="https://trickygo.github.io/Dive-into-DL-TensorFlow2" target="_blank" rel="noopener">本项目</a>将<a href="http://zh.d2l.ai/" target="_blank" rel="noopener">《动手学深度学习》</a> 原书中MXNet代码实现改为TensorFlow2.0实现。这个教程的优点在于结合了书本，有啥需要详细了解的可以查书本。</p>
+<h2 id="tfwiki教程，北大学霸出品"><span class="post-title-index">2.3. </span><a href="#tfwiki教程，北大学霸出品" class="headerlink" title="tfwiki教程，北大学霸出品"></a>tfwiki教程，北大学霸出品</h2><p><a href="http://www.tf.wiki" target="_blank" rel="noopener">www.tf.wiki</a> tf2.0手把手教学，要点都讲到了，比较完整。</p>
+<h2 id="莫烦教程"><span class="post-title-index">2.4. </span><a href="#莫烦教程" class="headerlink" title="莫烦教程"></a>莫烦教程</h2><p>这个是比较有名的教程，有些还有视频。但是有些东西还在更，没写完。</p>
+<p><a href="https://morvanzhou.github.io" target="_blank" rel="noopener">https://morvanzhou.github.io</a></p>
+<h1 id="很赞的工具"><span class="post-title-index">3. </span><a href="#很赞的工具" class="headerlink" title="很赞的工具"></a>很赞的工具</h1><blockquote>
+<p>工欲善其事，必先利其器。机器学习方面的轮子太多了，搜集一些好用的工具，在做研究的时候可以加快速度。</p>
+</blockquote>
+<h2 id="神经网络可视化工具"><span class="post-title-index">3.1. </span><a href="#神经网络可视化工具" class="headerlink" title="神经网络可视化工具"></a>神经网络可视化工具</h2><h3 id="一款3D可交互的网络可视化"><span class="post-title-index">3.1.1. </span><a href="#一款3D可交互的网络可视化" class="headerlink" title="一款3D可交互的网络可视化"></a>一款3D可交互的网络可视化</h3><p>网址：<a href="http://alexlenail.me/NN-SVG/index.html" target="_blank" rel="noopener">http://alexlenail.me/NN-SVG/index.html</a></p>
+<p>源码：<a href="https://github.com/alexlenail/NN-SVG" target="_blank" rel="noopener">https://github.com/alexlenail/NN-SVG</a></p>
+<p>这款</p>
+<h1 id="学习网站、论坛"><span class="post-title-index">4. </span><a href="#学习网站、论坛" class="headerlink" title="学习网站、论坛"></a>学习网站、论坛</h1><p> <a href="https://tensorflow.google.cn/resources/learn-ml/basics-of-machine-learning/?hl=zh_cn" target="_blank" rel="noopener">tensorflow官方推荐的学习资源</a></p>
+<p><a href="https://redstonewill.com/2808/" target="_blank" rel="noopener">红色石头深度学习资源</a></p>
+<h1 id="网络收藏夹（一些干货）"><span class="post-title-index">5. </span><a href="#网络收藏夹（一些干货）" class="headerlink" title="网络收藏夹（一些干货）"></a>网络收藏夹（一些干货）</h1><ol>
+<li><a href>神经网络内部可视化</a></li>
+<li><a href="https://www.cnblogs.com/hgz-dm/p/10886155.html" target="_blank" rel="noopener">【cnblog】最通俗易懂讲解<code>t变量</code>和<code>t检验</code></a></li>
+</ol>
+</body></html>]]></content>
+      <categories>
+        <category>资源</category>
+      </categories>
+      <tags>
+        <tag>机器学习</tag>
+        <tag>资源</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>OpenVINO大师</title>
-    <url>/2019/12/28/OpenVINO%E5%A4%A7%E5%B8%88/</url>
-    <content><![CDATA[<html><head></head><body><h1 id="OpenVINO-Workflow"><span class="post-title-index">1. </span><a href="#OpenVINO-Workflow" class="headerlink" title="OpenVINO Workflow"></a>OpenVINO Workflow</h1><p><img src="https://docs.openvinotoolkit.org/latest/workflow_steps.png" alt="workflow_steps.png"></p>
+    <url>/OpenVINO%E5%A4%A7%E5%B8%88.html</url>
+    <content><![CDATA[<html><head></head><body><h1 id="OpenVINO-Workflow"><span class="post-title-index">1. </span><a href="#OpenVINO-Workflow" class="headerlink" title="OpenVINO Workflow"></a>OpenVINO Workflow</h1><p><img data-src="https://docs.openvinotoolkit.org/latest/workflow_steps.png" alt="workflow_steps.png"></p>
 <h1 id="使用Model-Optimizer"><span class="post-title-index">2. </span><a href="#使用Model-Optimizer" class="headerlink" title="使用Model Optimizer"></a>使用Model Optimizer</h1><h1 id="使用Inference-Engine"><span class="post-title-index">3. </span><a href="#使用Inference-Engine" class="headerlink" title="使用Inference Engine"></a>使用Inference Engine</h1><h2 id="Inference-Engine介绍"><span class="post-title-index">3.1. </span><a href="#Inference-Engine介绍" class="headerlink" title="Inference Engine介绍"></a>Inference Engine介绍</h2><p>详细介绍，请参照官方在线文档：</p>
 <p><a href="https://docs.openvinotoolkit.org/latest/_docs_IE_DG_Deep_Learning_Inference_Engine_DevGuide.html" target="_blank" rel="noopener">Inference Engine Developer Guide Online Doc</a></p>
 <p><code>inference Engine</code>是整个OpenVINO工作流的终端，用于和User Application进行交互。他主要包括两个组件：</p>
@@ -185,7 +513,7 @@
   </entry>
   <entry>
     <title>面试知识：C++</title>
-    <url>/2019/09/22/interview-cpp/</url>
+    <url>/interview-cpp.html</url>
     <content><![CDATA[<html><head></head><body><h1 id="C-专题复习"><span class="post-title-index">1. </span><a href="#C-专题复习" class="headerlink" title="C++专题复习"></a>C++专题复习</h1><h2 id="细碎知识"><span class="post-title-index">1.1. </span><a href="#细碎知识" class="headerlink" title="细碎知识"></a>细碎知识</h2><h3 id="C-的关键字"><span class="post-title-index">1.1.1. </span><a href="#C-的关键字" class="headerlink" title="C++的关键字"></a>C++的关键字</h3><h4 id="static"><span class="post-title-index">1.1.1.1. </span><a href="#static" class="headerlink" title="static"></a><code>static</code></h4><ul>
 <li><p><strong>改变作用域（隐藏）</strong></p>
 <p><code>全局变量</code>分为<code>静态全局变量</code>和<code>外部全局变量</code>。</p>
@@ -320,7 +648,7 @@
 <li><p>所有成员从同一内存开始，union共用体的大小为其中占空间最大的成员的大小。</p>
 </li>
 <li><p>给共用体的一个成员赋值之后，会覆盖其他成员的值，因此只有最后一次存放的成员是有效的。</p>
-<p><img src="interview-cpp/1567838897988.png" alt="1567838897988"></p>
+<p><img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/20201029162834_union.png" alt="1567838897988"></p>
 </li>
 </ul>
 <figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">/*通过union来判断机器是大端序还是小端序*/</span></span><br><span class="line"><span class="keyword">union</span> data{</span><br><span class="line">  <span class="keyword">int</span> a;</span><br><span class="line">  <span class="keyword">char</span> b;</span><br><span class="line">};</span><br><span class="line"></span><br><span class="line"><span class="keyword">union</span> data d;</span><br><span class="line">d.a=<span class="number">0x11223344</span>;</span><br><span class="line"><span class="keyword">if</span>(d.b==<span class="number">0x11</span>){</span><br><span class="line">    <span class="built_in">cout</span><<<span class="string">"大端序"</span><<<span class="built_in">endl</span>;</span><br><span class="line">}<span class="keyword">else</span> <span class="keyword">if</span>(d.b==<span class="number">0x44</span>){</span><br><span class="line">    <span class="built_in">cout</span><<<span class="string">"小端序"</span><<<span class="built_in">endl</span>;</span><br><span class="line">}<span class="keyword">else</span>{</span><br><span class="line">    <span class="built_in">cout</span><<<span class="string">"这段程序错误"</span><<<span class="built_in">endl</span>;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
@@ -374,7 +702,7 @@
 <li>栈：栈和C程序的栈相同。<br>C和C++的内存布局大致上是相同的，主要区别在于C++引进了对象，C++对象中的成员函数存储在代码段中，数据成员才会存储在栈中，同样静态变量会存储在在全局/静态存储区，并且必须初始化。当然C++对象内存布局会涉及到继承，多态而出现多种变化，以及内存对齐的影响。</li>
 </ul>
 <p><strong>C函数栈帧的样子</strong></p>
-<img src="interview-cpp/1568560299990.png" alt="1568560299990" style="zoom:50%;">
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/20201029162856_cframe.png" alt="1568560299990" style="zoom:50%;">
 
 <h3 id="C-中的变量"><span class="post-title-index">1.1.3. </span><a href="#C-中的变量" class="headerlink" title="C++中的变量"></a>C++中的变量</h3><table>
 <thead>
@@ -503,7 +831,7 @@
 <p>含有虚函数的类，其对象中包含一个<code>_vfptr</code>，这是一个<code>指向数组（即虚函数表）的指针</code></p>
 </blockquote>
 <p>*<em>一个类的不同对象，共用一份虚函数表。 *</em></p>
-<p><img src="interview-cpp/1568601998932.png" alt="1568601998932"></p>
+<p><img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/20201029162913_virtualftable.png" alt="1568601998932"></p>
 <h2 id="STL专题"><span class="post-title-index">1.4. </span><a href="#STL专题" class="headerlink" title="STL专题"></a>STL专题</h2><h3 id="分类"><span class="post-title-index">1.4.1. </span><a href="#分类" class="headerlink" title="分类"></a>分类</h3><ul>
 <li><p>顺序容器(Sequence Container)</p>
 <ul>
@@ -559,7 +887,8 @@
 </li>
 <li><p><strong>C++11中新定义了右值引用</strong></p>
 <p>临时对象即将消亡，但里面的数据还是要用的，所以用移动构造</p>
-<p><img src="interview-cpp/6634703-5168dde8f970e1f6.webp" alt="img"></p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/20201029163241_right.png" alt="image-20201029163233846" style="zoom:50%;">
+
 </li>
 </ul>
 <h4 id="移动语义"><span class="post-title-index">1.5.1.3. </span><a href="#移动语义" class="headerlink" title="移动语义"></a>移动语义</h4><ul>

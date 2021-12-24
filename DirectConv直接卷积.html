@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-minimal.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"primemhd.tech","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":true,"pangu":false,"comments":{"style":"tabs","active":"valine","storage":true,"lazyload":true,"nav":null,"activeClass":"valine"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":-1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Direct Convolution（直接卷积）的数学推导，为使用C语言实现CNN提供指导。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DirectConv直接卷积">
+<meta property="og:url" content="https://primemhd.tech/DirectConv%E7%9B%B4%E6%8E%A5%E5%8D%B7%E7%A7%AF.html">
+<meta property="og:site_name" content="PrimeMHD House">
+<meta property="og:description" content="Direct Convolution（直接卷积）的数学推导，为使用C语言实现CNN提供指导。">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-10-29T07:48:02.000Z">
+<meta property="article:modified_time" content="2020-11-04T02:54:38.000Z">
+<meta property="article:author" content="Mi HD">
+<meta property="article:tag" content="机器学习">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://primemhd.tech/DirectConv%E7%9B%B4%E6%8E%A5%E5%8D%B7%E7%A7%AF.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+
+  <title>DirectConv直接卷积 | PrimeMHD House</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6174f5c6f12162356a93b498b99bf251";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <div>
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">PrimeMHD House</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+<nav class="site-nav">
+  
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories" rel="section"><i class="fa fa-fw fa-th"></i>Categories<span class="badge">5</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives" rel="section"><i class="fa fa-fw fa-archive"></i>Archives<span class="badge">7</span></a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags" rel="section"><i class="fa fa-fw fa-tags"></i>Tags<span class="badge">7</span></a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about" rel="section"><i class="fa fa-fw fa-user"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-fw fa-sitemap"></i>Sitemap</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+
+</nav>
+  <div class="site-search">
+    <div class="search-pop-overlay">
+  <div class="popup search-popup">
+      <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocorrect="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+  </div>
+</div>
+
+  </div>
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content">
+            
+
+  <div class="posts-expand">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="en">
+    <link itemprop="mainEntityOfPage" href="https://primemhd.tech/DirectConv%E7%9B%B4%E6%8E%A5%E5%8D%B7%E7%A7%AF.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Mi HD">
+      <meta itemprop="description" content="Truth and Transparency.简单可依赖。">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="PrimeMHD House">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          DirectConv直接卷积
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-10-29 15:48:02" itemprop="dateCreated datePublished" datetime="2020-10-29T15:48:02+08:00">2020-10-29</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-11-04 10:54:38" itemprop="dateModified" datetime="2020-11-04T10:54:38+08:00">2020-11-04</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">机器学习</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/DirectConv%E7%9B%B4%E6%8E%A5%E5%8D%B7%E7%A7%AF.html" class="post-meta-item leancloud_visitors" data-flag-title="DirectConv直接卷积" title="Views">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">Views: </span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">Valine: </span>
+    
+    <a title="valine" href="/DirectConv%E7%9B%B4%E6%8E%A5%E5%8D%B7%E7%A7%AF.html#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/DirectConv%E7%9B%B4%E6%8E%A5%E5%8D%B7%E7%A7%AF.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+            <div class="post-description">Direct Convolution（直接卷积）的数学推导，为使用C语言实现CNN提供指导。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <html><head></head><body><h1 id="本文的由来"><span class="post-title-index">1. </span><a href="#本文的由来" class="headerlink" title="本文的由来"></a>本文的由来</h1><p>最近在学习神经网络的基本原理、底层实现。之前跟着斋藤老师的书<a href="#refer-anchor"><sup>2</sup></a>，用Python手撸了一遍底层的东西，基本上只用了numpy，实现了各种激活函数、各种层。</p>
+<p>接着想用C语言再撸一遍，这就不能用numpy了，一开始想自己写一些函数把numpy用到的的一些功能实现以下，不久可以直接移植了吗？（实际上我都设计好了，仿照numpy的功能，matmul, transpose, squeeze, reshape, slicing等操作。有机会再写一篇文章介绍一下）</p>
+<p>但是想要移植到FPGA上的话，这种偏高级语言的思路还是不太行，现在的思路是使用Direct Convolution，也就是用nested loop来实现，很原始，写完再看看有什么地方可以优化一下。但是问题来了，网上找的资料都是im2col的，我就想找个Direct Convolution的数学推导都找不到。然鹅我还是找到了，复旦邱老师的《nndl》<a href="#refer-anchor"><sup>1</sup></a>就没有用im2col，是最old school的数学推导。有点遗憾的是这本书里的推导是窄卷积，strides为1，于是我在本文中稍微拓展了一下，strides和padding可以为任意合法值。</p>
+<p>本文的推导是为编程服务的，所以矩阵的index会从0而不是1开始。</p>
+<h1 id="烂大街的im2col"><span class="post-title-index">2. </span><a href="#烂大街的im2col" class="headerlink" title="烂大街的im2col"></a>烂大街的im2col</h1><p>首先声明这不是不尊重im2col，实际上我非常赞叹这个方法，太棒了。但是因为它太棒了，现在各种博客凡说卷积层推导99%都是用im2col。</p>
+<p>卷积层是CNN中最重要的层，这里不做科普，任何一本有关神经网络的书都会介绍。</p>
+<p>Google Research的一篇论文<a href="https://arxiv.org/abs/1907.02129" target="_blank" rel="noopener">The Indirect Convolution Algorithm</a>总结了常用的卷积算法：</p>
+<ul>
+<li>The direct convolution algorithm</li>
+<li>GEMM-based algorithms</li>
+<li>Fast Convolution Algorithms</li>
+</ul>
+<p>在底层实现上，现在最常见的就是<code>im2col</code>+<code>GEMM</code>的方法，目前几乎所有的主流计算框架包括<code>Caffe</code>, <code>MXNet</code> 等都实现了该方法。概括地说，该方法把卷积层的输入$\pmb{X}$通过<code>im2col</code>变换，把一个个的卷积窗口取出展平，变成了$\pmb{col_X}$。把卷积核也展平成二维矩阵，最终把卷积操作变换成了矩阵乘法。<br>$$<br>\pmb{Y}=\pmb{W\otimes X}=\pmb{col_X\cdot col_W}<br>$$</p>
+<blockquote>
+<p>注：矩阵乘法时，哪个在左边取决于im2col的细节差异。</p>
+</blockquote>
+<p>该方法把整个卷积过程转化成了GEMM过程，而GEMM在各种 BLAS 库中都是被极致优化的，一般来说，速度较快。</p>
+<h1 id="Direct-Conv的数学推导"><span class="post-title-index">3. </span><a href="#Direct-Conv的数学推导" class="headerlink" title="Direct Conv的数学推导"></a>Direct Conv的数学推导</h1><h2 id="正向计算"><span class="post-title-index">3.1. </span><a href="#正向计算" class="headerlink" title="正向计算"></a>正向计算</h2><blockquote>
+<p>特别提醒：本文所提的卷积默认是二维卷积。并且是不带通道的那种，也就是仅仅是两个二维矩阵之间的卷积。</p>
+</blockquote>
+<p>$$<br>\pmb{X}\in \mathbb{R}^{M\times N}<br>$$</p>
+<p>$$<br>\pmb{W}\in \mathbb{R}^{U\times V}<br>$$</p>
+<p>$\pmb{X}$是一个二维矩阵，表示二维图像（单通道）。</p>
+<p>$\pmb{W}$是一个二维矩阵，表示二维卷积核（单通道）。</p>
+<p>卷积操作直观上看是filter在input feature map上滑动，对每个窗口里的值做加权求和，就映射到output feature map上的一个格子。就从该直观操作除非，定义卷积运算吧！</p>
+<ul>
+<li><p>二维卷积运算定义<br>$$<br>\pmb{Y}=\pmb{W\otimes X}<br>$$<br>$\pmb{X}$是input feature map，$\pmb{Y}$是output feature map，也是二维的矩阵。<br>$$<br>y_{i,j}=\sum_{u=0}^{U-1}\sum_{v=0}^{V-1}w_{u,v}\times x_{-padding+i\times strides+u,-padding+j\times strides+v}^{‘}<br>$$</p>
+<p>$$<br>x_{-padding+i\times strides+u,-padding+j\times strides+v}^{‘}=<br>\left{<br>\begin{array}{rcl}<br>x_{-padding+i\times strides+u,-padding+j\times strides+v} & &{(-padding+i\times strides+u,-padding+j\times strides+v)在\pmb{X}坐标范围内}\<br>0     &      & \text{else}\<br>\end{array} \right.<br>$$</p>
+</li>
+</ul>
+<p>  $\pmb{Y}$的尺寸：<br>  $$<br>  YH=\lfloor\frac{M+2\times padding-U}{strides}\rfloor +1<br>  $$</p>
+<p>  $$<br>  YW=\lfloor\frac{N+2\times padding-V}{strides}\rfloor +1<br>  $$</p>
+<p>  即：<br>  $$<br>  \pmb{Y}\in \mathbb{R}^{YH\times YW}<br>  $$</p>
+<h2 id="求偏导"><span class="post-title-index">3.2. </span><a href="#求偏导" class="headerlink" title="求偏导"></a>求偏导</h2><p>$$<br>\begin{aligned}<br>\frac{\partial f(\pmb{Y})}{\partial w_{u,v}}<br>&= \sum_{i=0}^{YH-1}\sum_{j=0}^{YW-1}\frac{\partial y_{i,j}}{\partial w_{u,v}}\frac{\partial f(\pmb{Y})}{\partial y_{i,j}} \<br>&= \sum_{i=0}^{YH-1}\sum_{j=0}^{YW-1} x_{-padding+i\times strides+u,-padding+j\times strides+v}^{‘} \frac{\partial f(\pmb{Y})}{\partial y_{i,j}}\end{aligned}<br>$$</p>
+<p>$$<br>\begin{aligned}<br>\frac{\partial f(\pmb{Y})}{\partial x_{s,t}}<br>&= \sum_{i=0}^{YH-1}\sum_{j=0}^{YW-1}\frac{\partial y_{i,j}}{\partial x_{s,t}}\frac{\partial f(\pmb{Y})}{\partial y_{i,j}} \<br>&= \sum_{i=0}^{YH-1}\sum_{j=0}^{YW-1} w_{s-i\times strides+padding,t-j\times strides+padding}^{‘} \frac{\partial f(\pmb{Y})}{\partial y_{i,j}}\end{aligned}<br>$$</p>
+<p>$$<br>x_{-padding+i\times strides+u,-padding+j\times strides+v}^{‘}=<br>\left{<br>\begin{array}{rcl}<br>x_{-padding+i\times strides+u,-padding+j\times strides+v} & &{(-padding+i\times strides+u,-padding+j\times strides+v)在\pmb{X}坐标范围内}\<br>0     &      & \text{else}\<br>\end{array} \right.<br>$$</p>
+<p>$$<br>w_{s-i\times strides+padding,t-j\times strides+padding}^{‘}=<br>\left{<br>\begin{array}{rcl}<br>w_{s-i\times strides+padding,t-j\times strides+padding} & &{(s-i\times strides+padding,t-j\times strides+padding)在\pmb{W}坐标范围内}\<br>0     &      & \text{else}\<br>\end{array} \right.<br>$$</p>
+<h1 id="基于Direct-Conv的卷积层实现"><span class="post-title-index">4. </span><a href="#基于Direct-Conv的卷积层实现" class="headerlink" title="基于Direct Conv的卷积层实现"></a>基于Direct Conv的卷积层实现</h1><blockquote>
+<p>本章的<code>卷积层</code>，是借助前一章的<code>卷积</code>操作，两者有区别和联系。</p>
+<p>注意：第4章中的卷积核$\pmb{W}$、数据$\pmb{X}$的形状和第3章中的差别。第3章的$\pmb{W}$和$\pmb{X}$都是二维的，第4张到了卷积层这里，$\pmb{X}$是三维的（加上了通道）。但是不影响，实际做的时候就还是每个通道分别做二维卷积，然后求个和。</p>
+</blockquote>
+<h2 id="正向传播"><span class="post-title-index">4.1. </span><a href="#正向传播" class="headerlink" title="正向传播"></a>正向传播</h2><p>卷积层有两种设计方法，</p>
+<ul>
+<li><p>卷积层=激活（卷积+偏置）</p>
+</li>
+<li><p>卷积层=卷积+偏置</p>
+</li>
+</ul>
+<p>tensorflow里的卷积层是有个activation的选项，也就是第一种。我手撸的python版本的CNN中激活层是单独的，是第二种。</p>
+<p>以第$l$层为例：</p>
+<p>该层的输入为：$\pmb{X}\in \mathbb{R}^{M\times N\times D}$</p>
+<p>该层的权重为：$\pmb{W}\in \mathbb{R}^{P\times U\times V\times D}$</p>
+<p>$P$是卷积核的个数，$M$、$N$是该层输入的高和宽，$U$、$V$分别是卷积核的高和宽，$D$是通道数。</p>
+<p>第$p$个卷积核，对输入$\pmb{X}$进行卷积偏置，计算输出的feature map的方式为：<br>$$<br>\pmb{Z}^{(l,p)}=\sum_{d=1}^D\pmb{W}^{(l,p,d)}\pmb{\otimes} \pmb{X}^{(l-1,d)}+b^{(l,p)}<br>$$<br>就是每个通道上执行卷积的operation（参照公式5），然后求和。</p>
+<h2 id="反向传播"><span class="post-title-index">4.2. </span><a href="#反向传播" class="headerlink" title="反向传播"></a>反向传播</h2><p>$$<br>\frac{\partial \mathcal{L}}{\partial w_{u,v}}=\sum_{i=0}^{ZH-1}\sum_{j=0}^{ZW-1}x_{-padding+i\times strides+u,-padding+j\times strides+v}^{‘}\frac{\partial\mathcal{L}}{\partial z_{i,j}}<br>$$</p>
+<p>$$<br>\frac{\partial \mathcal{L}}{\partial b}=\sum_{i=0}^{ZH-1}\sum_{j=0}^{ZW-1}\frac{\partial \mathcal{L}}{\partial z_{i,j}}<br>$$</p>
+<p>$$<br>\frac{\partial \mathcal{L}}{\partial x_{s,t}}=\sum_{i=0}^{ZH-1}\sum_{j=0}^{ZW-1}w_{s-i\times strides+padding,t-j\times strides+padding}^{‘}\frac{\partial \mathcal{L}}{\partial z_{i,j}}<br>$$</p>
+<p>关于$w^{‘}$和$x^{‘}$就不多说了，分段函数，前面有。</p>
+<div id="refer-anchor"></div>
+
+<h1 id="参考资料"><span class="post-title-index">5. </span><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p>[1] <a href="https://nndl.github.io/" target="_blank" rel="noopener">《神经网络与深度学习》</a>邱锡鹏</p>
+<p>[2] 《深度学习入门——基于Python的理论与实现》斋藤康毅</p>
+<p>[3]  <a href="https://arxiv.org/abs/1907.02129" target="_blank" rel="noopener">The Indirect Convolution Algorithm</a> Google Research</p>
+<h1 id="Update"><span class="post-title-index">6. </span><a href="#Update" class="headerlink" title="Update"></a>Update</h1><ul>
+<li>【11.3更新】</li>
+</ul>
+<p>突然发现Microsoft的开源项目里有很好的数学推导，之前居然无视了，强烈推荐一波。</p>
+<p>链接：<a href="https://github.com/microsoft/ai-edu/tree/master/A-%E5%9F%BA%E7%A1%80%E6%95%99%E7%A8%8B/A2-%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E5%9F%BA%E6%9C%AC%E5%8E%9F%E7%90%86%E7%AE%80%E6%98%8E%E6%95%99%E7%A8%8B/Step8%20-%20CNN" target="_blank" rel="noopener">ai-edu/A2-神经网络基本原理简明教程/Step8-CNN</a></p>
+</body></html>
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:  </strong>Mi HD
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link: </strong>
+    <a href="https://primemhd.tech/DirectConv%E7%9B%B4%E6%8E%A5%E5%8D%B7%E7%A7%AF.html" title="DirectConv直接卷积">https://primemhd.tech/DirectConv直接卷积.html</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/en" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          
+          <div class="post-tags">
+              <a href="/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" rel="tag"><i class="fa fa-tag"></i> 机器学习</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/b%E7%AB%99%E7%BE%A4%E4%BD%93%E8%A7%A3%E6%9E%84.html" rel="prev" title="b站群体解构">
+      <i class="fa fa-chevron-left"></i> b站群体解构
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/%E6%99%BA%E8%83%BD%E8%AE%A1%E7%AE%97%E7%B3%BB%E7%BB%9F%E5%AE%9E%E9%AA%8C%E6%80%BB%E7%BB%93.html" rel="next" title="智能计算系统实验总结">
+      智能计算系统实验总结 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+  </div>
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#本文的由来"><span class="nav-number">1.</span> <span class="nav-text">1. 本文的由来</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#烂大街的im2col"><span class="nav-number">2.</span> <span class="nav-text">2. 烂大街的im2col</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Direct-Conv的数学推导"><span class="nav-number">3.</span> <span class="nav-text">3. Direct Conv的数学推导</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#正向计算"><span class="nav-number">3.1.</span> <span class="nav-text">3.1. 正向计算</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#求偏导"><span class="nav-number">3.2.</span> <span class="nav-text">3.2. 求偏导</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#基于Direct-Conv的卷积层实现"><span class="nav-number">4.</span> <span class="nav-text">4. 基于Direct Conv的卷积层实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#正向传播"><span class="nav-number">4.1.</span> <span class="nav-text">4.1. 正向传播</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#反向传播"><span class="nav-number">4.2.</span> <span class="nav-text">4.2. 反向传播</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考资料"><span class="nav-number">5.</span> <span class="nav-text">5. 参考资料</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Update"><span class="nav-number">6.</span> <span class="nav-text">6. Update</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Mi HD"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Mi HD</p>
+  <div class="site-description" itemprop="description">Truth and Transparency.简单可依赖。</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives">
+        
+          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/PrimeMHD" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;PrimeMHD" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:primemhd@foxmail.com" title="E-Mail → mailto:primemhd@foxmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/atom.xml" title="RSS → &#x2F;atom.xml"><i class="fa fa-fw fa-rss"></i>RSS</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://instagram.com/intelligent.mi" title="Instagram → https:&#x2F;&#x2F;instagram.com&#x2F;intelligent.mi" rel="noopener" target="_blank"><i class="fa fa-fw fa-instagram"></i>Instagram</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/en" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Mi HD</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> v4.2.0
+  </div>
+  <span class="post-meta-divider">|</span>
+  <div class="theme-info">Theme – <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> v7.7.2
+  </div>
+  <div class="addthis_inline_share_toolbox">
+    <script src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-5f9a7860fd0377b0" async="async"></script>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script size="300" alpha="0.6" zIndex="-1" src="//cdn.jsdelivr.net/gh/theme-next/theme-next-canvas-ribbon@1/canvas-ribbon.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+  <script>
+    (function(){
+      var bp = document.createElement('script');
+      var curProtocol = window.location.protocol.split(':')[0];
+      bp.src = (curProtocol === 'https') ? 'https://zz.bdstatic.com/linksubmit/push.js' : 'http://push.zhanzhang.baidu.com/push.js';
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(bp, s);
+    })();
+  </script>
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//cdnjs.cloudflare.com/ajax/libs/valine/1.4.14/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail,link';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : true,
+      notify     : true,
+      appId      : 'P8FEvuQgjEvJlyauAdThzmno-gzGzoHsz',
+      appKey     : 'Y6y7RduGPwDw9Yl8n7Xq1ldg',
+      placeholder: "Just go go",
+      avatar     : 'monsterid',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : true,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+</body>
+</html>
