@@ -289,13 +289,11 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <html><head></head><body><h1><span class="post-title-index">1. </span>本文的由来</h1>
-<p>最近在学习神经网络的基本原理、底层实现。之前跟着斋藤老师的书<a href="#refer-anchor"><sup>2</sup></a>，用Python手撸了一遍底层的东西，基本上只用了numpy，实现了各种激活函数、各种层。</p>
+        <html><head></head><body><h1 id="本文的由来"><span class="post-title-index">1. </span><a href="#本文的由来" class="headerlink" title="本文的由来"></a>本文的由来</h1><p>最近在学习神经网络的基本原理、底层实现。之前跟着斋藤老师的书<a href="#refer-anchor"><sup>2</sup></a>，用Python手撸了一遍底层的东西，基本上只用了numpy，实现了各种激活函数、各种层。</p>
 <p>接着想用C语言再撸一遍，这就不能用numpy了，一开始想自己写一些函数把numpy用到的的一些功能实现以下，不久可以直接移植了吗？（实际上我都设计好了，仿照numpy的功能，matmul, transpose, squeeze, reshape, slicing等操作。有机会再写一篇文章介绍一下）</p>
 <p>但是想要移植到FPGA上的话，这种偏高级语言的思路还是不太行，现在的思路是使用Direct Convolution，也就是用nested loop来实现，很原始，写完再看看有什么地方可以优化一下。但是问题来了，网上找的资料都是im2col的，我就想找个Direct Convolution的数学推导都找不到。然鹅我还是找到了，复旦邱老师的《nndl》<a href="#refer-anchor"><sup>1</sup></a>就没有用im2col，是最old school的数学推导。有点遗憾的是这本书里的推导是窄卷积，strides为1，于是我在本文中稍微拓展了一下，strides和padding可以为任意合法值。</p>
 <p>本文的推导是为编程服务的，所以矩阵的index会从0而不是1开始。</p>
-<h1><span class="post-title-index">2. </span>烂大街的im2col</h1>
-<p>首先声明这不是不尊重im2col，实际上我非常赞叹这个方法，太棒了。但是因为它太棒了，现在各种博客凡说卷积层推导99%都是用im2col。</p>
+<h1 id="烂大街的im2col"><span class="post-title-index">2. </span><a href="#烂大街的im2col" class="headerlink" title="烂大街的im2col"></a>烂大街的im2col</h1><p>首先声明这不是不尊重im2col，实际上我非常赞叹这个方法，太棒了。但是因为它太棒了，现在各种博客凡说卷积层推导99%都是用im2col。</p>
 <p>卷积层是CNN中最重要的层，这里不做科普，任何一本有关神经网络的书都会介绍。</p>
 <p>Google Research的一篇论文<a href="https://arxiv.org/abs/1907.02129" target="_blank" rel="noopener">The Indirect Convolution Algorithm</a>总结了常用的卷积算法：</p>
 <ul>
@@ -303,101 +301,67 @@
 <li>GEMM-based algorithms</li>
 <li>Fast Convolution Algorithms</li>
 </ul>
-<p>在底层实现上，现在最常见的就是<code>im2col</code>+<code>GEMM</code>的方法，目前几乎所有的主流计算框架包括<code> Caffe</code>, <code>MXNet</code> 等都实现了该方法。概括地说，该方法把卷积层的输入$\pmb{X}$通过<code>im2col</code>变换，把一个个的卷积窗口取出展平，变成了$\pmb{col_X}$。把卷积核也展平成二维矩阵，最终把卷积操作变换成了矩阵乘法。<br>
-$$<br>
-\pmb{Y}=\pmb{W\otimes X}=\pmb{col_X\cdot col_W}<br>
-$$</p>
-<blockquote>
+<p>在底层实现上，现在最常见的就是<code>im2col</code>+<code>GEMM</code>的方法，目前几乎所有的主流计算框架包括<code>Caffe</code>, <code>MXNet</code> 等都实现了该方法。概括地说，该方法把卷积层的输入$\pmb{X}$通过<code>im2col</code>变换，把一个个的卷积窗口取出展平，变成了$\pmb{col_X}$。把卷积核也展平成二维矩阵，最终把卷积操作变换成了矩阵乘法。</p>
+<script type="math/tex; mode=display">
+\pmb{Y}=\pmb{W\otimes X}=\pmb{col\_X\cdot col\_W}</script><blockquote>
 <p>注：矩阵乘法时，哪个在左边取决于im2col的细节差异。</p>
 </blockquote>
 <p>该方法把整个卷积过程转化成了GEMM过程，而GEMM在各种 BLAS 库中都是被极致优化的，一般来说，速度较快。</p>
-<h1><span class="post-title-index">3. </span>Direct Conv的数学推导</h1>
-<h2 id="正向计算"><span class="post-title-index">3.1. </span>正向计算</h2>
-<blockquote>
+<h1 id="Direct-Conv的数学推导"><span class="post-title-index">3. </span><a href="#Direct-Conv的数学推导" class="headerlink" title="Direct Conv的数学推导"></a>Direct Conv的数学推导</h1><h2 id="正向计算"><span class="post-title-index">3.1. </span><a href="#正向计算" class="headerlink" title="正向计算"></a>正向计算</h2><blockquote>
 <p>特别提醒：本文所提的卷积默认是二维卷积。并且是不带通道的那种，也就是仅仅是两个二维矩阵之间的卷积。</p>
 </blockquote>
-<p>$$<br>
-\pmb{X}\in \mathbb{R}^{M\times N}<br>
-$$</p>
-<p>$$<br>
-\pmb{W}\in \mathbb{R}^{U\times V}<br>
-$$</p>
-<p>$\pmb{X}$是一个二维矩阵，表示二维图像（单通道）。</p>
+<script type="math/tex; mode=display">
+\pmb{X}\in \mathbb{R}^{M\times N}</script><script type="math/tex; mode=display">
+\pmb{W}\in \mathbb{R}^{U\times V}</script><p>$\pmb{X}$是一个二维矩阵，表示二维图像（单通道）。</p>
 <p>$\pmb{W}$是一个二维矩阵，表示二维卷积核（单通道）。</p>
 <p>卷积操作直观上看是filter在input feature map上滑动，对每个窗口里的值做加权求和，就映射到output feature map上的一个格子。就从该直观操作除非，定义卷积运算吧！</p>
 <ul>
-<li>
-<p>二维卷积运算定义<br>
-$$<br>
-\pmb{Y}=\pmb{W\otimes X}<br>
-$$<br>
-$\pmb{X}$是input feature map，$\pmb{Y}$是output feature map，也是二维的矩阵。<br>
-$$<br>
-y_{i,j}=\sum_{u=0}^{U-1}\sum_{v=0}^{V-1}w_{u,v}\times x_{-padding+i\times strides+u,-padding+j\times strides+v}^{'}<br>
-$$</p>
-<p>$$<br>
-x_{-padding+i\times strides+u,-padding+j\times strides+v}^{'}=<br>
-\left{<br>
-\begin{array}{rcl}<br>
-x_{-padding+i\times strides+u,-padding+j\times strides+v} & &{(-padding+i\times strides+u,-padding+j\times strides+v)在\pmb{X}坐标范围内}\<br>
-0     &      & \text{else}\<br>
-\end{array} \right.<br>
-$$</p>
-<p>$\pmb{Y}$的尺寸：<br>
-$$<br>
-YH=\lfloor\frac{M+2\times padding-U}{strides}\rfloor +1<br>
-$$</p>
-<p>$$<br>
-YW=\lfloor\frac{N+2\times padding-V}{strides}\rfloor +1<br>
-$$</p>
-<p>即：<br>
-$$<br>
-\pmb{Y}\in \mathbb{R}^{YH\times YW}<br>
-$$</p>
-</li>
+<li><p>二维卷积运算定义</p>
+<script type="math/tex; mode=display">
+\pmb{Y}=\pmb{W\otimes X}</script><p>$\pmb{X}$是input feature map，$\pmb{Y}$是output feature map，也是二维的矩阵。</p>
+<script type="math/tex; mode=display">
+y_{i,j}=\sum_{u=0}^{U-1}\sum_{v=0}^{V-1}w_{u,v}\times x_{-padding+i\times strides+u,-padding+j\times strides+v}^{'}</script><script type="math/tex; mode=display">
+x_{-padding+i\times strides+u,-padding+j\times strides+v}^{'}=
+\left\{
+\begin{array}{rcl}
+x_{-padding+i\times strides+u,-padding+j\times strides+v} & &{(-padding+i\times strides+u,-padding+j\times strides+v)在\pmb{X}坐标范围内}\\
+0     &      & \text{else}\\
+\end{array} \right.</script></li>
 </ul>
-<h2 id="求偏导"><span class="post-title-index">3.2. </span>求偏导</h2>
-<p>$$<br>
-\begin{aligned}<br>
-\frac{\partial f(\pmb{Y})}{\partial w_{u,v}}<br>
-&= \sum_{i=0}^{YH-1}\sum_{j=0}^{YW-1}\frac{\partial y_{i,j}}{\partial w_{u,v}}\frac{\partial f(\pmb{Y})}{\partial y_{i,j}} \<br>
-&= \sum_{i=0}^{YH-1}\sum_{j=0}^{YW-1} x_{-padding+i\times strides+u,-padding+j\times strides+v}^{'} \frac{\partial f(\pmb{Y})}{\partial y_{i,j}}\end{aligned}<br>
-$$</p>
-<p>$$<br>
-\begin{aligned}<br>
-\frac{\partial f(\pmb{Y})}{\partial x_{s,t}}<br>
-&= \sum_{i=0}^{YH-1}\sum_{j=0}^{YW-1}\frac{\partial y_{i,j}}{\partial x_{s,t}}\frac{\partial f(\pmb{Y})}{\partial y_{i,j}} \<br>
-&= \sum_{i=0}^{YH-1}\sum_{j=0}^{YW-1} w_{s-i\times strides+padding,t-j\times strides+padding}^{'} \frac{\partial f(\pmb{Y})}{\partial y_{i,j}}\end{aligned}<br>
-$$</p>
-<p>$$<br>
-x_{-padding+i\times strides+u,-padding+j\times strides+v}^{'}=<br>
-\left{<br>
-\begin{array}{rcl}<br>
-x_{-padding+i\times strides+u,-padding+j\times strides+v} & &{(-padding+i\times strides+u,-padding+j\times strides+v)在\pmb{X}坐标范围内}\<br>
-0     &      & \text{else}\<br>
-\end{array} \right.<br>
-$$</p>
-<p>$$<br>
-w_{s-i\times strides+padding,t-j\times strides+padding}^{'}=<br>
-\left{<br>
-\begin{array}{rcl}<br>
-w_{s-i\times strides+padding,t-j\times strides+padding} & &{(s-i\times strides+padding,t-j\times strides+padding)在\pmb{W}坐标范围内}\<br>
-0     &      & \text{else}\<br>
-\end{array} \right.<br>
-$$</p>
-<h1><span class="post-title-index">4. </span>基于Direct Conv的卷积层实现</h1>
-<blockquote>
+<p>  $\pmb{Y}$的尺寸：</p>
+<script type="math/tex; mode=display">
+  YH=\lfloor\frac{M+2\times padding-U}{strides}\rfloor +1</script><script type="math/tex; mode=display">
+  YW=\lfloor\frac{N+2\times padding-V}{strides}\rfloor +1</script><p>  即：</p>
+<script type="math/tex; mode=display">
+  \pmb{Y}\in \mathbb{R}^{YH\times YW}</script><h2 id="求偏导"><span class="post-title-index">3.2. </span><a href="#求偏导" class="headerlink" title="求偏导"></a>求偏导</h2><script type="math/tex; mode=display">
+\begin{aligned}
+\frac{\partial f(\pmb{Y})}{\partial w_{u,v}}
+&= \sum_{i=0}^{YH-1}\sum_{j=0}^{YW-1}\frac{\partial y_{i,j}}{\partial w_{u,v}}\frac{\partial f(\pmb{Y})}{\partial y_{i,j}} \\
+&= \sum_{i=0}^{YH-1}\sum_{j=0}^{YW-1} x_{-padding+i\times strides+u,-padding+j\times strides+v}^{'} \frac{\partial f(\pmb{Y})}{\partial y_{i,j}}\end{aligned}</script><script type="math/tex; mode=display">
+\begin{aligned}
+\frac{\partial f(\pmb{Y})}{\partial x_{s,t}}
+&= \sum_{i=0}^{YH-1}\sum_{j=0}^{YW-1}\frac{\partial y_{i,j}}{\partial x_{s,t}}\frac{\partial f(\pmb{Y})}{\partial y_{i,j}} \\
+&= \sum_{i=0}^{YH-1}\sum_{j=0}^{YW-1} w_{s-i\times strides+padding,t-j\times strides+padding}^{'} \frac{\partial f(\pmb{Y})}{\partial y_{i,j}}\end{aligned}</script><script type="math/tex; mode=display">
+x_{-padding+i\times strides+u,-padding+j\times strides+v}^{'}=
+\left\{
+\begin{array}{rcl}
+x_{-padding+i\times strides+u,-padding+j\times strides+v} & &{(-padding+i\times strides+u,-padding+j\times strides+v)在\pmb{X}坐标范围内}\\
+0     &      & \text{else}\\
+\end{array} \right.</script><script type="math/tex; mode=display">
+w_{s-i\times strides+padding,t-j\times strides+padding}^{'}=
+\left\{
+\begin{array}{rcl}
+w_{s-i\times strides+padding,t-j\times strides+padding} & &{(s-i\times strides+padding,t-j\times strides+padding)在\pmb{W}坐标范围内}\\
+0     &      & \text{else}\\
+\end{array} \right.</script><h1 id="基于Direct-Conv的卷积层实现"><span class="post-title-index">4. </span><a href="#基于Direct-Conv的卷积层实现" class="headerlink" title="基于Direct Conv的卷积层实现"></a>基于Direct Conv的卷积层实现</h1><blockquote>
 <p>本章的<code>卷积层</code>，是借助前一章的<code>卷积</code>操作，两者有区别和联系。</p>
 <p>注意：第4章中的卷积核$\pmb{W}$、数据$\pmb{X}$的形状和第3章中的差别。第3章的$\pmb{W}$和$\pmb{X}$都是二维的，第4张到了卷积层这里，$\pmb{X}$是三维的（加上了通道）。但是不影响，实际做的时候就还是每个通道分别做二维卷积，然后求个和。</p>
 </blockquote>
-<h2 id="正向传播"><span class="post-title-index">4.1. </span>正向传播</h2>
-<p>卷积层有两种设计方法，</p>
+<h2 id="正向传播"><span class="post-title-index">4.1. </span><a href="#正向传播" class="headerlink" title="正向传播"></a>正向传播</h2><p>卷积层有两种设计方法，</p>
 <ul>
-<li>
-<p>卷积层=激活（卷积+偏置）</p>
+<li><p>卷积层=激活（卷积+偏置）</p>
 </li>
-<li>
-<p>卷积层=卷积+偏置</p>
+<li><p>卷积层=卷积+偏置</p>
 </li>
 </ul>
 <p>tensorflow里的卷积层是有个activation的选项，也就是第一种。我手撸的python版本的CNN中激活层是单独的，是第二种。</p>
@@ -405,29 +369,19 @@ $$</p>
 <p>该层的输入为：$\pmb{X}\in \mathbb{R}^{M\times N\times D}$</p>
 <p>该层的权重为：$\pmb{W}\in \mathbb{R}^{P\times U\times V\times D}$</p>
 <p>$P$是卷积核的个数，$M$、$N$是该层输入的高和宽，$U$、$V$分别是卷积核的高和宽，$D$是通道数。</p>
-<p>第$p$个卷积核，对输入$\pmb{X}$进行卷积偏置，计算输出的feature map的方式为：<br>
-$$<br>
-\pmb{Z}^{(l,p)}=\sum_{d=1}^D\pmb{W}^{(l,p,d)}\pmb{\otimes} \pmb{X}^{(l-1,d)}+b^{(l,p)}<br>
-$$<br>
-就是每个通道上执行卷积的operation（参照公式5），然后求和。</p>
-<h2 id="反向传播"><span class="post-title-index">4.2. </span>反向传播</h2>
-<p>$$<br>
-\frac{\partial \mathcal{L}}{\partial w_{u,v}}=\sum_{i=0}^{ZH-1}\sum_{j=0}^{ZW-1}x_{-padding+i\times strides+u,-padding+j\times strides+v}^{'}\frac{\partial\mathcal{L}}{\partial z_{i,j}}<br>
-$$</p>
-<p>$$<br>
-\frac{\partial \mathcal{L}}{\partial b}=\sum_{i=0}^{ZH-1}\sum_{j=0}^{ZW-1}\frac{\partial \mathcal{L}}{\partial z_{i,j}}<br>
-$$</p>
-<p>$$<br>
-\frac{\partial \mathcal{L}}{\partial x_{s,t}}=\sum_{i=0}^{ZH-1}\sum_{j=0}^{ZW-1}w_{s-i\times strides+padding,t-j\times strides+padding}^{'}\frac{\partial \mathcal{L}}{\partial z_{i,j}}<br>
-$$</p>
-<p>关于$w^{‘}$和$x^{’}$就不多说了，分段函数，前面有。</p>
+<p>第$p$个卷积核，对输入$\pmb{X}$进行卷积偏置，计算输出的feature map的方式为：</p>
+<script type="math/tex; mode=display">
+\pmb{Z}^{(l,p)}=\sum_{d=1}^D\pmb{W}^{(l,p,d)}\pmb{\otimes} \pmb{X}^{(l-1,d)}+b^{(l,p)}</script><p>就是每个通道上执行卷积的operation（参照公式5），然后求和。</p>
+<h2 id="反向传播"><span class="post-title-index">4.2. </span><a href="#反向传播" class="headerlink" title="反向传播"></a>反向传播</h2><script type="math/tex; mode=display">
+\frac{\partial \mathcal{L}}{\partial w_{u,v}}=\sum_{i=0}^{ZH-1}\sum_{j=0}^{ZW-1}x_{-padding+i\times strides+u,-padding+j\times strides+v}^{'}\frac{\partial\mathcal{L}}{\partial z_{i,j}}</script><script type="math/tex; mode=display">
+\frac{\partial \mathcal{L}}{\partial b}=\sum_{i=0}^{ZH-1}\sum_{j=0}^{ZW-1}\frac{\partial \mathcal{L}}{\partial z_{i,j}}</script><script type="math/tex; mode=display">
+\frac{\partial \mathcal{L}}{\partial x_{s,t}}=\sum_{i=0}^{ZH-1}\sum_{j=0}^{ZW-1}w_{s-i\times strides+padding,t-j\times strides+padding}^{'}\frac{\partial \mathcal{L}}{\partial z_{i,j}}</script><p>关于$w^{‘}$和$x^{‘}$就不多说了，分段函数，前面有。</p>
 <div id="refer-anchor"></div>
-<h1><span class="post-title-index">5. </span>参考资料</h1>
-<p>[1] <a href="https://nndl.github.io/" target="_blank" rel="noopener">《神经网络与深度学习》</a>邱锡鹏</p>
+
+<h1 id="参考资料"><span class="post-title-index">5. </span><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p>[1] <a href="https://nndl.github.io/" target="_blank" rel="noopener">《神经网络与深度学习》</a>邱锡鹏</p>
 <p>[2] 《深度学习入门——基于Python的理论与实现》斋藤康毅</p>
 <p>[3]  <a href="https://arxiv.org/abs/1907.02129" target="_blank" rel="noopener">The Indirect Convolution Algorithm</a> Google Research</p>
-<h1><span class="post-title-index">6. </span>Update</h1>
-<ul>
+<h1 id="Update"><span class="post-title-index">6. </span><a href="#Update" class="headerlink" title="Update"></a>Update</h1><ul>
 <li>【11.3更新】</li>
 </ul>
 <p>突然发现Microsoft的开源项目里有很好的数学推导，之前居然无视了，强烈推荐一波。</p>
@@ -535,7 +489,7 @@ $$</p>
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#"><span class="nav-number">1.</span> <span class="nav-text">1. 本文的由来</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#"><span class="nav-number">2.</span> <span class="nav-text">2. 烂大街的im2col</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#"><span class="nav-number">3.</span> <span class="nav-text">3. Direct Conv的数学推导</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#正向计算"><span class="nav-number">3.1.</span> <span class="nav-text">3.1. 正向计算</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#求偏导"><span class="nav-number">3.2.</span> <span class="nav-text">3.2. 求偏导</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#"><span class="nav-number">4.</span> <span class="nav-text">4. 基于Direct Conv的卷积层实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#正向传播"><span class="nav-number">4.1.</span> <span class="nav-text">4.1. 正向传播</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#反向传播"><span class="nav-number">4.2.</span> <span class="nav-text">4.2. 反向传播</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#"><span class="nav-number">5.</span> <span class="nav-text">5. 参考资料</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#"><span class="nav-number">6.</span> <span class="nav-text">6. Update</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#本文的由来"><span class="nav-number">1.</span> <span class="nav-text">1. 本文的由来</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#烂大街的im2col"><span class="nav-number">2.</span> <span class="nav-text">2. 烂大街的im2col</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Direct-Conv的数学推导"><span class="nav-number">3.</span> <span class="nav-text">3. Direct Conv的数学推导</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#正向计算"><span class="nav-number">3.1.</span> <span class="nav-text">3.1. 正向计算</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#求偏导"><span class="nav-number">3.2.</span> <span class="nav-text">3.2. 求偏导</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#基于Direct-Conv的卷积层实现"><span class="nav-number">4.</span> <span class="nav-text">4. 基于Direct Conv的卷积层实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#正向传播"><span class="nav-number">4.1.</span> <span class="nav-text">4.1. 正向传播</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#反向传播"><span class="nav-number">4.2.</span> <span class="nav-text">4.2. 反向传播</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考资料"><span class="nav-number">5.</span> <span class="nav-text">5. 参考资料</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Update"><span class="nav-number">6.</span> <span class="nav-text">6. Update</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
