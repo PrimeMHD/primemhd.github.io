@@ -1,6 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>batch_size</title>
+    <url>/batch-size.html</url>
+    <content><![CDATA[<html><head></head><body><h1 id="Batch-Size"><span class="post-title-index">1. </span><a href="#Batch-Size" class="headerlink" title="Batch Size"></a>Batch Size</h1><h2 id="深度学习中BatchSize对训练的影响"><span class="post-title-index">1.1. </span><a href="#深度学习中BatchSize对训练的影响" class="headerlink" title="深度学习中BatchSize对训练的影响"></a>深度学习中BatchSize对训练的影响</h2><p><a href="https://zhuanlan.zhihu.com/p/83626029" target="_blank" rel="noopener">知乎专栏：浅析深度学习中Batch Size大小对训练过程的影</a></p>
+<p>① 大的batch size减少训练时间（限定epoch的情况下）</p>
+<p>② 大的batch size训练更加稳定，loss下降曲线更加平滑</p>
+<p>③ 缺点，超大的batch size会导致模型泛化能力下降。（临界点之下lr的影响更大）可能会收敛到一个不太好sharp minimum，而小的batch size会偏向flat minimum，原因是小batch的噪声有助于套利sharp minimum.</p>
+<p>④ 缺点，内存可能撑不住。</p>
+<p>⑤ 缺点，想达到相同的精度需要更多的epoch。</p>
+<p>这是因为目前mini-batch做反向传播，计算梯度的时候，都是将mini-batch中的每个instance的loss做平均之后再反向求梯度。所以b的大小决定了相邻两个batch之间梯度的平滑程度。</p>
+<p>b越小，两次迭代的梯度相差大，梯度震荡严重，不利于收敛；b越大，两次迭代之间的梯度就会相差较小，利于模型收敛。但是如果极端大，稳定的梯度容易陷入局部最小值出不来（小b反而噪声波动因祸得福）</p>
+<blockquote>
+<p>一个极端是SGD，一次采用一个样本计算梯度，优点是计算快，适合流式数据，缺点是每个sample产生的梯度噪声交大，为了减小震荡只能采用较小的learning rate，并且单个sample往往很难沾满CPU/GPU的使用率。</p>
+</blockquote>
+<p>==batch size不能极端大！==</p>
+<p>如果batch size极端大。</p>
+<h2 id="大的BatchSize搭配大的LR？"><span class="post-title-index">1.2. </span><a href="#大的BatchSize搭配大的LR？" class="headerlink" title="大的BatchSize搭配大的LR？"></a>大的BatchSize搭配大的LR？</h2><p><a href="https://www.zhihu.com/question/64134994/answer/216895968" target="_blank" rel="noopener">知乎问答：如何理解深度学习分布式训练中的large batch size与learning rate的关系？</a></p>
+<p>多机同步并行训练等价于增大batch_size，多机情况下需要增大lr，否则收敛反而更慢。对于收敛精度，由于增大了batch size让梯度的估计更加准确，噪音更少，更容易收敛到局部最优解。</p>
+<p>一般情况下lr和batch-size是线性增长的关系，即把batch_size增大k被，学习率也增大k倍。</p>
+<p><a href="https://www.zhihu.com/question/64134994/answer/1925682805" target="_blank" rel="noopener">为什么基于随机梯度噪声推导学习率应sqrt增长实际却是线性？</a></p>
+<h2 id="参考资料"><span class="post-title-index">1.3. </span><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>[1] <a href="https://zhuanlan.zhihu.com/p/83626029" target="_blank" rel="noopener">知乎专栏：浅析深度学习中Batch Size大小对训练过程的影</a></p>
+<p>[2] <a href="https://www.zhihu.com/question/64134994/answer/216895968" target="_blank" rel="noopener">知乎问答：如何理解深度学习分布式训练中的large batch size与learning rate的关系？</a></p>
+<p>[3] <a href="https://www.zhihu.com/question/64134994/answer/1925682805" target="_blank" rel="noopener">为什么基于随机梯度噪声推导学习率应sqrt增长实际却是线性？</a></p>
+<p>[4] <a href="https://www.zhihu.com/question/32673260/answer/675161450" target="_blank" rel="noopener">知乎问答：深度学习中的batch的大小对学习效果有何影响？</a> </p>
+</body></html>]]></content>
+      <categories>
+        <category>机器学习</category>
+      </categories>
+      <tags>
+        <tag>机器学习</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>智能计算系统实验总结</title>
     <url>/%E6%99%BA%E8%83%BD%E8%AE%A1%E7%AE%97%E7%B3%BB%E7%BB%9F%E5%AE%9E%E9%AA%8C%E6%80%BB%E7%BB%93.html</url>
     <content><![CDATA[<html><head></head><body><h1 id="实验"><span class="post-title-index">1. </span><a href="#实验" class="headerlink" title="实验"></a>实验</h1><h2 id="第二章：从MLP入手"><span class="post-title-index">1.1. </span><a href="#第二章：从MLP入手" class="headerlink" title="第二章：从MLP入手"></a>第二章：从MLP入手</h2><h3 id="python神经网络"><span class="post-title-index">1.1.1. </span><a href="#python神经网络" class="headerlink" title="python神经网络"></a>python神经网络</h3><p>python实现简单的三层神经网络，用于手写数字识别任务。</p>
