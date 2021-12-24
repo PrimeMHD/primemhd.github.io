@@ -47,7 +47,7 @@
 <meta property="og:image" content="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223154536117.png">
 <meta property="og:image" content="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223154446278.png">
 <meta property="article:published_time" content="2021-12-24T04:23:49.000Z">
-<meta property="article:modified_time" content="2021-12-24T04:28:41.782Z">
+<meta property="article:modified_time" content="2021-12-24T09:56:02.703Z">
 <meta property="article:author" content="Mi HD">
 <meta property="article:tag" content="机器学习">
 <meta name="twitter:card" content="summary">
@@ -255,7 +255,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2021-12-24 12:23:49 / Modified: 12:28:41" itemprop="dateCreated datePublished" datetime="2021-12-24T12:23:49+08:00">2021-12-24</time>
+              <time title="Created: 2021-12-24 12:23:49 / Modified: 17:56:02" itemprop="dateCreated datePublished" datetime="2021-12-24T12:23:49+08:00">2021-12-24</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -305,113 +305,86 @@
 <h3 id="依然是python，但基于pycnml使用DLP"><span class="post-title-index">1.1.2. </span><a href="#依然是python，但基于pycnml使用DLP" class="headerlink" title="依然是python，但基于pycnml使用DLP"></a>依然是python，但基于pycnml使用DLP</h3><p>pycnml的地位大概就类似tensorflow-python。</p>
 <p>深度学习编程库 pycnml，通过调用 DLP 上 CNML 库中的高性能算子实现了全连接层、 卷积层、池化层、ReLU 激活层、Softmax 损失层等常用的网络层的基本功能，并提供了常用 网络层的 Python 接口。pycnml 提供的编程接口可以用于在 DLP 上加速神经网络算法，具体接口说明如表2.2所示。pycnml 用 Python 封装了一个 C++ 类 CnmlNet，该类的成员函数 定义了神经网络中层的创建、网络前向传播、参数加载等操作。</p>
 <figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MLP</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        self.net=pycnml.CnmlNet(<span class="number">16</span>)</span><br><span class="line">        ...</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">build_model</span><span class="params">(self,bs=<span class="number">100</span>,input_size=<span class="number">16</span>*<span class="number">16</span>,hidden=<span class="number">100</span>,out_size=<span class="number">10</span>)</span>:</span></span><br><span class="line">        <span class="comment">#类似1-gen DL框架的风格</span></span><br><span class="line">        self.net.setInputMlpShape(bs, input_size, <span class="number">1</span>, <span class="number">1</span>)</span><br><span class="line">        self.net.createMlpLayer(<span class="string">'fc1'</span>, hidden)</span><br><span class="line">        self.net.createReLuLayer(<span class="string">'relu1'</span>)</span><br><span class="line">        self.net.createMlpLayer(<span class="string">'fc2'</span>,out_class)</span><br><span class="line">        self.net.CreateSoftmaxLayer(<span class="string">'softmax'</span>, axis=<span class="number">1</span>)</span><br></pre></td></tr></tbody></table></figure>
-
 <p>注意，需要先设置env环境变量，才能在DLP上正常执行。</p>
 <figure class="highlight shell"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">export NEUWARE_HOME=/usr/local/neuware</span><br><span class="line">export PYTHONPATH=$PYTHONPATH</span><br><span class="line">export ATEN_CNML_COREVERSION="MLU200"</span><br><span class="line">export mcore="MLU200"</span><br><span class="line">export PATH=$PATH:$NEUWARE_HOME/bin</span><br><span class="line">export LD_LIBRARY_PATH=$NEUWARE_HOME/lib64</span><br></pre></td></tr></tbody></table></figure>
-
 <h2 id="第三章：在CNN上搞事"><span class="post-title-index">1.2. </span><a href="#第三章：在CNN上搞事" class="headerlink" title="第三章：在CNN上搞事"></a>第三章：在CNN上搞事</h2><h3 id="基于python自定义层，实现VGG"><span class="post-title-index">1.2.1. </span><a href="#基于python自定义层，实现VGG" class="headerlink" title="基于python自定义层，实现VGG"></a>基于python自定义层，实现VGG</h3><p>还是使用自己实现的python神经网络层，搭建一个VGG网络，然后再ImageNet上进行推理（1000个class），不含训练。在2-1自定义层的基础上，加上卷积神经网络需要用到的层，如Conv2D, MaxPool2D等。</p>
 <figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">VGG19</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        self.param_layer_name = (</span><br><span class="line">            <span class="string">'conv1_1'</span>, <span class="string">'relu1_1'</span>, <span class="string">'conv1_2'</span>, <span class="string">'relu1_2'</span>, <span class="string">'pool1'</span>,</span><br><span class="line">            <span class="string">'conv2_1'</span>, <span class="string">'relu2_1'</span>, <span class="string">'conv2_2'</span>, <span class="string">'relu2_2'</span>, <span class="string">'pool2'</span>,</span><br><span class="line">            <span class="string">'conv3_1'</span>, <span class="string">'relu3_1'</span>, <span class="string">'conv3_2'</span>, <span class="string">'relu3_2'</span>, <span class="string">'conv3_3'</span>, <span class="string">'relu3_3'</span>, <span class="string">'conv3_4'</span>, <span class="string">'relu3_4'</span>, <span class="string">'pool3'</span>,</span><br><span class="line">            <span class="string">'conv4_1'</span>, <span class="string">'relu4_1'</span>, <span class="string">'conv4_2'</span>, <span class="string">'relu4_2'</span>, <span class="string">'conv4_3'</span>, <span class="string">'relu4_3'</span>, <span class="string">'conv4_4'</span>, <span class="string">'relu4_4'</span>, <span class="string">'pool4'</span>,</span><br><span class="line">            <span class="string">'conv5_1'</span>, <span class="string">'relu5_1'</span>, <span class="string">'conv5_2'</span>, <span class="string">'relu5_2'</span>, <span class="string">'conv5_3'</span>, <span class="string">'relu5_3'</span>, <span class="string">'conv5_4'</span>, <span class="string">'relu5_4'</span>, <span class="string">'pool5'</span>,</span><br><span class="line">            <span class="string">'flatten'</span>, <span class="string">'fc6'</span>, <span class="string">'relu6'</span>, <span class="string">'fc7'</span>, <span class="string">'relu7'</span>, <span class="string">'fc8'</span>, <span class="string">'softmax'</span></span><br><span class="line">        )  </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">build_model</span><span class="params">(self)</span>:</span></span><br><span class="line">        self.layers=OrderedDict()</span><br><span class="line">        self.layers[<span class="string">'conv1_1'</span>]=ConvolutionalLayer(<span class="number">3</span>,<span class="number">3</span>,<span class="number">64</span>,<span class="number">1</span>,<span class="number">1</span>)</span><br><span class="line">        self.layers[<span class="string">'relu1_1'</span>]=ReLULayer()</span><br><span class="line">        ...</span><br><span class="line">        self.update_layer_list=[]</span><br><span class="line">        <span class="keyword">for</span> layer_name <span class="keyword">in</span> self.layers.keys():</span><br><span class="line">            <span class="keyword">if</span> <span class="string">'conv'</span> <span class="keyword">in</span> layer_name <span class="keyword">or</span> <span class="string">'fc'</span> <span class="keyword">in</span> layer_name:</span><br><span class="line">                self.update_layer_list.append(layer_name)</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">forward</span><span class="params">(self)</span>:</span></span><br><span class="line">        current=self.input_image <span class="comment">#先要调用load_data</span></span><br><span class="line">        <span class="keyword">for</span> layer_name <span class="keyword">in</span> self.param_layer_name:</span><br><span class="line">            current=self.layers[layer_name].forward(current)</span><br><span class="line">        <span class="keyword">return</span> current</span><br></pre></td></tr></tbody></table></figure>
-
 <h3 id="VGG，-基于pycnml"><span class="post-title-index">1.2.2. </span><a href="#VGG，-基于pycnml" class="headerlink" title="VGG， 基于pycnml"></a>VGG， 基于pycnml</h3><p>跟第二章的实验基本是一样的思路，就是从self-defined layers转到pycnml提供的轮子，在DLP上运行，从而体现DLP相对于CPU在推理任务上的优越性。</p>
 <p>这个里面加了一个评估top5的功能，回顾一下工程技巧：</p>
 <figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">is_in_top5</span><span class="params">(self, label)</span>:</span></span><br><span class="line">    in_top1, in_top5 = <span class="literal">False</span>, <span class="literal">False</span></span><br><span class="line">    result = self.net.getOututData() <span class="comment">#先得到网络softmax的结果</span></span><br><span class="line">    prob = sorted(list(result), reverse=<span class="literal">True</span>)[:<span class="number">5</span>] <span class="comment">#1000个类的概率从大到小排列，取top5</span></span><br><span class="line">    <span class="keyword">if</span> result.index(prob[<span class="number">0</span>]) == label:</span><br><span class="line">        <span class="comment">#index是list的一个方法，找到对应值的索引（第一个）</span></span><br><span class="line">        in_top1=<span class="literal">True</span></span><br><span class="line">    <span class="keyword">for</span> p <span class="keyword">in</span> prob:</span><br><span class="line">        <span class="keyword">if</span> result.index(p) == label:</span><br><span class="line">            in_top5=<span class="literal">True</span></span><br><span class="line">    <span class="keyword">return</span> in_top1, in_top5</span><br></pre></td></tr></tbody></table></figure>
-
 <h3 id="VGG-自写python层-，非实时风格迁移实验"><span class="post-title-index">1.2.3. </span><a href="#VGG-自写python层-，非实时风格迁移实验" class="headerlink" title="VGG(自写python层)，非实时风格迁移实验"></a>VGG(自写python层)，非实时风格迁移实验</h3><p>在2.2的基础上的具体场景应用。</p>
 <ul>
 <li>实时风格迁移：训练一个模型，对任意内容的图像都可以生成风格化的图像，实现相对复杂</li>
 <li>非实时风格迁移：对每张输入的内容图像进行训练。</li>
 </ul>
 <p>输入两张图片，目标风格图片+目标内容图片。</p>
-<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112211116427.png" alt="image-20211221111643277" style="zoom:50%;">
-
+<p><img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112211116427.png" alt="image-20211221111643277" style="zoom:50%;"></p>
 <p>算法上最为核心的是损失函数的设计，为什么风格损失函数可以表示风格上的接近程度，而内容损失函数可以表示内容上的接近程度。</p>
 <ul>
 <li><strong>内容损失函数</strong></li>
 </ul>
-<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112211117978.png" alt="image-20211221111758925" style="zoom:50%;">
-
+<p><img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112211117978.png" alt="image-20211221111758925" style="zoom:50%;"></p>
 <p>​    每个像素点的差距加起来。</p>
 <p>​    $\bf{X}$是trainable的变量，是需要通过反向传播获得梯度然后做优化的变量。</p>
-<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112211122266.png" alt="image-20211221112230207" style="zoom:50%;">
-
+<p><img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112211122266.png" alt="image-20211221112230207" style="zoom:50%;"></p>
 <ul>
 <li><p><strong>风格损失函数</strong></p>
 <p>  风格损失函数更加难以理解了。实验书上含糊的说用的是Gram矩来计算风格特征$\bf{A}$和$\bf{G}$。</p>
-  <img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112211127081.png" alt="image-20211221112709043" style="zoom:50%;">
-
-  <img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211221112841761.png" alt="image-20211221112841761" style="zoom:50%;">
-
+<p>  <img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112211127081.png" alt="image-20211221112709043" style="zoom:50%;"></p>
+<p>  <img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211221112841761.png" alt="image-20211221112841761" style="zoom:50%;"></p>
 </li>
 </ul>
 <p>​    风格损失函数的梯度为</p>
-<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211221113007431.png" alt="image-20211221113007431" style="zoom:50%;">    
-
+<p><img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211221113007431.png" alt="image-20211221113007431" style="zoom:50%;">    </p>
 <ul>
 <li><p><strong>总的损失函数</strong></p>
 <p>  总的损失函数是风格损失和内容损失的加权和。</p>
-  <img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211221113204183.png" alt="image-20211221113204183" style="zoom:50%;">
-
+<p>  <img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211221113204183.png" alt="image-20211221113204183" style="zoom:50%;"></p>
 </li>
 </ul>
 <p><strong>VGG19使用的是2.1中基于python自定义层实现的VGG</strong>，forward函数增加了输出指定某些中间层结果的功能。</p>
 <p>另外再实现两个计算损失函数的层，<code>content_loss_layer</code>和<code>style_loss_layer</code>.</p>
 <figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ContentLossLayer</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">forward</span><span class="params">(self, input_layer, content_layer)</span>:</span></span><br><span class="line">        <span class="comment">#分别是输入图像和内容图像在第l层上的特征图</span></span><br><span class="line">        N,C,H,W = input_layer.shape</span><br><span class="line">        loss=np.sum((input_layer-content_layer)**<span class="number">2</span>)/(<span class="number">2</span>*N*C*H*W)</span><br><span class="line">        <span class="keyword">return</span> loss</span><br><span class="line">    </span><br><span class="line">vgg = VGG19(param_path=<span class="string">'../imagenet-vgg-verydeep-19.mat'</span>)</span><br><span class="line">vgg.build_model()</span><br><span class="line">vgg.init_model()</span><br><span class="line">vgg.load_model()</span><br><span class="line">content_loss_layer = ContentLossLayer()</span><br><span class="line">style_loss_layer = StyleLossLayer()</span><br></pre></td></tr></tbody></table></figure>
-
 <p>先在vgg19中进行forward，得到中间层的输出，这些中间层的计算结果将参与<code>内容损失</code>和<code>风格损失</code>的计算。</p>
 <figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">CONTENT_LOSS_LAYERS = [<span class="string">'relu4_2'</span>]</span><br><span class="line">STYLE_LOSS_LAYERS = [<span class="string">'relu1_1'</span>, <span class="string">'relu2_1'</span>, <span class="string">'relu3_1'</span>, <span class="string">'relu4_1'</span>, <span class="string">'relu5_1'</span>]</span><br><span class="line"><span class="keyword">for</span> step <span class="keyword">in</span> range(TRAIN_STEP_NUM):</span><br><span class="line">    content_loss=np.array([]) <span class="comment">#清零</span></span><br><span class="line">    style_loss=np.array([]) <span class="comment">#清零</span></span><br><span class="line">    content_diff = np.zeros(transfer_image.shape) <span class="comment">#内容损失关于X的梯度</span></span><br><span class="line">    style_diff = np.zeros(transfer_image.shape)   <span class="comment">#风格损失关于X的梯度</span></span><br><span class="line">    <span class="comment">##############################################################</span></span><br><span class="line">    transfer_layers = vgg.forward(transfer_image, CONTENT_LOSS_LAYERS+STYLE_LOSS_LAYERS)</span><br><span class="line">    content_layers = vgg.forward(content_image, CONTENT_LOSS_LAYERS)</span><br><span class="line">    style_layers = vgg.forward(style_image, STYLE_LOSS_LAYERS)</span><br><span class="line">    <span class="comment">#上面是中间层的计算结果</span></span><br><span class="line">    <span class="comment">##############################################################</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">#内容损失的forward和backward</span></span><br><span class="line">    <span class="keyword">for</span> layer <span class="keyword">in</span> CONTENT_LOSS_LAYERS:</span><br><span class="line">        current_loss = content_loss_layer.forward(transfer_layers[layer], content_layers[layer]) <span class="comment"># 这一层的损失</span></span><br><span class="line">        content_loss = np.append(content_loss, current_loss) </span><br><span class="line">        <span class="comment">#先存着，后面算平均，虽然！content_loss在训练中没有用到！</span></span><br><span class="line">        </span><br><span class="line">        dloss = content_loss_layer.backward(transfer_layers[layer], content_layers[layer]) <span class="comment">#内容损失函数关于第l层的X的梯度</span></span><br><span class="line">        dloss = vgg.backward(dloss, layer) </span><br><span class="line">        <span class="comment">#从l层一直穿到input层，即内容损失函数（的l层分量）关于tranfer_image的梯度</span></span><br><span class="line">        content_diff += dloss</span><br><span class="line">    <span class="comment">#风格损失函数的省略...</span></span><br><span class="line">    </span><br><span class="line">    image_diff=ALPHA * content_diff / len(CONTENT_LOSS_LAYERS) + BETA * style_diff / len(STYLE_LOSS_LAYERS)</span><br><span class="line">    <span class="comment">#综合损失函数关于input层的transfer_image的梯度。</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">#更新参数</span></span><br><span class="line">    transfer_image = adam_optimizer.update(transfer_image, image_diff)</span><br></pre></td></tr></tbody></table></figure>
-
 <h2 id="第四章：开始用TF"><span class="post-title-index">1.3. </span><a href="#第四章：开始用TF" class="headerlink" title="第四章：开始用TF"></a>第四章：开始用TF</h2><h3 id="TF-VGG19-CPU图像识别"><span class="post-title-index">1.3.1. </span><a href="#TF-VGG19-CPU图像识别" class="headerlink" title="TF-VGG19-CPU图像识别"></a>TF-VGG19-CPU图像识别</h3><p>用的较低级的算子，从现有模型文件中读取参数，构建计算图。</p>
 <figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">_conv_layer</span><span class="params">(input, weights, bias)</span>：</span></span><br><span class="line">	output = tf.nn.conv2d(input, weights, [1,1,1,1], padding='SAME')</span><br><span class="line">    output = tf.nn.bias_add(output, bias[<span class="number">0</span>])</span><br><span class="line">    <span class="keyword">return</span> output</span><br><span class="line"></span><br><span class="line">def net(input_image:tf.placeholder):->dict</span><br><span class="line">    <span class="comment">#vgg19本身是序列模型，较为简单，所以定义顺序加载每一层的参数就行。</span></span><br><span class="line">    layers=[<span class="string">'conv1_1'</span>, <span class="string">'relu1_1'</span>, 略]</span><br><span class="line">    net = {}</span><br><span class="line">    current = input_image <span class="comment">#应为placeholder</span></span><br><span class="line">    <span class="keyword">for</span> i, name <span class="keyword">in</span> enumerate(layers):</span><br><span class="line">        <span class="keyword">if</span> name[:<span class="number">4</span>]==<span class="string">'relu'</span>:</span><br><span class="line">            current = tf.nn.relu(current)</span><br><span class="line">        <span class="keyword">elif</span> name[：<span class="number">4</span>]==<span class="string">'conv'</span>:</span><br><span class="line">            kernels, bias = 读取</span><br><span class="line">            current=_conv_layer(current, kernels, bias)</span><br><span class="line">        ...略</span><br><span class="line">        net[name]=current</span><br><span class="line">    <span class="keyword">return</span> net</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    input_image=读取</span><br><span class="line">    <span class="keyword">with</span> tf.Session() <span class="keyword">as</span> sess:</span><br><span class="line">        input_holder=tf.placeholder(tf.float32, shape=(<span class="number">1</span>,<span class="number">224</span>,<span class="number">224</span>,<span class="number">3</span>), name=<span class="string">'input_hold'</span>)</span><br><span class="line">        nets=net(input_holder)</span><br><span class="line">        preds=sess.run(nets, feed_dict{input_holder:input_image})</span><br><span class="line">        top1_idx = np.argmax(preds[<span class="string">'softmax'</span>][<span class="number">0</span>])</span><br></pre></td></tr></tbody></table></figure>
-
-
-
 <h3 id="TF-VGG-19-MLU图像识别"><span class="post-title-index">1.3.2. </span><a href="#TF-VGG-19-MLU图像识别" class="headerlink" title="TF-VGG-19-MLU图像识别"></a>TF-VGG-19-MLU图像识别</h3><p>tensorflow-dlp是继承了CNML的魔改版本，支持底层的DLP算子。==DLP平台仅支持量化过的模型文件==</p>
 <p>需要将原始的模型文件保存pb，然后量化为int8的数据类型形成新的.pb格式，还需要在程序中设置DLP的运行参数，整体上来说对用户并非是透明的。</p>
-<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223152858573.png" alt="image-20211223152858573" style="zoom:50%;">
-
+<p><img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223152858573.png" alt="image-20211223152858573" style="zoom:50%;"></p>
 <p><strong>①转换模型文件</strong></p>
 <p>这一步是在3.1中顺带做的~</p>
-<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223153141763.png" alt="image-20211223153141763" style="zoom:50%;">
-
+<p><img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223153141763.png" alt="image-20211223153141763" style="zoom:50%;"></p>
 <p>生成模型pb文件，然后用一个脚本转换成int8.pb文件</p>
-<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223153236752.png" alt="image-20211223153236752" style="zoom:50%;">
-
+<p><img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223153236752.png" alt="image-20211223153236752" style="zoom:50%;"></p>
 <p><strong>② 从pb模型文件恢复计算图，在mlu上运行session</strong></p>
 <p>有意思的是，pb文件中不仅含有权重的数据，很显然还保存了计算图，不然是无法直接恢复的。</p>
 <figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">model=<span class="string">'vgg19_int8.pb'</span></span><br><span class="line">config=tf.ConfigProto(allow_soft_placement=<span class="literal">True</span>, </span><br><span class="line">                      inter_op_parallelism_threads=<span class="number">1</span>,</span><br><span class="line">                      inter_op_parallelism_thread=<span class="number">1</span>)</span><br><span class="line">config.mlu_options.core_num=<span class="number">16</span></span><br><span class="line"><span class="meta">... </span><span class="comment">#其他config设置</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> g.as_default():</span><br><span class="line">    <span class="keyword">with</span> tf.gfile.FastGFile(model,<span class="string">'rb'</span>) <span class="keyword">as</span> f:</span><br><span class="line">        graph_def = tf.GraphDef()</span><br><span class="line">        graph_def.ParseFromString(f.read)</span><br><span class="line">        tf.import_graph_def(graph_def, name=<span class="string">''</span>)</span><br><span class="line">    <span class="keyword">with</span> tf.Session(config=config) <span class="keyword">as</span> sess:</span><br><span class="line">        ...<span class="comment">#跟cpu版本差不多</span></span><br></pre></td></tr></tbody></table></figure>
-
 <p>==创建session的时候传入config，这样就能设置运行的硬件了==</p>
 <h3 id="TF实时风格迁移-CPU-MLU"><span class="post-title-index">1.3.3. </span><a href="#TF实时风格迁移-CPU-MLU" class="headerlink" title="TF实时风格迁移-CPU/MLU"></a>TF实时风格迁移-CPU/MLU</h3><p>基于新的算法，能够实时快速地进图像风格迁移。这个实验不需要我们写模型，直接从pb文件加载就可以了。那也就是说，这个实验和3.1、3.2中的实验没有啥区别。就是图像识别模型vs实时风格迁移模型的区别。</p>
 <p><strong>模型（量化）转换</strong></p>
 <p>这章的实验指导更为详尽地介绍了模型量化和转换的过程。模型转换的过程是通过模型转换脚本实现的，这个转换脚本是课程提供的工具，不需要自己实现，但是还是要了解一下它都干了啥。<code>fppb_to_intpb.py</code></p>
 <p><img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223223048387.png" alt="image-20211223223048387"></p>
-<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223183003302.png" alt="image-20211223183003302" style="zoom:50%;">
-
-
-
+<p><img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223183003302.png" alt="image-20211223183003302" style="zoom:50%;"></p>
 <p><strong>实时风格迁移算法</strong></p>
 <p>用一个<code>图像转换网络</code>和一个<code>特征提取网络</code>来做。大致结构如下：</p>
-<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223180013531.png" alt="image-20211223180013531" style="zoom:50%;">
-
+<p><img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223180013531.png" alt="image-20211223180013531" style="zoom:50%;"></p>
 <h2 id="❤自定义TF-CPU算子"><span class="post-title-index">1.4. </span><a href="#❤自定义TF-CPU算子" class="headerlink" title="❤自定义TF-CPU算子"></a>❤自定义TF-CPU算子</h2><p>这是被算在第四章的一个实验，之所以单独拎出来，是因为这是最核心的也是比较有技术含量的一个实验，需要==对TensorFlow的整体设计机理也要有所了解。==</p>
 <ul>
 <li>使用Python构造新的Op</li>
 <li>使用C++构造更底层的Op</li>
 </ul>
-<p>本实验加的算子叫做PowerDiffence算子，可以替代原有的SquareDifference，更通用。<br>$$<br>PowerDifference=(\bf{X}-\bf{Y})^Z<br>$$</p>
-<h3 id="如何兼容替换现有模型中的op"><span class="post-title-index">1.4.1. </span><a href="#如何兼容替换现有模型中的op" class="headerlink" title="如何兼容替换现有模型中的op"></a>如何兼容替换现有模型中的op</h3><p>PowerDifference算子显然是兼容SquareDifference算子的，替换方法是：</p>
+<p>本实验加的算子叫做PowerDiffence算子，可以替代原有的SquareDifference，更通用。</p>
+<script type="math/tex; mode=display">
+PowerDifference=(\bf{X}-\bf{Y})^Z</script><h3 id="如何兼容替换现有模型中的op"><span class="post-title-index">1.4.1. </span><a href="#如何兼容替换现有模型中的op" class="headerlink" title="如何兼容替换现有模型中的op"></a>如何兼容替换现有模型中的op</h3><p>PowerDifference算子显然是兼容SquareDifference算子的，替换方法是：</p>
 <p>利用课程提供的两个脚本，<code>pb_to_pbtxt.py</code>和<code>pbtxt_to_pb.py</code>这两个工具，</p>
 <p><strong>① pb→pbtxt</strong></p>
 <p>​    先用前者把训练好的模型转换成文本格式，</p>
 <p><strong>② 编辑文本格式中的节点</strong></p>
 <p>添加一个输入节点</p>
-<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223231754566.png" alt="image-20211223231754566" style="zoom: 50%;">
-
+<p><img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223231754566.png" alt="image-20211223231754566" style="zoom: 50%;"></p>
 <p>把SquaredDifference节点修改为PowerDifference节点，还要把以SquaredDifference作为输入的节点的input也替换成PowerDifference。</p>
-<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223231946799.png" alt="image-20211223231946799" style="zoom: 50%;">
-
-
-
+<p><img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223231946799.png" alt="image-20211223231946799" style="zoom: 50%;"></p>
 <p><strong>③ pb→pbtxt</strong></p>
 <h3 id="添加c-cpu算子的基本流程"><span class="post-title-index">1.4.2. </span><a href="#添加c-cpu算子的基本流程" class="headerlink" title="添加c++ cpu算子的基本流程"></a>添加c++ cpu算子的基本流程</h3><p><strong>① C++编写Kernel函数</strong></p>
 <p><strong>② 在C++文件中注册新Op</strong></p>
@@ -431,14 +404,13 @@
 <p>  根据不同的阈值生成不同的量化分布，计算每个INT8分布与原FP32分布的量化误差（越小越好）。找到最佳的那个。</p>
 </li>
 </ul>
-<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223174226710.png" style="zoom: 33%;">
-
+<p><img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223174226710.png" style="zoom: 33%;"></p>
 <p>【to be continue，参见第四章实验手册】。</p>
 <h2 id="一些问题"><span class="post-title-index">1.7. </span><a href="#一些问题" class="headerlink" title="一些问题"></a>一些问题</h2><h3 id="pycnml和tf-mlu有什么关系"><span class="post-title-index">1.7.1. </span><a href="#pycnml和tf-mlu有什么关系" class="headerlink" title="pycnml和tf-mlu有什么关系"></a>pycnml和tf-mlu有什么关系</h3><p>tf-mlu是集成了CNML的魔改版Tensorflow框架，自动支持MLU的硬件算子。</p>
-<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223154536117.png" alt="image-20211223154536117" style="zoom:50%;">
-
+<p><img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223154536117.png" alt="image-20211223154536117" style="zoom:50%;"></p>
 <p>Pycnml也是基于CMNL的，它使用python接口封装了CnmlNet.</p>
-<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223154446278.png" alt="image-20211223154446278" style="zoom:50%;"></body></html>
+<p><img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223154446278.png" alt="image-20211223154446278" style="zoom:50%;"></p>
+</body></html>
     </div>
 
     
@@ -696,6 +668,61 @@
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+          load: ['[tex]/mhchem'],
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+          packages: {'[+]': ['mhchem']},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

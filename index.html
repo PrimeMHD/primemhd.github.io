@@ -334,7 +334,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2021-12-24 12:23:49 / Modified: 12:28:41" itemprop="dateCreated datePublished" datetime="2021-12-24T12:23:49+08:00">2021-12-24</time>
+              <time title="Created: 2021-12-24 12:23:49 / Modified: 17:56:02" itemprop="dateCreated datePublished" datetime="2021-12-24T12:23:49+08:00">2021-12-24</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -1209,6 +1209,7 @@
   if (typeof MathJax === 'undefined') {
     window.MathJax = {
       loader: {
+          load: ['[tex]/mhchem'],
         source: {
           '[tex]/amsCd': '[tex]/amscd',
           '[tex]/AMScd': '[tex]/amscd'
@@ -1216,6 +1217,7 @@
       },
       tex: {
         inlineMath: {'[+]': [['$', '$']]},
+          packages: {'[+]': ['mhchem']},
         tags: 'ams'
       },
       options: {
