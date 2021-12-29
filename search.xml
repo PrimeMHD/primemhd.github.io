@@ -1,9 +1,140 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>强化学习理论</title>
+    <url>/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%90%86%E8%AE%BA.html</url>
+    <content><![CDATA[<html><head></head><body><h2 id="基本概念"><span class="post-title-index">.1. </span>基本概念</h2>
+<blockquote>
+<p>注意，大写字母是随机变量，小写字母是观测（采样）值。</p>
+</blockquote>
+<h3 id="策略函数π"><span class="post-title-index">.1.1. </span>策略函数π</h3>
+<p>策略函数是一个概率密度函数。</p>
+<p>$A\sim\pi(\cdot\mid s)$ 输入为当前状态s，然后随机采样出一个动作a。</p>
+<h3 id="轨迹trajectory、rollout"><span class="post-title-index">.1.2. </span>轨迹trajectory、rollout</h3>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112131555011.png" alt="image-20211213155558969" style="zoom: 50%;">
+<h3 id="Return和reward"><span class="post-title-index">.1.3. </span>Return和reward</h3>
+<ul>
+<li>
+<p>reward是一个立刻可以知道的值，一般是人为定义的。</p>
+</li>
+<li>
+<p>Return则包含着未来，是未来所有reward的加和。t时刻的Return表示为$$U_t$$，它是一个随机变量，它的随机性来源于动作采样的不确定和状态转移的不确定。如下式：注意$\gamma$是超参数，需要调。</p>
+  <img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112131608280.png" alt="image-20211213160833250" style="zoom: 33%;">
+</li>
+</ul>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112131602575.png" alt="image-20211213160216542" style="zoom: 67%;">
+<h3 id="动作价值函数"><span class="post-title-index">.1.4. </span>动作价值函数</h3>
+<p>==动作价值函数==：$Q_\pi(s_t, a_t)$</p>
+<p>它的定义是：对给定的状态$s_t$下做出动作$a_t$，带来的Return的期望。</p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112131625199.png" alt="image-20211213162505158" style="zoom:50%;">
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112131625936.png" alt="image-20211213162536897" style="zoom:50%;">
+<p>这个期望是<u>不能直接求的</u>，只能近似/拟合。</p>
+<h3 id="状态价值函数"><span class="post-title-index">.1.5. </span>状态价值函数</h3>
+<p>==状态价值函数==：$V_\pi(s_t)$</p>
+<p>它的定义是，在给定状态$s_t$下，做出各种可能的动作，带来的Return的期望。其实就是对动作价值函数在动作空间上求期望。</p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112131628491.png" alt="image-20211213162836465" style="zoom:50%;">
+<h3 id="On-policy-Off-policy"><span class="post-title-index">.1.6. </span>On-policy/Off-policy</h3>
+<h4 id="同策略on-policy"><span class="post-title-index">.1.6.1. </span>同策略on-policy</h4>
+<p><code>行为策略</code>（Behavior Policy）和<code>目标策略</code>（Target Policy）相同，两者都是策略网络$\pi_{\theta_{now}}$</p>
+<h4 id="异策略off-policy"><span class="post-title-index">.1.6.2. </span>异策略off-policy</h4>
+<h2 id="贝尔曼方程Bellman-Equations"><span class="post-title-index">.2. </span>贝尔曼方程Bellman Equations</h2>
+<p>贝尔曼方程式是4个价值函数的自洽表达。</p>
+<blockquote>
+<p>Bellman Equations里包含着人生的哲理。</p>
+<p>The value of your starting point is the reward you expect to get from being, plus the value of wherever you land next.</p>
+</blockquote>
+<p><code>on-policy</code>下的表达：</p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112131547317.png" alt="image-20211213154709231" style="zoom: 50%;">
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112131548630.png" alt="image-20211213154842591" style="zoom: 50%;">
+<p>最好理解的是$Q^\pi(s,a)$的这一条。</p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211228111636802.png" alt="image-20211228111636802" style="zoom:50%;">
+<p>再稍加变形就得到了$V^\pi(s)$的公式。</p>
+<p>注：可以看到$\pi$有时候放在上标有时候放在下标，这其实没有区别，只是不同地方书写习惯不同。</p>
+<h2 id="价值学习value-based-learning"><span class="post-title-index">.3. </span>价值学习value-based learning</h2>
+<h3 id="价值学习的目标"><span class="post-title-index">.3.1. </span>价值学习的目标</h3>
+<p>价值学习就是学出一个Q函数。</p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112131625936.png" alt="image-20211213162536897" style="zoom:50%;">
+<p>有了这个函数，我们就能把$Q^<em>(s_t,a_t)$作为agent的行为准则，在任意一个state找到一个让$Q^</em>$最大的action即可。</p>
+<p>example：<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211228112547907.png" alt="image-20211228112547907" style="zoom: 50%;"></p>
+<p>以上是一个超级玛丽agent在状态$s_t$的最优动作价值函数的取值，可见应当向上。</p>
+<h3 id="DQN"><span class="post-title-index">.3.2. </span>DQN</h3>
+<p>理想很丰满，现实是$Q*$只具备理论意义，无法得到其函数表达式。但是我们可以借助深度神经网络来近似$Q_<em>$函数。这个用于近似$Q_</em>$函数的网络叫做Deep Q Network（深度Q网络）。</p>
+<p>一个DQN的例子：</p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211228113152923.png" alt="image-20211228113152923" style="zoom:50%;">
+<h3 id="TD算法"><span class="post-title-index">.3.3. </span>TD算法</h3>
+<blockquote>
+<p>用一句话概括：采用梯度下降法minimize TD error。</p>
+</blockquote>
+<p>简单的例子：</p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211228125331190.png" alt="image-20211228125331190" style="zoom:50%;">
+<p><code>TD Target</code>：含有局部观测值的预测值。</p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211228125743347.png" alt="image-20211228125743347" style="zoom:50%;">
+<p><code>TD Error</code>：纯预测值 和 TD Target之间的差值</p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211228125908457.png" alt="image-20211228125908457" style="zoom:50%;">
+<p>损失函数：（其实就是TD Error平方再除以二）</p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211228130609139.png" alt="image-20211228130609139" style="zoom:50%;">
+<p><strong>损失函数的基础上做梯度下降</strong></p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211228131618929.png" alt="image-20211228131618929" style="zoom:50%;">
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211228131638808.png" alt="image-20211228131638808" style="zoom:50%;">
+<blockquote>
+<p>注：这里把$\hat{y}$看做常数了，尽管它是$\mathbf{w}$的的函数。</p>
+</blockquote>
+<h3 id="TD训练DQN"><span class="post-title-index">.3.4. </span>TD训练DQN</h3>
+<h2 id="策略学习policy-based-learning"><span class="post-title-index">.4. </span>策略学习policy-based learning</h2>
+<h3 id="策略学习的目标"><span class="post-title-index">.4.1. </span>策略学习的目标</h3>
+<p>策略学习就是学出一个$\pi(\cdot\mid s;\theta)$函数，根绝这个策略函数让agent做决策就可以了，做决策时通过对策略函数采样得到动作a。</p>
+<ul>
+<li>
+<p>如果状态是离散的，那么很简单，只需要一个表格就可以表达$\pi$函数。</p>
+  <img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112131637657.png" alt="image-20211213163716621" style="zoom:50%;">
+</li>
+<li>
+<p>如果状态是连续的，则一般用NN来近似拟合$\pi$函数，又叫做$\pi$网络。</p>
+  <img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112131638963.png" alt="image-20211213163817922" style="zoom:50%;">
+</li>
+</ul>
+<p><strong>什么是一个好的策略函数呢？</strong></p>
+<p>最直观的评价指标就是让状态价值函数的期望最大化。$V_\pi(s_t)$</p>
+<h3 id="如何训练策略网络"><span class="post-title-index">.4.2. </span>如何训练策略网络</h3>
+<h4 id="目标函数"><span class="post-title-index">.4.2.1. </span>目标函数</h4>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112131644112.png" alt="image-20211213164442068" style="zoom:50%;">
+<p>采用梯度下降的优化算法，让$V_\pi(S)$的期望值最大化。</p>
+<p>但是S经常是无穷的，一个思路是：让$V_\pi(S)$的期望值最大化，只需要让每个s的$V_\pi(s)$的值都尽可能大。</p>
+<h4 id="Policy-Gradient"><span class="post-title-index">.4.2.2. </span>Policy Gradient</h4>
+<p>想用梯度下降法来做参数的优化，那么最关键的就是计算$\pi$策略网络参数的梯度</p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112131650336.png" alt="image-20211213165040295" style="zoom:50%;">
+<p>这里就是用到了<u>样本梯度代替期望梯度</u>的思想。</p>
+<p><strong>如何计算PG</strong></p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112131652332.png" alt="image-20211213165258294" style="zoom:50%;">
+<p>这个期望采用<code>蒙特卡洛</code>来求（说人话：用随机抽样代替期望）</p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112131657746.png" alt="image-20211213165743708" style="zoom:50%;">
+<p>可以看到，PG经过推导之后，还剩下$Q_\pi$这个需要未知量。根据$Q_\pi$的近似方法可以分为两类。</p>
+<h5 id="PG-One-REINFORCE算法"><span class="post-title-index">.4.2.2.1. </span>PG One: REINFORCE算法</h5>
+<p>REINFORCE: 把一次rollout的实际Return观测值作为$Q_\pi(s_t,\hat{a})$</p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112131709819.png" alt="image-20211213170905788" style="zoom:50%;">
+<p>==REINFORCE是On-Policy同策略方法。==这样才能保证观测值作为$Q_\pi(s_t,\hat{a})$估计值的合理性。</p>
+<p><strong>REINFORCE详细流程</strong></p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112131711397.png" alt="image-20211213171110354" style="zoom:50%;">
+<p>构造训练数据集${(s_t,a_t,q_t)}_{t=1}^{n}$</p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112131715014.png" alt="image-20211213171545987" style="zoom:33%;">
+<h5 id="PG-TWO-NN来近似-Q-pi"><span class="post-title-index">.4.2.2.2. </span>PG TWO: NN来近似$Q_\pi$</h5>
+</body></html>]]></content>
+      <categories>
+        <category>机器学习</category>
+        <category>强化学习</category>
+      </categories>
+      <tags>
+        <tag>机器学习</tag>
+        <tag>强化学习</tag>
+        <tag>学习笔记</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>batch_size</title>
     <url>/batch-size.html</url>
-    <content><![CDATA[<html><head></head><body><h1 id="Batch-Size"><span class="post-title-index">1. </span><a href="#Batch-Size" class="headerlink" title="Batch Size"></a>Batch Size</h1><h2 id="深度学习中BatchSize对训练的影响"><span class="post-title-index">1.1. </span><a href="#深度学习中BatchSize对训练的影响" class="headerlink" title="深度学习中BatchSize对训练的影响"></a>深度学习中BatchSize对训练的影响</h2><p><a href="https://zhuanlan.zhihu.com/p/83626029" target="_blank" rel="noopener">知乎专栏：浅析深度学习中Batch Size大小对训练过程的影</a></p>
+    <content><![CDATA[<html><head></head><body><h1><span class="post-title-index">1. </span>Batch Size</h1>
+<h2 id="深度学习中BatchSize对训练的影响"><span class="post-title-index">1.1. </span>深度学习中BatchSize对训练的影响</h2>
+<p><a href="https://zhuanlan.zhihu.com/p/83626029" target="_blank" rel="noopener">知乎专栏：浅析深度学习中Batch Size大小对训练过程的影</a></p>
 <p>① 大的batch size减少训练时间（限定epoch的情况下）</p>
 <p>② 大的batch size训练更加稳定，loss下降曲线更加平滑</p>
 <p>③ 缺点，超大的batch size会导致模型泛化能力下降。（临界点之下lr的影响更大）可能会收敛到一个不太好sharp minimum，而小的batch size会偏向flat minimum，原因是小batch的噪声有助于套利sharp minimum.</p>
@@ -16,14 +147,16 @@
 </blockquote>
 <p>==batch size不能极端大！==</p>
 <p>如果batch size极端大。</p>
-<h2 id="大的BatchSize搭配大的LR？"><span class="post-title-index">1.2. </span><a href="#大的BatchSize搭配大的LR？" class="headerlink" title="大的BatchSize搭配大的LR？"></a>大的BatchSize搭配大的LR？</h2><p><a href="https://www.zhihu.com/question/64134994/answer/216895968" target="_blank" rel="noopener">知乎问答：如何理解深度学习分布式训练中的large batch size与learning rate的关系？</a></p>
+<h2 id="大的BatchSize搭配大的LR？"><span class="post-title-index">1.2. </span>大的BatchSize搭配大的LR？</h2>
+<p><a href="https://www.zhihu.com/question/64134994/answer/216895968" target="_blank" rel="noopener">知乎问答：如何理解深度学习分布式训练中的large batch size与learning rate的关系？</a></p>
 <p>多机同步并行训练等价于增大batch_size，多机情况下需要增大lr，否则收敛反而更慢。对于收敛精度，由于增大了batch size让梯度的估计更加准确，噪音更少，更容易收敛到局部最优解。</p>
 <p>一般情况下lr和batch-size是线性增长的关系，即把batch_size增大k被，学习率也增大k倍。</p>
 <p><a href="https://www.zhihu.com/question/64134994/answer/1925682805" target="_blank" rel="noopener">为什么基于随机梯度噪声推导学习率应sqrt增长实际却是线性？</a></p>
-<h2 id="参考资料"><span class="post-title-index">1.3. </span><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>[1] <a href="https://zhuanlan.zhihu.com/p/83626029" target="_blank" rel="noopener">知乎专栏：浅析深度学习中Batch Size大小对训练过程的影</a></p>
+<h2 id="参考资料"><span class="post-title-index">1.3. </span>参考资料</h2>
+<p>[1] <a href="https://zhuanlan.zhihu.com/p/83626029" target="_blank" rel="noopener">知乎专栏：浅析深度学习中Batch Size大小对训练过程的影</a></p>
 <p>[2] <a href="https://www.zhihu.com/question/64134994/answer/216895968" target="_blank" rel="noopener">知乎问答：如何理解深度学习分布式训练中的large batch size与learning rate的关系？</a></p>
 <p>[3] <a href="https://www.zhihu.com/question/64134994/answer/1925682805" target="_blank" rel="noopener">为什么基于随机梯度噪声推导学习率应sqrt增长实际却是线性？</a></p>
-<p>[4] <a href="https://www.zhihu.com/question/32673260/answer/675161450" target="_blank" rel="noopener">知乎问答：深度学习中的batch的大小对学习效果有何影响？</a> </p>
+<p>[4] <a href="https://www.zhihu.com/question/32673260/answer/675161450" target="_blank" rel="noopener">知乎问答：深度学习中的batch的大小对学习效果有何影响？</a></p>
 </body></html>]]></content>
       <categories>
         <category>机器学习</category>
@@ -35,47 +168,57 @@
   <entry>
     <title>智能计算系统实验总结</title>
     <url>/%E6%99%BA%E8%83%BD%E8%AE%A1%E7%AE%97%E7%B3%BB%E7%BB%9F%E5%AE%9E%E9%AA%8C%E6%80%BB%E7%BB%93.html</url>
-    <content><![CDATA[<html><head></head><body><h1 id="实验"><span class="post-title-index">1. </span><a href="#实验" class="headerlink" title="实验"></a>实验</h1><h2 id="第二章：从MLP入手"><span class="post-title-index">1.1. </span><a href="#第二章：从MLP入手" class="headerlink" title="第二章：从MLP入手"></a>第二章：从MLP入手</h2><h3 id="python神经网络"><span class="post-title-index">1.1.1. </span><a href="#python神经网络" class="headerlink" title="python神经网络"></a>python神经网络</h3><p>python实现简单的三层神经网络，用于手写数字识别任务。</p>
+    <content><![CDATA[<html><head></head><body><h1><span class="post-title-index">1. </span>实验</h1>
+<h2 id="第二章：从MLP入手"><span class="post-title-index">1.1. </span>第二章：从MLP入手</h2>
+<h3 id="python神经网络"><span class="post-title-index">1.1.1. </span>python神经网络</h3>
+<p>python实现简单的三层神经网络，用于手写数字识别任务。</p>
 <p>类似于斋藤的那本书，用python实现神经网络的各个层，包括前向、后向、参数更新等基础功能。</p>
 <p>然后上层写一个类完成网络组合、数据加载、推导等过程。</p>
-<h3 id="依然是python，但基于pycnml使用DLP"><span class="post-title-index">1.1.2. </span><a href="#依然是python，但基于pycnml使用DLP" class="headerlink" title="依然是python，但基于pycnml使用DLP"></a>依然是python，但基于pycnml使用DLP</h3><p>pycnml的地位大概就类似tensorflow-python。</p>
+<h3 id="依然是python，但基于pycnml使用DLP"><span class="post-title-index">1.1.2. </span>依然是python，但基于pycnml使用DLP</h3>
+<p>pycnml的地位大概就类似tensorflow-python。</p>
 <p>深度学习编程库 pycnml，通过调用 DLP 上 CNML 库中的高性能算子实现了全连接层、 卷积层、池化层、ReLU 激活层、Softmax 损失层等常用的网络层的基本功能，并提供了常用 网络层的 Python 接口。pycnml 提供的编程接口可以用于在 DLP 上加速神经网络算法，具体接口说明如表2.2所示。pycnml 用 Python 封装了一个 C++ 类 CnmlNet，该类的成员函数 定义了神经网络中层的创建、网络前向传播、参数加载等操作。</p>
 <figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MLP</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        self.net=pycnml.CnmlNet(<span class="number">16</span>)</span><br><span class="line">        ...</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">build_model</span><span class="params">(self,bs=<span class="number">100</span>,input_size=<span class="number">16</span>*<span class="number">16</span>,hidden=<span class="number">100</span>,out_size=<span class="number">10</span>)</span>:</span></span><br><span class="line">        <span class="comment">#类似1-gen DL框架的风格</span></span><br><span class="line">        self.net.setInputMlpShape(bs, input_size, <span class="number">1</span>, <span class="number">1</span>)</span><br><span class="line">        self.net.createMlpLayer(<span class="string">'fc1'</span>, hidden)</span><br><span class="line">        self.net.createReLuLayer(<span class="string">'relu1'</span>)</span><br><span class="line">        self.net.createMlpLayer(<span class="string">'fc2'</span>,out_class)</span><br><span class="line">        self.net.CreateSoftmaxLayer(<span class="string">'softmax'</span>, axis=<span class="number">1</span>)</span><br></pre></td></tr></tbody></table></figure>
 <p>注意，需要先设置env环境变量，才能在DLP上正常执行。</p>
 <figure class="highlight shell"><table><tbody><tr><td class="code"><pre><span class="line">export NEUWARE_HOME=/usr/local/neuware</span><br><span class="line">export PYTHONPATH=$PYTHONPATH</span><br><span class="line">export ATEN_CNML_COREVERSION="MLU200"</span><br><span class="line">export mcore="MLU200"</span><br><span class="line">export PATH=$PATH:$NEUWARE_HOME/bin</span><br><span class="line">export LD_LIBRARY_PATH=$NEUWARE_HOME/lib64</span><br></pre></td></tr></tbody></table></figure>
-<h2 id="第三章：在CNN上搞事"><span class="post-title-index">1.2. </span><a href="#第三章：在CNN上搞事" class="headerlink" title="第三章：在CNN上搞事"></a>第三章：在CNN上搞事</h2><h3 id="基于python自定义层，实现VGG"><span class="post-title-index">1.2.1. </span><a href="#基于python自定义层，实现VGG" class="headerlink" title="基于python自定义层，实现VGG"></a>基于python自定义层，实现VGG</h3><p>还是使用自己实现的python神经网络层，搭建一个VGG网络，然后再ImageNet上进行推理（1000个class），不含训练。在2-1自定义层的基础上，加上卷积神经网络需要用到的层，如Conv2D, MaxPool2D等。</p>
+<h2 id="第三章：在CNN上搞事"><span class="post-title-index">1.2. </span>第三章：在CNN上搞事</h2>
+<h3 id="基于python自定义层，实现VGG"><span class="post-title-index">1.2.1. </span>基于python自定义层，实现VGG</h3>
+<p>还是使用自己实现的python神经网络层，搭建一个VGG网络，然后再ImageNet上进行推理（1000个class），不含训练。在2-1自定义层的基础上，加上卷积神经网络需要用到的层，如Conv2D, MaxPool2D等。</p>
 <figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">VGG19</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></span><br><span class="line">        self.param_layer_name = (</span><br><span class="line">            <span class="string">'conv1_1'</span>, <span class="string">'relu1_1'</span>, <span class="string">'conv1_2'</span>, <span class="string">'relu1_2'</span>, <span class="string">'pool1'</span>,</span><br><span class="line">            <span class="string">'conv2_1'</span>, <span class="string">'relu2_1'</span>, <span class="string">'conv2_2'</span>, <span class="string">'relu2_2'</span>, <span class="string">'pool2'</span>,</span><br><span class="line">            <span class="string">'conv3_1'</span>, <span class="string">'relu3_1'</span>, <span class="string">'conv3_2'</span>, <span class="string">'relu3_2'</span>, <span class="string">'conv3_3'</span>, <span class="string">'relu3_3'</span>, <span class="string">'conv3_4'</span>, <span class="string">'relu3_4'</span>, <span class="string">'pool3'</span>,</span><br><span class="line">            <span class="string">'conv4_1'</span>, <span class="string">'relu4_1'</span>, <span class="string">'conv4_2'</span>, <span class="string">'relu4_2'</span>, <span class="string">'conv4_3'</span>, <span class="string">'relu4_3'</span>, <span class="string">'conv4_4'</span>, <span class="string">'relu4_4'</span>, <span class="string">'pool4'</span>,</span><br><span class="line">            <span class="string">'conv5_1'</span>, <span class="string">'relu5_1'</span>, <span class="string">'conv5_2'</span>, <span class="string">'relu5_2'</span>, <span class="string">'conv5_3'</span>, <span class="string">'relu5_3'</span>, <span class="string">'conv5_4'</span>, <span class="string">'relu5_4'</span>, <span class="string">'pool5'</span>,</span><br><span class="line">            <span class="string">'flatten'</span>, <span class="string">'fc6'</span>, <span class="string">'relu6'</span>, <span class="string">'fc7'</span>, <span class="string">'relu7'</span>, <span class="string">'fc8'</span>, <span class="string">'softmax'</span></span><br><span class="line">        )  </span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">build_model</span><span class="params">(self)</span>:</span></span><br><span class="line">        self.layers=OrderedDict()</span><br><span class="line">        self.layers[<span class="string">'conv1_1'</span>]=ConvolutionalLayer(<span class="number">3</span>,<span class="number">3</span>,<span class="number">64</span>,<span class="number">1</span>,<span class="number">1</span>)</span><br><span class="line">        self.layers[<span class="string">'relu1_1'</span>]=ReLULayer()</span><br><span class="line">        ...</span><br><span class="line">        self.update_layer_list=[]</span><br><span class="line">        <span class="keyword">for</span> layer_name <span class="keyword">in</span> self.layers.keys():</span><br><span class="line">            <span class="keyword">if</span> <span class="string">'conv'</span> <span class="keyword">in</span> layer_name <span class="keyword">or</span> <span class="string">'fc'</span> <span class="keyword">in</span> layer_name:</span><br><span class="line">                self.update_layer_list.append(layer_name)</span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">forward</span><span class="params">(self)</span>:</span></span><br><span class="line">        current=self.input_image <span class="comment">#先要调用load_data</span></span><br><span class="line">        <span class="keyword">for</span> layer_name <span class="keyword">in</span> self.param_layer_name:</span><br><span class="line">            current=self.layers[layer_name].forward(current)</span><br><span class="line">        <span class="keyword">return</span> current</span><br></pre></td></tr></tbody></table></figure>
-<h3 id="VGG，-基于pycnml"><span class="post-title-index">1.2.2. </span><a href="#VGG，-基于pycnml" class="headerlink" title="VGG， 基于pycnml"></a>VGG， 基于pycnml</h3><p>跟第二章的实验基本是一样的思路，就是从self-defined layers转到pycnml提供的轮子，在DLP上运行，从而体现DLP相对于CPU在推理任务上的优越性。</p>
+<h3 id="VGG，-基于pycnml"><span class="post-title-index">1.2.2. </span>VGG， 基于pycnml</h3>
+<p>跟第二章的实验基本是一样的思路，就是从self-defined layers转到pycnml提供的轮子，在DLP上运行，从而体现DLP相对于CPU在推理任务上的优越性。</p>
 <p>这个里面加了一个评估top5的功能，回顾一下工程技巧：</p>
 <figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">is_in_top5</span><span class="params">(self, label)</span>:</span></span><br><span class="line">    in_top1, in_top5 = <span class="literal">False</span>, <span class="literal">False</span></span><br><span class="line">    result = self.net.getOututData() <span class="comment">#先得到网络softmax的结果</span></span><br><span class="line">    prob = sorted(list(result), reverse=<span class="literal">True</span>)[:<span class="number">5</span>] <span class="comment">#1000个类的概率从大到小排列，取top5</span></span><br><span class="line">    <span class="keyword">if</span> result.index(prob[<span class="number">0</span>]) == label:</span><br><span class="line">        <span class="comment">#index是list的一个方法，找到对应值的索引（第一个）</span></span><br><span class="line">        in_top1=<span class="literal">True</span></span><br><span class="line">    <span class="keyword">for</span> p <span class="keyword">in</span> prob:</span><br><span class="line">        <span class="keyword">if</span> result.index(p) == label:</span><br><span class="line">            in_top5=<span class="literal">True</span></span><br><span class="line">    <span class="keyword">return</span> in_top1, in_top5</span><br></pre></td></tr></tbody></table></figure>
-<h3 id="VGG-自写python层-，非实时风格迁移实验"><span class="post-title-index">1.2.3. </span><a href="#VGG-自写python层-，非实时风格迁移实验" class="headerlink" title="VGG(自写python层)，非实时风格迁移实验"></a>VGG(自写python层)，非实时风格迁移实验</h3><p>在2.2的基础上的具体场景应用。</p>
+<h3 id="VGG-自写python层-，非实时风格迁移实验"><span class="post-title-index">1.2.3. </span>VGG(自写python层)，非实时风格迁移实验</h3>
+<p>在2.2的基础上的具体场景应用。</p>
 <ul>
 <li>实时风格迁移：训练一个模型，对任意内容的图像都可以生成风格化的图像，实现相对复杂</li>
 <li>非实时风格迁移：对每张输入的内容图像进行训练。</li>
 </ul>
 <p>输入两张图片，目标风格图片+目标内容图片。</p>
-<p><img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112211116427.png" alt="image-20211221111643277" style="zoom:50%;"></p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112211116427.png" alt="image-20211221111643277" style="zoom:50%;">
 <p>算法上最为核心的是损失函数的设计，为什么风格损失函数可以表示风格上的接近程度，而内容损失函数可以表示内容上的接近程度。</p>
 <ul>
 <li><strong>内容损失函数</strong></li>
 </ul>
-<p><img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112211117978.png" alt="image-20211221111758925" style="zoom:50%;"></p>
-<p>​    每个像素点的差距加起来。</p>
-<p>​    $\bf{X}$是trainable的变量，是需要通过反向传播获得梯度然后做优化的变量。</p>
-<p><img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112211122266.png" alt="image-20211221112230207" style="zoom:50%;"></p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112211117978.png" alt="image-20211221111758925" style="zoom:50%;">
+<p>​	每个像素点的差距加起来。</p>
+<p>​	$\bf{X}$是trainable的变量，是需要通过反向传播获得梯度然后做优化的变量。</p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112211122266.png" alt="image-20211221112230207" style="zoom:50%;">
 <ul>
-<li><p><strong>风格损失函数</strong></p>
-<p>  风格损失函数更加难以理解了。实验书上含糊的说用的是Gram矩来计算风格特征$\bf{A}$和$\bf{G}$。</p>
-<p>  <img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112211127081.png" alt="image-20211221112709043" style="zoom:50%;"></p>
-<p>  <img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211221112841761.png" alt="image-20211221112841761" style="zoom:50%;"></p>
+<li>
+<p><strong>风格损失函数</strong></p>
+<p>风格损失函数更加难以理解了。实验书上含糊的说用的是Gram矩来计算风格特征$\bf{A}$和$\bf{G}$。</p>
+  <img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112211127081.png" alt="image-20211221112709043" style="zoom:50%;">
+  <img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211221112841761.png" alt="image-20211221112841761" style="zoom:50%;">
 </li>
 </ul>
-<p>​    风格损失函数的梯度为</p>
-<p><img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211221113007431.png" alt="image-20211221113007431" style="zoom:50%;">    </p>
+<p>​	风格损失函数的梯度为</p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211221113007431.png" alt="image-20211221113007431" style="zoom:50%;">    
 <ul>
-<li><p><strong>总的损失函数</strong></p>
-<p>  总的损失函数是风格损失和内容损失的加权和。</p>
-<p>  <img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211221113204183.png" alt="image-20211221113204183" style="zoom:50%;"></p>
+<li>
+<p><strong>总的损失函数</strong></p>
+<p>总的损失函数是风格损失和内容损失的加权和。</p>
+  <img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211221113204183.png" alt="image-20211221113204183" style="zoom:50%;">
 </li>
 </ul>
 <p><strong>VGG19使用的是2.1中基于python自定义层实现的VGG</strong>，forward函数增加了输出指定某些中间层结果的功能。</p>
@@ -83,70 +226,211 @@
 <figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ContentLossLayer</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">forward</span><span class="params">(self, input_layer, content_layer)</span>:</span></span><br><span class="line">        <span class="comment">#分别是输入图像和内容图像在第l层上的特征图</span></span><br><span class="line">        N,C,H,W = input_layer.shape</span><br><span class="line">        loss=np.sum((input_layer-content_layer)**<span class="number">2</span>)/(<span class="number">2</span>*N*C*H*W)</span><br><span class="line">        <span class="keyword">return</span> loss</span><br><span class="line">    </span><br><span class="line">vgg = VGG19(param_path=<span class="string">'../imagenet-vgg-verydeep-19.mat'</span>)</span><br><span class="line">vgg.build_model()</span><br><span class="line">vgg.init_model()</span><br><span class="line">vgg.load_model()</span><br><span class="line">content_loss_layer = ContentLossLayer()</span><br><span class="line">style_loss_layer = StyleLossLayer()</span><br></pre></td></tr></tbody></table></figure>
 <p>先在vgg19中进行forward，得到中间层的输出，这些中间层的计算结果将参与<code>内容损失</code>和<code>风格损失</code>的计算。</p>
 <figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line">CONTENT_LOSS_LAYERS = [<span class="string">'relu4_2'</span>]</span><br><span class="line">STYLE_LOSS_LAYERS = [<span class="string">'relu1_1'</span>, <span class="string">'relu2_1'</span>, <span class="string">'relu3_1'</span>, <span class="string">'relu4_1'</span>, <span class="string">'relu5_1'</span>]</span><br><span class="line"><span class="keyword">for</span> step <span class="keyword">in</span> range(TRAIN_STEP_NUM):</span><br><span class="line">    content_loss=np.array([]) <span class="comment">#清零</span></span><br><span class="line">    style_loss=np.array([]) <span class="comment">#清零</span></span><br><span class="line">    content_diff = np.zeros(transfer_image.shape) <span class="comment">#内容损失关于X的梯度</span></span><br><span class="line">    style_diff = np.zeros(transfer_image.shape)   <span class="comment">#风格损失关于X的梯度</span></span><br><span class="line">    <span class="comment">##############################################################</span></span><br><span class="line">    transfer_layers = vgg.forward(transfer_image, CONTENT_LOSS_LAYERS+STYLE_LOSS_LAYERS)</span><br><span class="line">    content_layers = vgg.forward(content_image, CONTENT_LOSS_LAYERS)</span><br><span class="line">    style_layers = vgg.forward(style_image, STYLE_LOSS_LAYERS)</span><br><span class="line">    <span class="comment">#上面是中间层的计算结果</span></span><br><span class="line">    <span class="comment">##############################################################</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">#内容损失的forward和backward</span></span><br><span class="line">    <span class="keyword">for</span> layer <span class="keyword">in</span> CONTENT_LOSS_LAYERS:</span><br><span class="line">        current_loss = content_loss_layer.forward(transfer_layers[layer], content_layers[layer]) <span class="comment"># 这一层的损失</span></span><br><span class="line">        content_loss = np.append(content_loss, current_loss) </span><br><span class="line">        <span class="comment">#先存着，后面算平均，虽然！content_loss在训练中没有用到！</span></span><br><span class="line">        </span><br><span class="line">        dloss = content_loss_layer.backward(transfer_layers[layer], content_layers[layer]) <span class="comment">#内容损失函数关于第l层的X的梯度</span></span><br><span class="line">        dloss = vgg.backward(dloss, layer) </span><br><span class="line">        <span class="comment">#从l层一直穿到input层，即内容损失函数（的l层分量）关于tranfer_image的梯度</span></span><br><span class="line">        content_diff += dloss</span><br><span class="line">    <span class="comment">#风格损失函数的省略...</span></span><br><span class="line">    </span><br><span class="line">    image_diff=ALPHA * content_diff / len(CONTENT_LOSS_LAYERS) + BETA * style_diff / len(STYLE_LOSS_LAYERS)</span><br><span class="line">    <span class="comment">#综合损失函数关于input层的transfer_image的梯度。</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment">#更新参数</span></span><br><span class="line">    transfer_image = adam_optimizer.update(transfer_image, image_diff)</span><br></pre></td></tr></tbody></table></figure>
-<h2 id="第四章：开始用TF"><span class="post-title-index">1.3. </span><a href="#第四章：开始用TF" class="headerlink" title="第四章：开始用TF"></a>第四章：开始用TF</h2><h3 id="TF-VGG19-CPU图像识别"><span class="post-title-index">1.3.1. </span><a href="#TF-VGG19-CPU图像识别" class="headerlink" title="TF-VGG19-CPU图像识别"></a>TF-VGG19-CPU图像识别</h3><p>用的较低级的算子，从现有模型文件中读取参数，构建计算图。</p>
+<h2 id="第四章：开始用TF"><span class="post-title-index">1.3. </span>第四章：开始用TF</h2>
+<h3 id="TF-VGG19-CPU图像识别"><span class="post-title-index">1.3.1. </span>TF-VGG19-CPU图像识别</h3>
+<p>用的较低级的算子，从现有模型文件中读取参数，构建计算图。</p>
 <figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">_conv_layer</span><span class="params">(input, weights, bias)</span>：</span></span><br><span class="line">	output = tf.nn.conv2d(input, weights, [1,1,1,1], padding='SAME')</span><br><span class="line">    output = tf.nn.bias_add(output, bias[<span class="number">0</span>])</span><br><span class="line">    <span class="keyword">return</span> output</span><br><span class="line"></span><br><span class="line">def net(input_image:tf.placeholder):->dict</span><br><span class="line">    <span class="comment">#vgg19本身是序列模型，较为简单，所以定义顺序加载每一层的参数就行。</span></span><br><span class="line">    layers=[<span class="string">'conv1_1'</span>, <span class="string">'relu1_1'</span>, 略]</span><br><span class="line">    net = {}</span><br><span class="line">    current = input_image <span class="comment">#应为placeholder</span></span><br><span class="line">    <span class="keyword">for</span> i, name <span class="keyword">in</span> enumerate(layers):</span><br><span class="line">        <span class="keyword">if</span> name[:<span class="number">4</span>]==<span class="string">'relu'</span>:</span><br><span class="line">            current = tf.nn.relu(current)</span><br><span class="line">        <span class="keyword">elif</span> name[：<span class="number">4</span>]==<span class="string">'conv'</span>:</span><br><span class="line">            kernels, bias = 读取</span><br><span class="line">            current=_conv_layer(current, kernels, bias)</span><br><span class="line">        ...略</span><br><span class="line">        net[name]=current</span><br><span class="line">    <span class="keyword">return</span> net</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">"__main__"</span>:</span><br><span class="line">    input_image=读取</span><br><span class="line">    <span class="keyword">with</span> tf.Session() <span class="keyword">as</span> sess:</span><br><span class="line">        input_holder=tf.placeholder(tf.float32, shape=(<span class="number">1</span>,<span class="number">224</span>,<span class="number">224</span>,<span class="number">3</span>), name=<span class="string">'input_hold'</span>)</span><br><span class="line">        nets=net(input_holder)</span><br><span class="line">        preds=sess.run(nets, feed_dict{input_holder:input_image})</span><br><span class="line">        top1_idx = np.argmax(preds[<span class="string">'softmax'</span>][<span class="number">0</span>])</span><br></pre></td></tr></tbody></table></figure>
-<h3 id="TF-VGG-19-MLU图像识别"><span class="post-title-index">1.3.2. </span><a href="#TF-VGG-19-MLU图像识别" class="headerlink" title="TF-VGG-19-MLU图像识别"></a>TF-VGG-19-MLU图像识别</h3><p>tensorflow-dlp是继承了CNML的魔改版本，支持底层的DLP算子。==DLP平台仅支持量化过的模型文件==</p>
+<h3 id="TF-VGG-19-MLU图像识别"><span class="post-title-index">1.3.2. </span>TF-VGG-19-MLU图像识别</h3>
+<p>tensorflow-dlp是继承了CNML的魔改版本，支持底层的DLP算子。==DLP平台仅支持量化过的模型文件==</p>
 <p>需要将原始的模型文件保存pb，然后量化为int8的数据类型形成新的.pb格式，还需要在程序中设置DLP的运行参数，整体上来说对用户并非是透明的。</p>
-<p><img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223152858573.png" alt="image-20211223152858573" style="zoom:50%;"></p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223152858573.png" alt="image-20211223152858573" style="zoom:50%;">
 <p><strong>①转换模型文件</strong></p>
 <p>这一步是在3.1中顺带做的~</p>
-<p><img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223153141763.png" alt="image-20211223153141763" style="zoom:50%;"></p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223153141763.png" alt="image-20211223153141763" style="zoom:50%;">
 <p>生成模型pb文件，然后用一个脚本转换成int8.pb文件</p>
-<p><img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223153236752.png" alt="image-20211223153236752" style="zoom:50%;"></p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223153236752.png" alt="image-20211223153236752" style="zoom:50%;">
 <p><strong>② 从pb模型文件恢复计算图，在mlu上运行session</strong></p>
 <p>有意思的是，pb文件中不仅含有权重的数据，很显然还保存了计算图，不然是无法直接恢复的。</p>
 <figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line">model=<span class="string">'vgg19_int8.pb'</span></span><br><span class="line">config=tf.ConfigProto(allow_soft_placement=<span class="literal">True</span>, </span><br><span class="line">                      inter_op_parallelism_threads=<span class="number">1</span>,</span><br><span class="line">                      inter_op_parallelism_thread=<span class="number">1</span>)</span><br><span class="line">config.mlu_options.core_num=<span class="number">16</span></span><br><span class="line"><span class="meta">... </span><span class="comment">#其他config设置</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">with</span> g.as_default():</span><br><span class="line">    <span class="keyword">with</span> tf.gfile.FastGFile(model,<span class="string">'rb'</span>) <span class="keyword">as</span> f:</span><br><span class="line">        graph_def = tf.GraphDef()</span><br><span class="line">        graph_def.ParseFromString(f.read)</span><br><span class="line">        tf.import_graph_def(graph_def, name=<span class="string">''</span>)</span><br><span class="line">    <span class="keyword">with</span> tf.Session(config=config) <span class="keyword">as</span> sess:</span><br><span class="line">        ...<span class="comment">#跟cpu版本差不多</span></span><br></pre></td></tr></tbody></table></figure>
 <p>==创建session的时候传入config，这样就能设置运行的硬件了==</p>
-<h3 id="TF实时风格迁移-CPU-MLU"><span class="post-title-index">1.3.3. </span><a href="#TF实时风格迁移-CPU-MLU" class="headerlink" title="TF实时风格迁移-CPU/MLU"></a>TF实时风格迁移-CPU/MLU</h3><p>基于新的算法，能够实时快速地进图像风格迁移。这个实验不需要我们写模型，直接从pb文件加载就可以了。那也就是说，这个实验和3.1、3.2中的实验没有啥区别。就是图像识别模型vs实时风格迁移模型的区别。</p>
+<h3 id="TF实时风格迁移-CPU-MLU"><span class="post-title-index">1.3.3. </span>TF实时风格迁移-CPU/MLU</h3>
+<p>基于新的算法，能够实时快速地进图像风格迁移。这个实验不需要我们写模型，直接从pb文件加载就可以了。那也就是说，这个实验和3.1、3.2中的实验没有啥区别。就是图像识别模型vs实时风格迁移模型的区别。</p>
 <p><strong>模型（量化）转换</strong></p>
 <p>这章的实验指导更为详尽地介绍了模型量化和转换的过程。模型转换的过程是通过模型转换脚本实现的，这个转换脚本是课程提供的工具，不需要自己实现，但是还是要了解一下它都干了啥。<code>fppb_to_intpb.py</code></p>
 <p><img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223223048387.png" alt="image-20211223223048387"></p>
-<p><img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223183003302.png" alt="image-20211223183003302" style="zoom:50%;"></p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223183003302.png" alt="image-20211223183003302" style="zoom:50%;">
 <p><strong>实时风格迁移算法</strong></p>
 <p>用一个<code>图像转换网络</code>和一个<code>特征提取网络</code>来做。大致结构如下：</p>
-<p><img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223180013531.png" alt="image-20211223180013531" style="zoom:50%;"></p>
-<h2 id="❤自定义TF-CPU算子"><span class="post-title-index">1.4. </span><a href="#❤自定义TF-CPU算子" class="headerlink" title="❤自定义TF-CPU算子"></a>❤自定义TF-CPU算子</h2><p>这是被算在第四章的一个实验，之所以单独拎出来，是因为这是最核心的也是比较有技术含量的一个实验，需要==对TensorFlow的整体设计机理也要有所了解。==</p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223180013531.png" alt="image-20211223180013531" style="zoom:50%;">
+<h2 id="❤自定义TF-CPU算子"><span class="post-title-index">1.4. </span>❤自定义TF-CPU算子</h2>
+<h3 id="概述"><span class="post-title-index">1.4.1. </span>概述</h3>
+<p>这是被算在第四章的一个实验，之所以单独拎出来，是因为这是最核心的也是比较有技术含量的一个实验，需要==对TensorFlow的整体设计机理也要有所了解。==</p>
 <ul>
 <li>使用Python构造新的Op</li>
 <li>使用C++构造更底层的Op</li>
 </ul>
-<p>本实验加的算子叫做PowerDiffence算子，可以替代原有的SquareDifference，更通用。</p>
-<script type="math/tex; mode=display">
-PowerDifference=(\bf{X}-\bf{Y})^Z</script><h3 id="如何兼容替换现有模型中的op"><span class="post-title-index">1.4.1. </span><a href="#如何兼容替换现有模型中的op" class="headerlink" title="如何兼容替换现有模型中的op"></a>如何兼容替换现有模型中的op</h3><p>PowerDifference算子显然是兼容SquareDifference算子的，替换方法是：</p>
+<p>本实验加的算子叫做PowerDiffence算子，可以替代原有的SquareDifference，更通用。<br>
+$$<br>
+PowerDifference=(\bf{X}-\bf{Y})^Z<br>
+$$</p>
+<h3 id="如何兼容替换现有模型中的op"><span class="post-title-index">1.4.2. </span>如何兼容替换现有模型中的op</h3>
+<p>PowerDifference算子显然是兼容SquareDifference算子的，替换方法是：</p>
 <p>利用课程提供的两个脚本，<code>pb_to_pbtxt.py</code>和<code>pbtxt_to_pb.py</code>这两个工具，</p>
 <p><strong>① pb→pbtxt</strong></p>
-<p>​    先用前者把训练好的模型转换成文本格式，</p>
+<p>​	先用前者把训练好的模型转换成文本格式，</p>
 <p><strong>② 编辑文本格式中的节点</strong></p>
 <p>添加一个输入节点</p>
-<p><img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223231754566.png" alt="image-20211223231754566" style="zoom: 50%;"></p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223231754566.png" alt="image-20211223231754566" style="zoom: 50%;">
 <p>把SquaredDifference节点修改为PowerDifference节点，还要把以SquaredDifference作为输入的节点的input也替换成PowerDifference。</p>
-<p><img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223231946799.png" alt="image-20211223231946799" style="zoom: 50%;"></p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223231946799.png" alt="image-20211223231946799" style="zoom: 50%;">
 <p><strong>③ pb→pbtxt</strong></p>
-<h3 id="添加c-cpu算子的基本流程"><span class="post-title-index">1.4.2. </span><a href="#添加c-cpu算子的基本流程" class="headerlink" title="添加c++ cpu算子的基本流程"></a>添加c++ cpu算子的基本流程</h3><p><strong>① C++编写Kernel函数</strong></p>
-<p><strong>② 在C++文件中注册新Op</strong></p>
-<p>Op的注册和实现是两个独立的，注册是为了定义其名字、输入和输出。</p>
-<p><strong>③ （可选）创建Python封装器</strong></p>
-<p><strong>④ （可选）编写该Op的梯度计算函数</strong></p>
-<h3 id="添加python-cpu算子的基本流程"><span class="post-title-index">1.4.3. </span><a href="#添加python-cpu算子的基本流程" class="headerlink" title="添加python cpu算子的基本流程"></a>添加python cpu算子的基本流程</h3><h2 id="自定义TF-MLU算子"><span class="post-title-index">1.5. </span><a href="#自定义TF-MLU算子" class="headerlink" title="自定义TF-MLU算子"></a>自定义TF-MLU算子</h2><h2 id="特别技术"><span class="post-title-index">1.6. </span><a href="#特别技术" class="headerlink" title="特别技术"></a>特别技术</h2><h3 id="量化quant"><span class="post-title-index">1.6.1. </span><a href="#量化quant" class="headerlink" title="量化quant"></a>量化quant</h3><p>浮点数的优点是精度高，但是缺点是内存带宽占用更高，计算更慢。解决方案是采用低精度的数来保存模型参数和计算结果，在精度损失可接受的范围内提升计算</p>
+<h3 id="添加python-cpu算子的基本流程"><span class="post-title-index">1.4.3. </span>添加python cpu算子的基本流程</h3>
+<p>简单的方法，可以添加一个python代码实现的gpu算子。我们实现一个函数就可以了</p>
+<figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">power_diff_numpy</span><span class="params">(input_x, input_y, input_z)</span>:</span></span><br><span class="line">    <span class="comment">#算出输出</span></span><br><span class="line">    <span class="keyword">return</span> (input_x-input_y)**input_z</span><br></pre></td></tr></tbody></table></figure>
+<p>上面我是简化写的，实验指导书中还包括了一些形状的reshape（比如形状不统一），但是如何用python添加算子并不是我们的重点。</p>
+<p>==据我观察这个好像没有集成到tf里？如果后面发现可以把python算子集成进tf的话再来纠正。==</p>
+<h3 id="添加c-cpu算子的基本流程"><span class="post-title-index">1.4.4. </span>添加c++ cpu算子的基本流程</h3>
+<h4 id="①-C-编写Kernel函数"><span class="post-title-index">1.4.4.1. </span><strong>① C++编写Kernel函数</strong></h4>
+<p>在<code>tensorflow/core/kernels/</code>路径下创建<code>*.cc</code>和<code>.h</code>文件用来保存算子kernel函数的c++代码。</p>
+<p>一个算子是一个Object，都继承自<code>OpKernel</code>类。我们要实现算子对象的<code>构造函数</code>和<code>Compute</code>方法。</p>
+<blockquote>
+<p>Kernel函数的编写并非易事，需要遵循tensorflow的一套东西，包括很多宏定义的操作。</p>
+</blockquote>
+<figure class="highlight c++"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">namespace</span> tensorflow{    </span><br><span class="line">	<span class="keyword">template</span><<span class="keyword">typename</span> T></span><br><span class="line">    <span class="class"><span class="keyword">class</span> <span class="title">PowerDifferenceOp</span>:</span> <span class="keyword">public</span> OpKernel {</span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="function"><span class="keyword">explicit</span> <span class="title">PowerDifferenceOp</span><span class="params">(OpKernelConstruction* context)</span>:<span class="title">Opkernel</span><span class="params">(context)</span></span>{</span><br><span class="line">            <span class="comment">//do nothing</span></span><br><span class="line">        }<span class="comment">//end of contructor</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">Compute</span><span class="params">(OpKernelContext* context)</span><span class="keyword">override</span> </span>{</span><br><span class="line">            <span class="comment">//注：override关键字是提示编译器检查的。</span></span><br><span class="line">            <span class="comment">/*获取输入张量的引用*/</span></span><br><span class="line">            <span class="keyword">const</span> Tensor& input_x_tensor=context->input(<span class="number">0</span>);</span><br><span class="line">            <span class="keyword">const</span> Tensor& input_y_tensor=context->input(<span class="number">1</span>);</span><br><span class="line">            <span class="keyword">const</span> Tensor& input_z_tensor=context->input(<span class="number">2</span>);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">const</span> Eigen::ThreadPoolDevice& device=context->eigen_device<Eigen::ThreadPoolDevice>(); <span class="comment">//待理解</span></span><br><span class="line"></span><br><span class="line">            <span class="comment">/*分配输出张量，并写入context*/</span></span><br><span class="line">            <span class="function">BCast <span class="title">bcast</span><span class="params">(BCast::FromShape(input_y_tensor.shape()), BCast::FromShape(input_x_tensor.shape()),<span class="literal">true</span>)</span></span>;</span><br><span class="line">            Tensor* output_tensor=<span class="literal">nullptr</span>;</span><br><span class="line">            TensorShape output_shape=BCast::ToShape(bcast.output_shape());</span><br><span class="line">			OP_REQUIRES_OK(context,</span><br><span class="line">                           context->allocate_output(<span class="number">0</span>, output_shape, &output_tensor));</span><br><span class="line">            </span><br><span class="line">            </span><br><span class="line">            <span class="comment">/*输入张量广播(创建一个中间张量然后根据原张量扩展)*/</span></span><br><span class="line">            <span class="function">Tensor <span class="title">input_x_broad</span><span class="params">(input_x_tensor.dtype(), output_shape)</span></span>;</span><br><span class="line">            <span class="function">Tensor <span class="title">input_y_broad</span><span class="params">(input_y_tensor.dtype(), output_shape)</span></span>;</span><br><span class="line">            OP_REQUIRES_OK(context,</span><br><span class="line">                    context->allocate_temp(input_x_tensor.dtype(),</span><br><span class="line">                                           output_shape,</span><br><span class="line">                                            &input_x_broad));</span><br><span class="line">      		OP_REQUIRES_OK(context,</span><br><span class="line">                    context->allocate_temp(input_y_tensor.dtype(),</span><br><span class="line">                                           output_shape,</span><br><span class="line">                                            &input_y_broad));</span><br><span class="line">			</span><br><span class="line">            <span class="comment">//扩展广播是依靠的Eigen这个库</span></span><br><span class="line">            functor::BroadcastTo<Eigen::ThreadPoolDevice, T>()(device, context, input_x_broad, output_shape,input_x_tensor, input_x_tensor.shape(), bcast);</span><br><span class="line">            functor::BroadcastTo<Eigen::ThreadPoolDevice, T>()(device, context, input_y_broad, output_shape,input_y_tensor, input_y_tensor.shape(), bcast);</span><br><span class="line">            </span><br><span class="line">            <span class="comment">/*运算前整理形状*/</span></span><br><span class="line">            <span class="keyword">auto</span> input_x = input_x_broad.flat<T>();</span><br><span class="line">            <span class="keyword">auto</span> input_y = input_y_broad.flat<T>();</span><br><span class="line">            <span class="keyword">auto</span> input_pow = input_pow_tensor.flat<T>();</span><br><span class="line">            <span class="keyword">auto</span> output = output_tensor->flat<T>();</span><br><span class="line">            <span class="keyword">const</span> <span class="keyword">int</span> N = input_x.<span class="built_in">size</span>();</span><br><span class="line">            <span class="keyword">const</span> <span class="keyword">int</span> POW = input_pow(<span class="number">0</span>); </span><br><span class="line">            <span class="keyword">float</span> tmp = <span class="number">0</span>;</span><br><span class="line">      </span><br><span class="line">            <span class="comment">/**上面都是一系列的准备工作，下面是核心的计算过程***/</span></span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>; i<N; i++){</span><br><span class="line">                tmp=input_x(i)-input_y(i);</span><br><span class="line">                output(i)=tmp;</span><br><span class="line">                <span class="keyword">for</span>(<span class="keyword">int</span> j=<span class="number">0</span>; j<POW<span class="number">-1</span>; j++){</span><br><span class="line">                    output(i)=output(i)*tmp;</span><br><span class="line">                }</span><br><span class="line">            }</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        }<span class="comment">//end of member function: Compute</span></span><br><span class="line"></span><br><span class="line">    }; <span class="comment">//end of class PowerDifferenceOp</span></span><br><span class="line">    </span><br><span class="line">REGISTER_KERNEL_BUILDER(Name(<span class="string">"PowerDifference"</span>).Device(DEVICE_CPU), PowerDifferenceOp<<span class="keyword">float</span>>);</span><br><span class="line">}<span class="comment">//end of namespace tensorflow</span></span><br></pre></td></tr></tbody></table></figure>
+<p>最后这个REGISTER_KERNEL_BUILDER是通过宏定义进行一串函数调用</p>
+<figure class="highlight c++"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//tensorflow/core/framework/op_kernel.h</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> REGISTER_KERNEL_BUILDER(kernel_builder, ...) \</span></span><br><span class="line">  REGISTER_KERNEL_BUILDER_UNIQ_HELPER(__COUNTER__, kernel_builder, __VA_ARGS__)</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> REGISTER_KERNEL_BUILDER_UNIQ_HELPER(ctr, kernel_builder, ...) \</span></span><br><span class="line">  REGISTER_KERNEL_BUILDER_UNIQ(ctr, kernel_builder, __VA_ARGS__)</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> REGISTER_KERNEL_BUILDER_UNIQ(ctr, kernel_builder, ...)        \</span></span><br><span class="line">  <span class="keyword">constexpr</span> <span class="keyword">bool</span> should_register_#<span class="meta">#ctr##__flag =                      \</span></span><br><span class="line">      SHOULD_REGISTER_OP_KERNEL(#__VA_ARGS__);                        \</span><br><span class="line">  <span class="keyword">static</span> ::tensorflow::kernel_factory::OpKernelRegistrar              \</span><br><span class="line">      registrar__body__#<span class="meta">#ctr##__object(                               \</span></span><br><span class="line">          should_register_#<span class="meta">#ctr##__flag                               \</span></span><br><span class="line">              ? ::tensorflow::register_kernel::kernel_builder.Build() \</span><br><span class="line">              : <span class="literal">nullptr</span>,                                              \</span><br><span class="line">          #__VA_ARGS__,                                               \</span><br><span class="line">          [](::tensorflow::OpKernelConstruction* context)             \</span><br><span class="line">              -> ::tensorflow::OpKernel* {                            \</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> __VA_ARGS__(context);                          \</span><br><span class="line">          });</span><br></pre></td></tr></tbody></table></figure>
+<h4 id="②-在C-文件中注册新Op"><span class="post-title-index">1.4.4.2. </span><strong>② 在C++文件中注册新Op</strong></h4>
+<p>Op的注册和实现是两个独立的，注册是为了定义其名字、输入和输出。注册体现在<strong>两个</strong>地方。</p>
+<p>一个是在算子实现（编写kernel函数时）的旁边，本例是在<code>tensorflow/core/kernels/cwise_op_power_difference.cc</code>里。</p>
+<figure class="highlight c++"><table><tbody><tr><td class="code"><pre><span class="line">REGISTER_KERNEL_BUILDER(</span><br><span class="line">  Name(<span class="string">"PowerDifference"</span>).Device(DEVICE_CPU), </span><br><span class="line">  PowerDifferenceOp<<span class="keyword">float</span>>);</span><br></pre></td></tr></tbody></table></figure>
+<p>二个是在注册用到的文件在<code>tensorflow/core/ops</code>中，我们把PowerDifference算子的注册写在math_ops.cc中。</p>
+<figure class="highlight c++"><table><tbody><tr><td class="code"><pre><span class="line">REGISTER_OP(<span class="string">"PowerDifference"</span>)</span><br><span class="line">    .Input(<span class="string">"x: T"</span>)</span><br><span class="line">    .Input(<span class="string">"y: T"</span>)</span><br><span class="line">    .Input(<span class="string">"pow: T"</span>)</span><br><span class="line">    .Output(<span class="string">"z: T"</span>)</span><br><span class="line">    .Attr(</span><br><span class="line">        <span class="string">"T: {bfloat16, float, half, double, int32, int64, complex64, "</span></span><br><span class="line">        <span class="string">"complex128}"</span>)</span><br><span class="line">    .SetShapeFn([](::tensorflow::shape_inference::InferenceContext* c){</span><br><span class="line">      c->set_output(<span class="number">0</span>, c->input(<span class="number">0</span>));</span><br><span class="line">      c->set_output(<span class="number">0</span>, c->input(<span class="number">1</span>));</span><br><span class="line">      c->set_output(<span class="number">0</span>, c->input(<span class="number">2</span>));</span><br><span class="line">      <span class="keyword">return</span> Status::OK();</span><br><span class="line">  	  });</span><br></pre></td></tr></tbody></table></figure>
+<p>上面的注册过程实际上是通过宏定义来让过程更加清晰，它的背后是一串函数调用。部分宏定义如下：</p>
+<figure class="highlight c++"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//tensorflow/core/framework/op.h</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> REGISTER_OP(name) REGISTER_OP_UNIQ_HELPER(__COUNTER__, name)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> REGISTER_OP_UNIQ_HELPER(ctr, name) REGISTER_OP_UNIQ(ctr, name)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> REGISTER_OP_UNIQ(ctr, name)                                          \</span></span><br><span class="line">  <span class="keyword">static</span> ::tensorflow::register_op::OpDefBuilderReceiver register_op#<span class="meta">#ctr    \</span></span><br><span class="line">      TF_ATTRIBUTE_UNUSED =                                                  \</span><br><span class="line">          ::tensorflow::register_op::OpDefBuilderWrapper<SHOULD_REGISTER_OP( \</span><br><span class="line">              name)>(name)</span><br></pre></td></tr></tbody></table></figure>
+<h4 id="③-算子编译"><span class="post-title-index">1.4.4.3. </span>③ 算子编译</h4>
+<p>需要修改<code>tensorflow/core/kernel/BUILD</code>文件。BUILD文件遵循bazel的规范，因为tensorflow是采用bazel进行编译的。</p>
+<blockquote>
+<p>了解bazel的编译规则同样是一件花时间的工作，而且除了tf日常工作中不太用到bazel。</p>
+</blockquote>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211227175859510.png" alt="image-20211227175859510" style="zoom:50%;">
+<p>执行编译命令，编译命令很复杂，不是两三行可以搞定的，因此将编译命令写成了一个shell脚本，通过执行脚本来完成编译。</p>
+<figure class="highlight shell"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> bazel version   <span class="comment">#检查版本，>=0.24</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> <span class="built_in">cd</span> tensorflow/</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> ./build_tensorflow-v1.10_mlu.sh</span></span><br></pre></td></tr></tbody></table></figure>
+<p><strong>编译脚本做了什么事？</strong></p>
+<p>一系列的准备工作+下面的bazel编译指令。</p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211227181557425.png" alt="image-20211227181557425" style="zoom:50%;">
+<p><strong>④ （可选）创建Python封装器</strong></p>
+<p><strong>⑤ （可选）编写该Op的梯度计算函数</strong></p>
+<h4 id="测试"><span class="post-title-index">1.4.4.4. </span>测试</h4>
+<p>集成到tensorflow之后就可以通过tensorflow来调用了</p>
+<figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">with</span> tf.Session() <span class="keyword">as</span> sess:</span><br><span class="line">    output=tf.power_difference(input_x, input_y, input_pow)</span><br><span class="line">    sess.run(output)</span><br></pre></td></tr></tbody></table></figure>
+<h2 id="❤自定义TF-MLU算子"><span class="post-title-index">1.5. </span>❤自定义TF-MLU算子</h2>
+<p>这个算是寒武纪的私货了。经过了前面的铺垫，我们在这一章将尝试集成底层硬件为MLU的算子。</p>
+<h3 id="寒武纪工具介绍"><span class="post-title-index">1.5.1. </span>寒武纪工具介绍</h3>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223174830253.png" alt="image-20211223174830253" style="zoom:50%;">
+<p>更详细的介绍应该见另一篇笔记[《寒武纪软件》](file:///Users/mhd/Library/Mobile Documents/iCloud~app~cyan~taio/Documents/Editor/Notebook/11.AI Infra/Cambricon/寒武纪软件.md)，这里展开的话篇幅会太大。</p>
+<h4 id="BCL"><span class="post-title-index">1.5.1.1. </span>BCL</h4>
+<p>据我理解， BCL=Bang C。如果不是im sorry，如果是的话就命名也太混乱了，之前MLU和DLP也是混了半天。</p>
+<h4 id="CNML和CNRT"><span class="post-title-index">1.5.1.2. </span>CNML和CNRT</h4>
+<p>CNML: 基于MLU的高性能算子库。</p>
+<p>CNRT:  MLU的运行时库。</p>
+<h4 id="CNPlugin"><span class="post-title-index">1.5.1.3. </span>CNPlugin</h4>
+<p>CNML本身是一套算子库；CNPlugin算是CNML预留的一种机制，是集成到CNML的插件。</p>
+<p>CNPlugin算子包括HOST端的C代码+Device端的BCL代码。其中HOST端的代码主要完成算子参数的处理（CNML PluginOP API封装），Devcie端的代码实现主要的计算逻辑。</p>
+<h4 id="BCL编程模型"><span class="post-title-index">1.5.1.4. </span>BCL编程模型</h4>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211227225351753.png" alt="image-20211227225351753" style="zoom: 50%;">
+<p>一个DLP板卡上包含着若干个Cluster，每个Cluster包含4个Core+1SRAM+1Mem Core。其中Mem Core会用于承担一些数据搬运任务（GDRAM→SRAM）以减轻计算Core的负担。这部分优化是编译器自动做的，会把GDRAM2SRAM的memcpy代码放在Mem Core上执行。</p>
+<p>一次执行只调用一个计算Core的任务称为<code>BLOCK任务</code>，一次执行只调用一个Cluster的任务称为<code>UNION1任务</code>，调用2个或者4个cluster的任务分别称为<code>UNION1</code>和<code>UNION4</code>。</p>
+<h4 id="BCL并行计算"><span class="post-title-index">1.5.1.5. </span>BCL并行计算</h4>
+<blockquote>
+<p>用起来也算是回顾了一下CUDA了。这里是以矩阵乘法作为例子。</p>
+</blockquote>
+<p>Host端使用C/C++进行编写，调用CNRT执行接口控制部分和串行任务。Device端用BCL编写。</p>
+<p>kernel函数执行之前，将数据从GDRAM拷入NRAM，在NRAM中进行计算，再拷回GDRAM。</p>
+<p><strong>Host端</strong></p>
+<figure class="highlight c++"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//Host端要做很多事，这里列出几个标志性的</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/*在MLU上分配空间*/</span></span><br><span class="line">cnrtMalloc((<span class="keyword">void</span>**)&d_c, <span class="keyword">sizeof</span>(half)*M*N);</span><br><span class="line">cnrtMalloc((<span class="keyword">void</span>**)&d_a, <span class="keyword">sizeof</span>(half)*M*K);</span><br><span class="line">cnrtMalloc((<span class="keyword">void</span>**)&d_w, <span class="keyword">sizeof</span>(half)*K*N);</span><br><span class="line"></span><br><span class="line"><span class="comment">/*拷贝内存: CPU->MLU*/</span></span><br><span class="line">cnrtMemcpy(d_a, A, <span class="keyword">sizeof</span>(<span class="keyword">int8_t</span>)*M*K, CNRT_MEM_TRANS_DIR_HOST2DEV);</span><br><span class="line">cnrtMemcpy(d_w, B, <span class="keyword">sizeof</span>(<span class="keyword">int8_t</span>)*N*K, CNRT_MEM_TRANS_DIR_HOST2DEV);</span><br><span class="line"></span><br><span class="line"><span class="comment">/*创建cnrt执行队列*/</span></span><br><span class="line">cnrtQueue_t pQueue;</span><br><span class="line">cnrtCreateQueue(&pQueue);</span><br><span class="line"></span><br><span class="line"><span class="comment">/*准备参数*/</span></span><br><span class="line">cnrtDim3_t dim;</span><br><span class="line">dim.x=<span class="number">1</span>; dim.y=<span class="number">1</span>; dim.z=<span class="number">1</span>;</span><br><span class="line">cnrtFunctionType_t func_type = CNRT_FUNC_TYPE_BLOCK;</span><br><span class="line">cnrtKernelParamsBuffer_t params;</span><br><span class="line">cnrtGetKernelParamsBuffer(&params);</span><br><span class="line">cnrtKernelParamsBufferAddParam(params, &d_a, <span class="keyword">sizeof</span>(<span class="keyword">int8_t</span> *)); <span class="comment">//...</span></span><br><span class="line"></span><br><span class="line"><span class="comment">/*准备kernel函数*/</span></span><br><span class="line">cnrtKernelInitParam_t init_param;</span><br><span class="line">cnrtCreateKernelInitParam(&init_param);</span><br><span class="line">cnrtInitKernelMemory((<span class="keyword">const</span> <span class="keyword">void</span>*)gemm16Kernel, init_param);</span><br><span class="line"></span><br><span class="line"><span class="comment">/*调用kernel函数*/</span></span><br><span class="line">cnrtInvokeKernel_V3((<span class="keyword">void</span> *)&gemm16Kernel, init_param, dim, params, func_type, pQueue, <span class="literal">NULL</span>);</span><br></pre></td></tr></tbody></table></figure>
+<p><strong>kernel函数的例子</strong></p>
+<p>kernel函数中是有一系列的内嵌变量的，让kernel知道自己在并行计算中的位置。</p>
 <ul>
-<li><p><strong>定点量化</strong></p>
-<p>  定点量化即用一组共享指数位的定点数来表示<strong>一组</strong>浮点数。FLOAT32→INT8，存储空间可以减少到1/4。这样做的前提是：<u>权值、激活在一个小范围内</u>。</p>
+<li>
+<p>coreDim：一个Cluster中包含的Core数量，MLU270上为4</p>
 </li>
-<li><p><strong>计算流程</strong></p>
-<p>  <strong>① 获取校准数据集，统计数据</strong></p>
-<p>  校准数据集就是一些样本组成的集合。</p>
-<p>  在FP32下跑一下inference，获取每一层网络激活值的直方图</p>
-<p>  <strong>② 计算一组不同阈值的INT8表示的参数</strong></p>
-<p>  根据不同的阈值生成不同的量化分布，计算每个INT8分布与原FP32分布的量化误差（越小越好）。找到最佳的那个。</p>
+<li>
+<p>coreId：每个Core在Cluster内的逻辑ID，以MLU270为例取值为0~3</p>
+</li>
+<li>
+<p>clusterDim：表示启动Kernel指定的任务调度型表示的cluster个数，如UNION4时取值为4</p>
+</li>
+<li>
+<p>clusterId：所在cluster的逻辑ID。</p>
+</li>
+<li>
+<p>taskDim：任务线性化之后的规模</p>
+<p>taskDim=taskDimX * taskDimY * taskDimZ</p>
+</li>
+<li>
+<p>taskIdX/taskIdY/taskIdZ：表示程序运行时所分配的逻辑规模在[X,Y,Z]方向上的任务ID</p>
+</li>
+<li>
+<p>taskId：线性化后的逻辑任务ID</p>
+<p>taskId=taskIdZ*taskDimY*taskDimX + taskIdY * taskDimX + taskIdX</p>
 </li>
 </ul>
-<p><img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223174226710.png" style="zoom: 33%;"></p>
+<p>注意：host的函数和kernel函数中可能都有内存的拷贝，但是发生的位置是完全不同的，注意区分。</p>
+<figure class="highlight c++"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">/*一个未利用硬件特性，用CPU的模式计算的kernel函数*/</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"mlu.h"</span></span></span><br><span class="line"><span class="function">__mlu_entry__ <span class="keyword">void</span> <span class="title">gemm16Kernel</span><span class="params">(...)</span></span>{</span><br><span class="line">    __nram__ half input1NRAM[<span class="number">256</span>*<span class="number">256</span>];</span><br><span class="line">    __nram__ half input2NRAM[<span class="number">256</span>*<span class="number">256</span>];</span><br><span class="line">    __nram__ half outputNRAM[<span class="number">256</span>*<span class="number">256</span>];</span><br><span class="line">    __memcpy(input1NRAM, input1DDR, m*k*<span class="keyword">sizeof</span>(half), GDRAM2NRAM);</span><br><span class="line">    __memcpy(input2NRAM, input2DDR, k*n*<span class="keyword">sizeof</span>(half), GDRAM2NRAM);</span><br><span class="line">    <span class="comment">//将数据从GDRAM拷入NRAM，就不用每次去访问GDRAM，NRAM有更高的读写带宽和访问延迟（如果NRAM放不下可能要多次搬运）。</span></span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">uint32_t</span> i=<span class="number">0</span>; i<m; i++){</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">uint32_t</span> j=<span class="number">0</span>; j<n; j++){</span><br><span class="line">            ret =<span class="number">0</span>;</span><br><span class="line">            <span class="keyword">for</span>(<span class="keyword">uinit32_t</span> t=<span class="number">0</span>; t<k; t++){</span><br><span class="line">                ret+=input1NRAM[i*k+t]*input2NRAM[t*n+j];</span><br><span class="line">                outputNRAM[i*n+j]=ret;</span><br><span class="line">            }</span><br><span class="line">        }</span><br><span class="line">    }</span><br><span class="line">    __memcpy(outputDDR， outputNRAM, m*n*<span class="keyword">sizeof</span>(half), NRAM2GDRAM); <span class="comment">//结果拷贝回GDRAM。</span></span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p>如果利用DLP的硬件特性：利用向量计算指令完成矩阵乘运算，计算效率会更高。</p>
+<p>另外一个优化要点是，使用的core比较多的时候（譬如使用4个cluster的16个core），会抢占GDRAM到NRAM/WRAM的带宽。我们可以先从GDRAM拷贝到每个cluster的SRAM，之后让SRAM拷贝到NRAM/WRAM。</p>
+<p>注意：为了保证数据的一致性，需要加上同步操作： __sync_cluster()</p>
+<p><a href="https://blog.csdn.net/a429367172/article/details/117778393" target="_blank" rel="noopener">智能计算系统5.2智能编程语言性能优化实验_a429367172的博客-CSDN博客</a></p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211227231252460.png" alt="image-20211227231252460" style="zoom: 43%;">
+<p>更进一步优化就是通过流水线让内存拷贝时间隐藏。</p>
+<h3 id="如何将CNML集成到tensorflow"><span class="post-title-index">1.5.2. </span>如何将CNML集成到tensorflow</h3>
+<blockquote>
+<p>这个问题可以等价于：如何魔改出支持底层MLU硬件的tensorflow。</p>
+<p>这里我并不能从整体设计的角度解释的非常清楚，只能从本实验的角度讲讲。从流程图上看这是封装的一层又一层，按照寒武纪的说法，这样的多层次封装的设计是为了“让DLP硬件往Tensorflow”中的集成更加模块化。</p>
+</blockquote>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211227222738243.png" alt="Tensorflow集成流程图" style="zoom: 33%;">
+<h4 id="Kernel函数（in-BangC）"><span class="post-title-index">1.5.2.1. </span>Kernel函数（in BangC）</h4>
+<p>老实说设计思路感觉和CUDA差不多。BangC的语法也是类c的。这里利用DLP硬件支持向量指令来进行加速。使用是有前提的：</p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211229170641079.png" alt="image-20211229170641079" style="zoom: 43%;">
+<ul>
+<li><code>PluginPowerDifferenceOp/plugin_power_difference_kernel.h</code></li>
+<li><code>PluginPowerDifferenceOp/plugin_power_difference.mlu</code></li>
+</ul>
+<figure class="highlight c++"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//plugin_power_difference_kernel.mlu</span></span><br><span class="line"><span class="comment">//PowerDifference的BCL单核实现kernel函数，供CNRT或CNML调用。</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ONELINE 256</span></span><br><span class="line"><span class="function">__mlu_entry__ <span class="keyword">void</span> <span class="title">PowerDifferenceKernel</span><span class="params">(half *input1, half *input2, <span class="keyword">int</span> <span class="built_in">pow</span>, half *output, <span class="keyword">int</span> len)</span></span></span><br><span class="line"><span class="function"></span>{</span><br><span class="line"> </span><br><span class="line">    <span class="comment">// 循环条件判断</span></span><br><span class="line">    <span class="keyword">int</span> quotient = len / ONELINE;</span><br><span class="line">    <span class="keyword">int</span> rem = len % ONELINE;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 内存申请</span></span><br><span class="line">    __nram__ half input1_nram[ONELINE];</span><br><span class="line">    __nram__ half input2_nram[ONELINE];</span><br><span class="line">    <span class="keyword">if</span>(rem != <span class="number">0</span>) {</span><br><span class="line">    	quotient += <span class="number">1</span>;</span><br><span class="line">  	}</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// For循环计算</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i < quotient; i++)</span><br><span class="line">    {</span><br><span class="line">        <span class="keyword">int</span> this_line = (i == quotient - <span class="number">1</span> && rem != <span class="number">0</span>) ? rem : ONELINE; </span><br><span class="line">        <span class="comment">// copy</span></span><br><span class="line">        __memcpy(input1_nram, input1 + i * ONELINE, this_line * <span class="keyword">sizeof</span>(half), GDRAM2NRAM);</span><br><span class="line">        __memcpy(input2_nram, input2 + i * ONELINE, this_line * <span class="keyword">sizeof</span>(half), GDRAM2NRAM);</span><br><span class="line">        <span class="comment">// 实际计算部分</span></span><br><span class="line">        __bang_sub(input1_nram, input1_nram, input2_nram, this_line);</span><br><span class="line">        __memcpy(input2_nram, input1_nram, this_line * <span class="keyword">sizeof</span>(half), NRAM2NRAM);</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> j = <span class="number">0</span>; j < <span class="built_in">pow</span> - <span class="number">1</span>; j++) {</span><br><span class="line">            __bang_mul(input1_nram, input1_nram, input2_nram, this_line);</span><br><span class="line">        }</span><br><span class="line">        <span class="comment">// 结果拷出操作</span></span><br><span class="line">        __memcpy(output + i * ONELINE, input1_nram, this_line * <span class="keyword">sizeof</span>(half), NRAM2GDRAM);</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<h4 id="PluginOp接口封装mlu算子"><span class="post-title-index">1.5.2.2. </span>PluginOp接口封装mlu算子</h4>
+<p><strong>CNML通过PluginOp相关接口提供了用户自定义算子和高性能库已有算子的协同工作机制。</strong></p>
+<ul>
+<li>
+<p><code>PluginPowerDifferenceOp/cnplugin.h</code></p>
+</li>
+<li>
+<p><code>PluginPowerDifferenceOp/plugin_power_difference_op.cc</code></p>
+</li>
+</ul>
+<p>① 这两个文件，连同上面kernel算子的两个文件，都在<code>PluginPowerDifferenceOp</code>这个文件夹中，将整个文件夹拷贝到<code>env/Cambricon-CNPlugin-MLU270/pluginops</code>。</p>
+<p>② 在<code>env/Cambricon-CNPlugin-MLU270</code>中执行编译脚本编译得到<code>libcnplugin.so</code>。</p>
+<p>③ 把<code>libcnplugin.so</code>和头文件<code>cnplugin.h</code>分别拷贝到env/neuware/lib64和env/neuware/include当中</p>
+<p>封装主要包括算子的构建接口Create、单算子运行接口Compute函数。</p>
+<figure class="highlight c++"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//PluginOp接口封装</span></span><br><span class="line"><span class="comment">//文件：plugin_power_difference_op.cc</span></span><br><span class="line"><span class="comment">//首先要把kernel函数的头文件给include进来</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">"plugin_power_difference_kernel.h"</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">// TODO：补全形参表 Done</span></span><br><span class="line"><span class="function">cnmlStatus_t <span class="title">cnmlCreatePluginPowerDifferenceOp</span><span class="params">(cnmlBaseOp_t *op, cnmlTensor_t *input_tensors, <span class="keyword">int</span> power, cnmlTensor_t *output_tensors, <span class="keyword">int</span> len)</span> </span>{</span><br><span class="line">  </span><br><span class="line">    <span class="keyword">void</span>** InterfacePtr;</span><br><span class="line">    InterfacePtr = <span class="keyword">reinterpret_cast</span><<span class="keyword">void</span> **>(&PowerDifferenceKernel);</span><br><span class="line"></span><br><span class="line">    cnrtKernelParamsBuffer_t params;</span><br><span class="line">    cnrtGetKernelParamsBuffer(&params);</span><br><span class="line">    cnrtKernelParamsBufferMarkInput(params);    <span class="comment">//input 0</span></span><br><span class="line">    cnrtKernelParamsBufferMarkInput(params);    <span class="comment">//input 1</span></span><br><span class="line">    cnrtKernelParamsBufferAddParam(params, &power, <span class="keyword">sizeof</span>(<span class="keyword">int</span>)); </span><br><span class="line">    cnrtKernelParamsBufferMarkOutput(params);   <span class="comment">//output 0</span></span><br><span class="line">    cnrtKernelParamsBufferAddParam(params, &len, <span class="keyword">sizeof</span>(<span class="keyword">int</span>));</span><br><span class="line">    <span class="comment">// TODO：配置变量 Done</span></span><br><span class="line"></span><br><span class="line">    cnmlCreatePluginOp ( op , <span class="string">"PowerDifference"</span> , InterfacePtr , params , input_tensors , <span class="number">2</span>, output_tensors , <span class="number">1</span>, <span class="literal">nullptr</span> , <span class="number">0</span>) ;</span><br><span class="line">    <span class="comment">/*</span></span><br><span class="line"><span class="comment">  通过调用 cnmlCreatePluginOp 传递 BCL算子函数指针、 输入和输出变量指针完成算子创建。</span></span><br><span class="line"><span class="comment">  */</span></span><br><span class="line">    cnrtDestroyKernelParamsBuffer(params);</span><br><span class="line">    <span class="keyword">return</span> CNML_STATUS_SUCCESS;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="function">cnmlStatus_t <span class="title">cnmlComputePluginPowerDifferenceOpForward</span><span class="params">(cnmlBaseOp_t op, <span class="keyword">void</span> **inputs, <span class="keyword">void</span> **outputs, cnrtQueue_t <span class="built_in">queue</span>)</span> </span>{</span><br><span class="line">    <span class="comment">// TODO：完成Compute函数 Done</span></span><br><span class="line">    cnmlComputePluginOpForward_V4 ( op , <span class="literal">nullptr</span> , inputs , <span class="number">2</span>, <span class="literal">nullptr</span> , outputs , <span class="number">1</span>, <span class="built_in">queue</span> , <span class="literal">nullptr</span> );</span><br><span class="line">    <span class="keyword">return</span> CNML_STATUS_SUCCESS;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<h4 id="集成到tensorflow"><span class="post-title-index">1.5.2.3. </span>集成到tensorflow</h4>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211227222338665.png" alt="image-20211227222338665" style="zoom:50%;">
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211229233624390.png" alt="image-20211229233624390" style="zoom:50%;">
+<p>重新编译，编译过程参照4.3.3。</p>
+<h2 id="特别技术"><span class="post-title-index">1.6. </span>特别技术</h2>
+<h3 id="量化quant"><span class="post-title-index">1.6.1. </span>量化quant</h3>
+<p>浮点数的优点是精度高，但是缺点是内存带宽占用更高，计算更慢。解决方案是采用低精度的数来保存模型参数和计算结果，在精度损失可接受的范围内提升计算</p>
+<ul>
+<li>
+<p><strong>定点量化</strong></p>
+<p>定点量化即用一组共享指数位的定点数来表示<strong>一组</strong>浮点数。FLOAT32→INT8，存储空间可以减少到1/4。这样做的前提是：<u>权值、激活在一个小范围内</u>。</p>
+</li>
+<li>
+<p><strong>计算流程</strong></p>
+<p><strong>① 获取校准数据集，统计数据</strong></p>
+<p>校准数据集就是一些样本组成的集合。</p>
+<p>在FP32下跑一下inference，获取每一层网络激活值的直方图</p>
+<p><strong>② 计算一组不同阈值的INT8表示的参数</strong></p>
+<p>根据不同的阈值生成不同的量化分布，计算每个INT8分布与原FP32分布的量化误差（越小越好）。找到最佳的那个。</p>
+</li>
+</ul>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223174226710.png" style="zoom: 33%;">
 <p>【to be continue，参见第四章实验手册】。</p>
-<h2 id="一些问题"><span class="post-title-index">1.7. </span><a href="#一些问题" class="headerlink" title="一些问题"></a>一些问题</h2><h3 id="pycnml和tf-mlu有什么关系"><span class="post-title-index">1.7.1. </span><a href="#pycnml和tf-mlu有什么关系" class="headerlink" title="pycnml和tf-mlu有什么关系"></a>pycnml和tf-mlu有什么关系</h3><p>tf-mlu是集成了CNML的魔改版Tensorflow框架，自动支持MLU的硬件算子。</p>
-<p><img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223154536117.png" alt="image-20211223154536117" style="zoom:50%;"></p>
+<h2 id="一些问题"><span class="post-title-index">1.7. </span>一些问题</h2>
+<h3 id="pycnml和tf-mlu有什么关系"><span class="post-title-index">1.7.1. </span>pycnml和tf-mlu有什么关系</h3>
+<p>tf-mlu是集成了CNML的魔改版Tensorflow框架，自动支持MLU的硬件算子。</p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223154536117.png" alt="image-20211223154536117" style="zoom:50%;">
 <p>Pycnml也是基于CMNL的，它使用python接口封装了CnmlNet.</p>
-<p><img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223154446278.png" alt="image-20211223154446278" style="zoom:50%;"></p>
-</body></html>]]></content>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211223154446278.png" alt="image-20211223154446278" style="zoom:50%;"></body></html>]]></content>
       <categories>
         <category>机器学习</category>
       </categories>
@@ -157,11 +441,13 @@ PowerDifference=(\bf{X}-\bf{Y})^Z</script><h3 id="如何兼容替换现有模型
   <entry>
     <title>DirectConv直接卷积</title>
     <url>/DirectConv%E7%9B%B4%E6%8E%A5%E5%8D%B7%E7%A7%AF.html</url>
-    <content><![CDATA[<html><head></head><body><h1 id="本文的由来"><span class="post-title-index">1. </span><a href="#本文的由来" class="headerlink" title="本文的由来"></a>本文的由来</h1><p>最近在学习神经网络的基本原理、底层实现。之前跟着斋藤老师的书<a href="#refer-anchor"><sup>2</sup></a>，用Python手撸了一遍底层的东西，基本上只用了numpy，实现了各种激活函数、各种层。</p>
+    <content><![CDATA[<html><head></head><body><h1><span class="post-title-index">1. </span>本文的由来</h1>
+<p>最近在学习神经网络的基本原理、底层实现。之前跟着斋藤老师的书<a href="#refer-anchor"><sup>2</sup></a>，用Python手撸了一遍底层的东西，基本上只用了numpy，实现了各种激活函数、各种层。</p>
 <p>接着想用C语言再撸一遍，这就不能用numpy了，一开始想自己写一些函数把numpy用到的的一些功能实现以下，不久可以直接移植了吗？（实际上我都设计好了，仿照numpy的功能，matmul, transpose, squeeze, reshape, slicing等操作。有机会再写一篇文章介绍一下）</p>
 <p>但是想要移植到FPGA上的话，这种偏高级语言的思路还是不太行，现在的思路是使用Direct Convolution，也就是用nested loop来实现，很原始，写完再看看有什么地方可以优化一下。但是问题来了，网上找的资料都是im2col的，我就想找个Direct Convolution的数学推导都找不到。然鹅我还是找到了，复旦邱老师的《nndl》<a href="#refer-anchor"><sup>1</sup></a>就没有用im2col，是最old school的数学推导。有点遗憾的是这本书里的推导是窄卷积，strides为1，于是我在本文中稍微拓展了一下，strides和padding可以为任意合法值。</p>
 <p>本文的推导是为编程服务的，所以矩阵的index会从0而不是1开始。</p>
-<h1 id="烂大街的im2col"><span class="post-title-index">2. </span><a href="#烂大街的im2col" class="headerlink" title="烂大街的im2col"></a>烂大街的im2col</h1><p>首先声明这不是不尊重im2col，实际上我非常赞叹这个方法，太棒了。但是因为它太棒了，现在各种博客凡说卷积层推导99%都是用im2col。</p>
+<h1><span class="post-title-index">2. </span>烂大街的im2col</h1>
+<p>首先声明这不是不尊重im2col，实际上我非常赞叹这个方法，太棒了。但是因为它太棒了，现在各种博客凡说卷积层推导99%都是用im2col。</p>
 <p>卷积层是CNN中最重要的层，这里不做科普，任何一本有关神经网络的书都会介绍。</p>
 <p>Google Research的一篇论文<a href="https://arxiv.org/abs/1907.02129" target="_blank" rel="noopener">The Indirect Convolution Algorithm</a>总结了常用的卷积算法：</p>
 <ul>
@@ -169,67 +455,101 @@ PowerDifference=(\bf{X}-\bf{Y})^Z</script><h3 id="如何兼容替换现有模型
 <li>GEMM-based algorithms</li>
 <li>Fast Convolution Algorithms</li>
 </ul>
-<p>在底层实现上，现在最常见的就是<code>im2col</code>+<code>GEMM</code>的方法，目前几乎所有的主流计算框架包括<code>Caffe</code>, <code>MXNet</code> 等都实现了该方法。概括地说，该方法把卷积层的输入$\pmb{X}$通过<code>im2col</code>变换，把一个个的卷积窗口取出展平，变成了$\pmb{col_X}$。把卷积核也展平成二维矩阵，最终把卷积操作变换成了矩阵乘法。</p>
-<script type="math/tex; mode=display">
-\pmb{Y}=\pmb{W\otimes X}=\pmb{col\_X\cdot col\_W}</script><blockquote>
+<p>在底层实现上，现在最常见的就是<code>im2col</code>+<code>GEMM</code>的方法，目前几乎所有的主流计算框架包括<code> Caffe</code>, <code>MXNet</code> 等都实现了该方法。概括地说，该方法把卷积层的输入$\pmb{X}$通过<code>im2col</code>变换，把一个个的卷积窗口取出展平，变成了$\pmb{col_X}$。把卷积核也展平成二维矩阵，最终把卷积操作变换成了矩阵乘法。<br>
+$$<br>
+\pmb{Y}=\pmb{W\otimes X}=\pmb{col_X\cdot col_W}<br>
+$$</p>
+<blockquote>
 <p>注：矩阵乘法时，哪个在左边取决于im2col的细节差异。</p>
 </blockquote>
 <p>该方法把整个卷积过程转化成了GEMM过程，而GEMM在各种 BLAS 库中都是被极致优化的，一般来说，速度较快。</p>
-<h1 id="Direct-Conv的数学推导"><span class="post-title-index">3. </span><a href="#Direct-Conv的数学推导" class="headerlink" title="Direct Conv的数学推导"></a>Direct Conv的数学推导</h1><h2 id="正向计算"><span class="post-title-index">3.1. </span><a href="#正向计算" class="headerlink" title="正向计算"></a>正向计算</h2><blockquote>
+<h1><span class="post-title-index">3. </span>Direct Conv的数学推导</h1>
+<h2 id="正向计算"><span class="post-title-index">3.1. </span>正向计算</h2>
+<blockquote>
 <p>特别提醒：本文所提的卷积默认是二维卷积。并且是不带通道的那种，也就是仅仅是两个二维矩阵之间的卷积。</p>
 </blockquote>
-<script type="math/tex; mode=display">
-\pmb{X}\in \mathbb{R}^{M\times N}</script><script type="math/tex; mode=display">
-\pmb{W}\in \mathbb{R}^{U\times V}</script><p>$\pmb{X}$是一个二维矩阵，表示二维图像（单通道）。</p>
+<p>$$<br>
+\pmb{X}\in \mathbb{R}^{M\times N}<br>
+$$</p>
+<p>$$<br>
+\pmb{W}\in \mathbb{R}^{U\times V}<br>
+$$</p>
+<p>$\pmb{X}$是一个二维矩阵，表示二维图像（单通道）。</p>
 <p>$\pmb{W}$是一个二维矩阵，表示二维卷积核（单通道）。</p>
 <p>卷积操作直观上看是filter在input feature map上滑动，对每个窗口里的值做加权求和，就映射到output feature map上的一个格子。就从该直观操作除非，定义卷积运算吧！</p>
 <ul>
-<li><p>二维卷积运算定义</p>
-<script type="math/tex; mode=display">
-\pmb{Y}=\pmb{W\otimes X}</script><p>$\pmb{X}$是input feature map，$\pmb{Y}$是output feature map，也是二维的矩阵。</p>
-<script type="math/tex; mode=display">
-y_{i,j}=\sum_{u=0}^{U-1}\sum_{v=0}^{V-1}w_{u,v}\times x_{-padding+i\times strides+u,-padding+j\times strides+v}^{'}</script><script type="math/tex; mode=display">
-x_{-padding+i\times strides+u,-padding+j\times strides+v}^{'}=
-\left\{
-\begin{array}{rcl}
-x_{-padding+i\times strides+u,-padding+j\times strides+v} & &{(-padding+i\times strides+u,-padding+j\times strides+v)在\pmb{X}坐标范围内}\\
-0     &      & \text{else}\\
-\end{array} \right.</script></li>
+<li>
+<p>二维卷积运算定义<br>
+$$<br>
+\pmb{Y}=\pmb{W\otimes X}<br>
+$$<br>
+$\pmb{X}$是input feature map，$\pmb{Y}$是output feature map，也是二维的矩阵。<br>
+$$<br>
+y_{i,j}=\sum_{u=0}^{U-1}\sum_{v=0}^{V-1}w_{u,v}\times x_{-padding+i\times strides+u,-padding+j\times strides+v}^{'}<br>
+$$</p>
+<p>$$<br>
+x_{-padding+i\times strides+u,-padding+j\times strides+v}^{'}=<br>
+\left{<br>
+\begin{array}{rcl}<br>
+x_{-padding+i\times strides+u,-padding+j\times strides+v} & &{(-padding+i\times strides+u,-padding+j\times strides+v)在\pmb{X}坐标范围内}\<br>
+0     &      & \text{else}\<br>
+\end{array} \right.<br>
+$$</p>
+<p>$\pmb{Y}$的尺寸：<br>
+$$<br>
+YH=\lfloor\frac{M+2\times padding-U}{strides}\rfloor +1<br>
+$$</p>
+<p>$$<br>
+YW=\lfloor\frac{N+2\times padding-V}{strides}\rfloor +1<br>
+$$</p>
+<p>即：<br>
+$$<br>
+\pmb{Y}\in \mathbb{R}^{YH\times YW}<br>
+$$</p>
+</li>
 </ul>
-<p>  $\pmb{Y}$的尺寸：</p>
-<script type="math/tex; mode=display">
-  YH=\lfloor\frac{M+2\times padding-U}{strides}\rfloor +1</script><script type="math/tex; mode=display">
-  YW=\lfloor\frac{N+2\times padding-V}{strides}\rfloor +1</script><p>  即：</p>
-<script type="math/tex; mode=display">
-  \pmb{Y}\in \mathbb{R}^{YH\times YW}</script><h2 id="求偏导"><span class="post-title-index">3.2. </span><a href="#求偏导" class="headerlink" title="求偏导"></a>求偏导</h2><script type="math/tex; mode=display">
-\begin{aligned}
-\frac{\partial f(\pmb{Y})}{\partial w_{u,v}}
-&= \sum_{i=0}^{YH-1}\sum_{j=0}^{YW-1}\frac{\partial y_{i,j}}{\partial w_{u,v}}\frac{\partial f(\pmb{Y})}{\partial y_{i,j}} \\
-&= \sum_{i=0}^{YH-1}\sum_{j=0}^{YW-1} x_{-padding+i\times strides+u,-padding+j\times strides+v}^{'} \frac{\partial f(\pmb{Y})}{\partial y_{i,j}}\end{aligned}</script><script type="math/tex; mode=display">
-\begin{aligned}
-\frac{\partial f(\pmb{Y})}{\partial x_{s,t}}
-&= \sum_{i=0}^{YH-1}\sum_{j=0}^{YW-1}\frac{\partial y_{i,j}}{\partial x_{s,t}}\frac{\partial f(\pmb{Y})}{\partial y_{i,j}} \\
-&= \sum_{i=0}^{YH-1}\sum_{j=0}^{YW-1} w_{s-i\times strides+padding,t-j\times strides+padding}^{'} \frac{\partial f(\pmb{Y})}{\partial y_{i,j}}\end{aligned}</script><script type="math/tex; mode=display">
-x_{-padding+i\times strides+u,-padding+j\times strides+v}^{'}=
-\left\{
-\begin{array}{rcl}
-x_{-padding+i\times strides+u,-padding+j\times strides+v} & &{(-padding+i\times strides+u,-padding+j\times strides+v)在\pmb{X}坐标范围内}\\
-0     &      & \text{else}\\
-\end{array} \right.</script><script type="math/tex; mode=display">
-w_{s-i\times strides+padding,t-j\times strides+padding}^{'}=
-\left\{
-\begin{array}{rcl}
-w_{s-i\times strides+padding,t-j\times strides+padding} & &{(s-i\times strides+padding,t-j\times strides+padding)在\pmb{W}坐标范围内}\\
-0     &      & \text{else}\\
-\end{array} \right.</script><h1 id="基于Direct-Conv的卷积层实现"><span class="post-title-index">4. </span><a href="#基于Direct-Conv的卷积层实现" class="headerlink" title="基于Direct Conv的卷积层实现"></a>基于Direct Conv的卷积层实现</h1><blockquote>
+<h2 id="求偏导"><span class="post-title-index">3.2. </span>求偏导</h2>
+<p>$$<br>
+\begin{aligned}<br>
+\frac{\partial f(\pmb{Y})}{\partial w_{u,v}}<br>
+&= \sum_{i=0}^{YH-1}\sum_{j=0}^{YW-1}\frac{\partial y_{i,j}}{\partial w_{u,v}}\frac{\partial f(\pmb{Y})}{\partial y_{i,j}} \<br>
+&= \sum_{i=0}^{YH-1}\sum_{j=0}^{YW-1} x_{-padding+i\times strides+u,-padding+j\times strides+v}^{'} \frac{\partial f(\pmb{Y})}{\partial y_{i,j}}\end{aligned}<br>
+$$</p>
+<p>$$<br>
+\begin{aligned}<br>
+\frac{\partial f(\pmb{Y})}{\partial x_{s,t}}<br>
+&= \sum_{i=0}^{YH-1}\sum_{j=0}^{YW-1}\frac{\partial y_{i,j}}{\partial x_{s,t}}\frac{\partial f(\pmb{Y})}{\partial y_{i,j}} \<br>
+&= \sum_{i=0}^{YH-1}\sum_{j=0}^{YW-1} w_{s-i\times strides+padding,t-j\times strides+padding}^{'} \frac{\partial f(\pmb{Y})}{\partial y_{i,j}}\end{aligned}<br>
+$$</p>
+<p>$$<br>
+x_{-padding+i\times strides+u,-padding+j\times strides+v}^{'}=<br>
+\left{<br>
+\begin{array}{rcl}<br>
+x_{-padding+i\times strides+u,-padding+j\times strides+v} & &{(-padding+i\times strides+u,-padding+j\times strides+v)在\pmb{X}坐标范围内}\<br>
+0     &      & \text{else}\<br>
+\end{array} \right.<br>
+$$</p>
+<p>$$<br>
+w_{s-i\times strides+padding,t-j\times strides+padding}^{'}=<br>
+\left{<br>
+\begin{array}{rcl}<br>
+w_{s-i\times strides+padding,t-j\times strides+padding} & &{(s-i\times strides+padding,t-j\times strides+padding)在\pmb{W}坐标范围内}\<br>
+0     &      & \text{else}\<br>
+\end{array} \right.<br>
+$$</p>
+<h1><span class="post-title-index">4. </span>基于Direct Conv的卷积层实现</h1>
+<blockquote>
 <p>本章的<code>卷积层</code>，是借助前一章的<code>卷积</code>操作，两者有区别和联系。</p>
 <p>注意：第4章中的卷积核$\pmb{W}$、数据$\pmb{X}$的形状和第3章中的差别。第3章的$\pmb{W}$和$\pmb{X}$都是二维的，第4张到了卷积层这里，$\pmb{X}$是三维的（加上了通道）。但是不影响，实际做的时候就还是每个通道分别做二维卷积，然后求个和。</p>
 </blockquote>
-<h2 id="正向传播"><span class="post-title-index">4.1. </span><a href="#正向传播" class="headerlink" title="正向传播"></a>正向传播</h2><p>卷积层有两种设计方法，</p>
+<h2 id="正向传播"><span class="post-title-index">4.1. </span>正向传播</h2>
+<p>卷积层有两种设计方法，</p>
 <ul>
-<li><p>卷积层=激活（卷积+偏置）</p>
+<li>
+<p>卷积层=激活（卷积+偏置）</p>
 </li>
-<li><p>卷积层=卷积+偏置</p>
+<li>
+<p>卷积层=卷积+偏置</p>
 </li>
 </ul>
 <p>tensorflow里的卷积层是有个activation的选项，也就是第一种。我手撸的python版本的CNN中激活层是单独的，是第二种。</p>
@@ -237,19 +557,29 @@ w_{s-i\times strides+padding,t-j\times strides+padding} & &{(s-i\times strides+p
 <p>该层的输入为：$\pmb{X}\in \mathbb{R}^{M\times N\times D}$</p>
 <p>该层的权重为：$\pmb{W}\in \mathbb{R}^{P\times U\times V\times D}$</p>
 <p>$P$是卷积核的个数，$M$、$N$是该层输入的高和宽，$U$、$V$分别是卷积核的高和宽，$D$是通道数。</p>
-<p>第$p$个卷积核，对输入$\pmb{X}$进行卷积偏置，计算输出的feature map的方式为：</p>
-<script type="math/tex; mode=display">
-\pmb{Z}^{(l,p)}=\sum_{d=1}^D\pmb{W}^{(l,p,d)}\pmb{\otimes} \pmb{X}^{(l-1,d)}+b^{(l,p)}</script><p>就是每个通道上执行卷积的operation（参照公式5），然后求和。</p>
-<h2 id="反向传播"><span class="post-title-index">4.2. </span><a href="#反向传播" class="headerlink" title="反向传播"></a>反向传播</h2><script type="math/tex; mode=display">
-\frac{\partial \mathcal{L}}{\partial w_{u,v}}=\sum_{i=0}^{ZH-1}\sum_{j=0}^{ZW-1}x_{-padding+i\times strides+u,-padding+j\times strides+v}^{'}\frac{\partial\mathcal{L}}{\partial z_{i,j}}</script><script type="math/tex; mode=display">
-\frac{\partial \mathcal{L}}{\partial b}=\sum_{i=0}^{ZH-1}\sum_{j=0}^{ZW-1}\frac{\partial \mathcal{L}}{\partial z_{i,j}}</script><script type="math/tex; mode=display">
-\frac{\partial \mathcal{L}}{\partial x_{s,t}}=\sum_{i=0}^{ZH-1}\sum_{j=0}^{ZW-1}w_{s-i\times strides+padding,t-j\times strides+padding}^{'}\frac{\partial \mathcal{L}}{\partial z_{i,j}}</script><p>关于$w^{‘}$和$x^{‘}$就不多说了，分段函数，前面有。</p>
+<p>第$p$个卷积核，对输入$\pmb{X}$进行卷积偏置，计算输出的feature map的方式为：<br>
+$$<br>
+\pmb{Z}^{(l,p)}=\sum_{d=1}^D\pmb{W}^{(l,p,d)}\pmb{\otimes} \pmb{X}^{(l-1,d)}+b^{(l,p)}<br>
+$$<br>
+就是每个通道上执行卷积的operation（参照公式5），然后求和。</p>
+<h2 id="反向传播"><span class="post-title-index">4.2. </span>反向传播</h2>
+<p>$$<br>
+\frac{\partial \mathcal{L}}{\partial w_{u,v}}=\sum_{i=0}^{ZH-1}\sum_{j=0}^{ZW-1}x_{-padding+i\times strides+u,-padding+j\times strides+v}^{'}\frac{\partial\mathcal{L}}{\partial z_{i,j}}<br>
+$$</p>
+<p>$$<br>
+\frac{\partial \mathcal{L}}{\partial b}=\sum_{i=0}^{ZH-1}\sum_{j=0}^{ZW-1}\frac{\partial \mathcal{L}}{\partial z_{i,j}}<br>
+$$</p>
+<p>$$<br>
+\frac{\partial \mathcal{L}}{\partial x_{s,t}}=\sum_{i=0}^{ZH-1}\sum_{j=0}^{ZW-1}w_{s-i\times strides+padding,t-j\times strides+padding}^{'}\frac{\partial \mathcal{L}}{\partial z_{i,j}}<br>
+$$</p>
+<p>关于$w^{‘}$和$x^{’}$就不多说了，分段函数，前面有。</p>
 <div id="refer-anchor"></div>
-
-<h1 id="参考资料"><span class="post-title-index">5. </span><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p>[1] <a href="https://nndl.github.io/" target="_blank" rel="noopener">《神经网络与深度学习》</a>邱锡鹏</p>
+<h1><span class="post-title-index">5. </span>参考资料</h1>
+<p>[1] <a href="https://nndl.github.io/" target="_blank" rel="noopener">《神经网络与深度学习》</a>邱锡鹏</p>
 <p>[2] 《深度学习入门——基于Python的理论与实现》斋藤康毅</p>
 <p>[3]  <a href="https://arxiv.org/abs/1907.02129" target="_blank" rel="noopener">The Indirect Convolution Algorithm</a> Google Research</p>
-<h1 id="Update"><span class="post-title-index">6. </span><a href="#Update" class="headerlink" title="Update"></a>Update</h1><ul>
+<h1><span class="post-title-index">6. </span>Update</h1>
+<ul>
 <li>【11.3更新】</li>
 </ul>
 <p>突然发现Microsoft的开源项目里有很好的数学推导，之前居然无视了，强烈推荐一波。</p>
@@ -302,7 +632,7 @@ w_{s-i\times strides+padding,t-j\times strides+padding} & &{(s-i\times strides+p
 <p>【4.2】</p>
 <p>一天不学自己知道，三天不学老师知道，一周不学同窗知道，一月不学路人知道。</p>
 <p>【3.3】</p>
-<p>生活中总有这样一种幻象：那就是总认为现在的生活就是生活应有的样子。实际上，没有什么是一成不变的。 </p>
+<p>生活中总有这样一种幻象：那就是总认为现在的生活就是生活应有的样子。实际上，没有什么是一成不变的。</p>
 </body></html>]]></content>
       <categories>
         <category>随笔</category>
@@ -315,40 +645,54 @@ w_{s-i\times strides+padding,t-j\times strides+padding} & &{(s-i\times strides+p
     <title>机器学习宝藏资源</title>
     <url>/%E5%AE%9D%E8%97%8F%E8%B5%84%E6%BA%90.html</url>
     <content><![CDATA[<html><head></head><body><p>【持续更新中。。。】</p>
-<h1 id="书籍"><span class="post-title-index">1. </span><a href="#书籍" class="headerlink" title="书籍"></a>书籍</h1><p><strong>深度学习四大名著：</strong></p>
+<h1><span class="post-title-index">1. </span>书籍</h1>
+<p><strong>深度学习四大名著：</strong></p>
 <blockquote>
 <p><a href="https://blog.csdn.net/red_stone1/article/details/84939224" target="_blank" rel="noopener">深度学习“四大名著”简介</a></p>
 <p>我们都知道现在机器学习、深度学习的资料太多了，面对海量资源，往往陷入到“无从下手”的困惑出境。而且并非所有的书籍都是优质资源，浪费大量的时间是得不偿失的。</p>
 </blockquote>
 <ul>
-<li><p>[x] <strong>蜥蜴书《Hands on Machine-Learning with Scikit-Learn, Keras & Tensorflow-2th Edition》(Concept, Tools, and Techniques to Build Intelligent Systems)</strong></p>
+<li>
+<p>[x] <strong>蜥蜴书《Hands on Machine-Learning with Scikit-Learn, Keras & Tensorflow-2th Edition》(Concept, Tools, and Techniques to Build Intelligent Systems)</strong></p>
 <p>作者Aurélien Géron。神书力荐，第一版有中文译本，但是推荐看第二版，多了很多新的内容，并且代码实现用了最新的tensorflow 2.0版本，所谓学新不学旧，这本书也是tensorflow.google.cn上的教程里所推荐的参考书。<a href="https://www.jianshu.com/p/4a94798f7dcc" target="_blank" rel="noopener">https://www.jianshu.com/p/4a94798f7dcc</a> 这个简书文章有这本书的介绍。<a href="https://redstonewill.com/2808/" target="_blank" rel="noopener">强烈推荐！最好用的《机器学习实用指南》第二版终于来了，代码已开源！</a></p>
 </li>
-<li><p>[x] <strong>《Deep Learning with Python》</strong></p>
+<li>
+<p>[x] <strong>《Deep Learning with Python》</strong></p>
 <p>同样是tensorflow官方教程中的推荐参考书。</p>
 </li>
-<li><p>[x] <strong>花书《深度学习》</strong></p>
-<h1 id="教程"><span class="post-title-index">2. </span><a href="#教程" class="headerlink" title="教程"></a>教程</h1></li>
+<li>
+<p>[x] <strong>花书《深度学习》</strong></p>
+</li>
 </ul>
+<h1><span class="post-title-index">2. </span>教程</h1>
 <p>在教程资源方面，本着「学新不学旧」的原则，涉及代码的只关注<code>Tensorflow 2.0</code>以上的教程。其他一些库的教程，同样是学习相对较新的版本。</p>
-<h2 id="Tensorflow-2-0-无痛教程"><span class="post-title-index">2.1. </span><a href="#Tensorflow-2-0-无痛教程" class="headerlink" title="Tensorflow 2.0 无痛教程"></a>Tensorflow 2.0 无痛教程</h2><p>在“机器之心”<a href="https://mp.weixin.qq.com/s/ARcR-xg4i8eV5n2BAkcoCg" target="_blank" rel="noopener">公众号</a>上看到的，北京吃饭大学学霸出品。</p>
+<h2 id="Tensorflow-2-0-无痛教程"><span class="post-title-index">2.1. </span>Tensorflow 2.0 无痛教程</h2>
+<p>在“机器之心”<a href="https://mp.weixin.qq.com/s/ARcR-xg4i8eV5n2BAkcoCg" target="_blank" rel="noopener">公众号</a>上看到的，北京吃饭大学学霸出品。</p>
 <p><img data-src="https://mmbiz.qpic.cn/mmbiz_png/KmXPKA19gW8N2sqn6vibgNIV1cz8flqNiaOq1icaPPnM8YMeFhDibuickEvJHCs11UI6EumbUibtKCsmHZiawJpDsaicyg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" alt="img"></p>
 <p>开源电子书：<a href="https://lyhue1991.github.io/eat_tensorflow2_in_30_days/" target="_blank" rel="noopener">https://lyhue1991.github.io/eat_tensorflow2_in_30_days/</a></p>
 <p>github项目地址：<a href="https://github.com/lyhue1991/eat_tensorflow2_in_30_days" target="_blank" rel="noopener">https://github.com/lyhue1991/eat_tensorflow2_in_30_days</a></p>
-<h2 id="《动手深度学习》配套教程"><span class="post-title-index">2.2. </span><a href="#《动手深度学习》配套教程" class="headerlink" title="《动手深度学习》配套教程"></a>《动手深度学习》配套教程</h2><p><img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/20201029163332_handsonml.png" alt="image-20200410162307598"></p>
+<h2 id="《动手深度学习》配套教程"><span class="post-title-index">2.2. </span>《动手深度学习》配套教程</h2>
+<p><img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/20201029163332_handsonml.png" alt="image-20200410162307598"></p>
 <p><a href="https://trickygo.github.io/Dive-into-DL-TensorFlow2" target="_blank" rel="noopener">本项目</a>将<a href="http://zh.d2l.ai/" target="_blank" rel="noopener">《动手学深度学习》</a> 原书中MXNet代码实现改为TensorFlow2.0实现。这个教程的优点在于结合了书本，有啥需要详细了解的可以查书本。</p>
-<h2 id="tfwiki教程，北大学霸出品"><span class="post-title-index">2.3. </span><a href="#tfwiki教程，北大学霸出品" class="headerlink" title="tfwiki教程，北大学霸出品"></a>tfwiki教程，北大学霸出品</h2><p>www.tf.wiki tf2.0手把手教学，要点都讲到了，比较完整。</p>
-<h2 id="莫烦教程"><span class="post-title-index">2.4. </span><a href="#莫烦教程" class="headerlink" title="莫烦教程"></a>莫烦教程</h2><p>这个是比较有名的教程，有些还有视频。但是有些东西还在更，没写完。</p>
+<h2 id="tfwiki教程，北大学霸出品"><span class="post-title-index">2.3. </span>tfwiki教程，北大学霸出品</h2>
+<p>www.tf.wiki tf2.0手把手教学，要点都讲到了，比较完整。</p>
+<h2 id="莫烦教程"><span class="post-title-index">2.4. </span>莫烦教程</h2>
+<p>这个是比较有名的教程，有些还有视频。但是有些东西还在更，没写完。</p>
 <p><a href="https://morvanzhou.github.io" target="_blank" rel="noopener">https://morvanzhou.github.io</a></p>
-<h1 id="很赞的工具"><span class="post-title-index">3. </span><a href="#很赞的工具" class="headerlink" title="很赞的工具"></a>很赞的工具</h1><blockquote>
+<h1><span class="post-title-index">3. </span>很赞的工具</h1>
+<blockquote>
 <p>工欲善其事，必先利其器。机器学习方面的轮子太多了，搜集一些好用的工具，在做研究的时候可以加快速度。</p>
 </blockquote>
-<h2 id="神经网络可视化工具"><span class="post-title-index">3.1. </span><a href="#神经网络可视化工具" class="headerlink" title="神经网络可视化工具"></a>神经网络可视化工具</h2><h3 id="一款3D可交互的网络可视化"><span class="post-title-index">3.1.1. </span><a href="#一款3D可交互的网络可视化" class="headerlink" title="一款3D可交互的网络可视化"></a>一款3D可交互的网络可视化</h3><p>网址：<a href="http://alexlenail.me/NN-SVG/index.html" target="_blank" rel="noopener">http://alexlenail.me/NN-SVG/index.html</a></p>
+<h2 id="神经网络可视化工具"><span class="post-title-index">3.1. </span>神经网络可视化工具</h2>
+<h3 id="一款3D可交互的网络可视化"><span class="post-title-index">3.1.1. </span>一款3D可交互的网络可视化</h3>
+<p>网址：<a href="http://alexlenail.me/NN-SVG/index.html" target="_blank" rel="noopener">http://alexlenail.me/NN-SVG/index.html</a></p>
 <p>源码：<a href="https://github.com/alexlenail/NN-SVG" target="_blank" rel="noopener">https://github.com/alexlenail/NN-SVG</a></p>
 <p>这款</p>
-<h1 id="学习网站、论坛"><span class="post-title-index">4. </span><a href="#学习网站、论坛" class="headerlink" title="学习网站、论坛"></a>学习网站、论坛</h1><p> <a href="https://tensorflow.google.cn/resources/learn-ml/basics-of-machine-learning/?hl=zh_cn" target="_blank" rel="noopener">tensorflow官方推荐的学习资源</a></p>
+<h1><span class="post-title-index">4. </span>学习网站、论坛</h1>
+<p><a href="https://tensorflow.google.cn/resources/learn-ml/basics-of-machine-learning/?hl=zh_cn" target="_blank" rel="noopener">tensorflow官方推荐的学习资源</a></p>
 <p><a href="https://redstonewill.com/2808/" target="_blank" rel="noopener">红色石头深度学习资源</a></p>
-<h1 id="网络收藏夹（一些干货）"><span class="post-title-index">5. </span><a href="#网络收藏夹（一些干货）" class="headerlink" title="网络收藏夹（一些干货）"></a>网络收藏夹（一些干货）</h1><ol>
+<h1><span class="post-title-index">5. </span>网络收藏夹（一些干货）</h1>
+<ol>
 <li><a href>神经网络内部可视化</a></li>
 <li><a href="https://www.cnblogs.com/hgz-dm/p/10886155.html" target="_blank" rel="noopener">【cnblog】最通俗易懂讲解<code>t变量</code>和<code>t检验</code></a></li>
 </ol>
@@ -364,12 +708,17 @@ w_{s-i\times strides+padding,t-j\times strides+padding} & &{(s-i\times strides+p
   <entry>
     <title>OpenVINO大师</title>
     <url>/OpenVINO%E5%A4%A7%E5%B8%88.html</url>
-    <content><![CDATA[<html><head></head><body><h1 id="OpenVINO-Workflow"><span class="post-title-index">1. </span><a href="#OpenVINO-Workflow" class="headerlink" title="OpenVINO Workflow"></a>OpenVINO Workflow</h1><p><img data-src="https://docs.openvinotoolkit.org/latest/workflow_steps.png" alt="workflow_steps.png"></p>
-<h1 id="使用Model-Optimizer"><span class="post-title-index">2. </span><a href="#使用Model-Optimizer" class="headerlink" title="使用Model Optimizer"></a>使用Model Optimizer</h1><h1 id="使用Inference-Engine"><span class="post-title-index">3. </span><a href="#使用Inference-Engine" class="headerlink" title="使用Inference Engine"></a>使用Inference Engine</h1><h2 id="Inference-Engine介绍"><span class="post-title-index">3.1. </span><a href="#Inference-Engine介绍" class="headerlink" title="Inference Engine介绍"></a>Inference Engine介绍</h2><p>详细介绍，请参照官方在线文档：</p>
+    <content><![CDATA[<html><head></head><body><h1><span class="post-title-index">1. </span>OpenVINO Workflow</h1>
+<p><img data-src="https://docs.openvinotoolkit.org/latest/workflow_steps.png" alt="workflow_steps.png"></p>
+<h1><span class="post-title-index">2. </span>使用Model Optimizer</h1>
+<h1><span class="post-title-index">3. </span>使用Inference Engine</h1>
+<h2 id="Inference-Engine介绍"><span class="post-title-index">3.1. </span>Inference Engine介绍</h2>
+<p>详细介绍，请参照官方在线文档：</p>
 <p><a href="https://docs.openvinotoolkit.org/latest/_docs_IE_DG_Deep_Learning_Inference_Engine_DevGuide.html" target="_blank" rel="noopener">Inference Engine Developer Guide Online Doc</a></p>
 <p><code>inference Engine</code>是整个OpenVINO工作流的终端，用于和User Application进行交互。他主要包括两个组件：</p>
 <ul>
-<li><p>Core Inference Engine Libraries</p>
+<li>
+<p>Core Inference Engine Libraries</p>
 <ul>
 <li>Read the network(<code>InferenceEngine::CNNNetReader</code>)</li>
 <li>Manipulate network information(<code>InferenceEngine::CNNNetwork</code>)</li>
@@ -377,142 +726,193 @@ w_{s-i\times strides+padding,t-j\times strides+padding} & &{(s-i\times strides+p
 <li>Execute and pass inputs and outputs(<code>InferenceEngine::ExecutableNetwork</code>)</li>
 </ul>
 </li>
-<li><p>Device-specific Plugin Libraries</p>
-<p>  对于不同的目标设备，会链接不同的devicce-specific plugin library</p>
+<li>
+<p>Device-specific Plugin Libraries</p>
+<p>对于不同的目标设备，会链接不同的devicce-specific plugin library</p>
 </li>
 </ul>
 <p>在整个OpenVINO工作流中，它接手Model Optimizer产出的IR，然后实例化网络，并根据特定的目标设备加载到plugin中使之成为可执行的网络。python借口最终也是调用C++的inference engine库。</p>
 <p><code>plugin</code>的概念：它是一个软件组件，向上提供统一的API，向下根据具体目标设备有所不同，操纵设备。</p>
-<h2 id="python工作流"><span class="post-title-index">3.2. </span><a href="#python工作流" class="headerlink" title="python工作流"></a>python工作流</h2><h3 id="创建IECore"><span class="post-title-index">3.2.1. </span><a href="#创建IECore" class="headerlink" title="创建IECore"></a>创建IECore</h3><p><code>IECore</code>是Inference Engine的核心，用于管理plugins，提供平台无关的接口。</p>
+<h2 id="python工作流"><span class="post-title-index">3.2. </span>python工作流</h2>
+<h3 id="创建IECore"><span class="post-title-index">3.2.1. </span>创建IECore</h3>
+<p><code>IECore</code>是Inference Engine的核心，用于管理plugins，提供平台无关的接口。</p>
 <ul>
-<li><p><strong>实例化方法</strong></p>
+<li>
+<p><strong>实例化方法</strong></p>
   <figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line">ie=IECore( xml_config_file=<span class="string">""</span>)</span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">参数：</span></span><br><span class="line"><span class="string">  xml_config_file=默认不指定，这个是IECore的总配置文件，里面会指向plugin的配置文件在哪</span></span><br><span class="line"><span class="string">'''</span></span><br></pre></td></tr></tbody></table></figure>
 </li>
-<li><p><strong>常用方法</strong></p>
+<li>
+<p><strong>常用方法</strong></p>
 <ul>
-<li><p><strong>ie.load_network(network, device_name, num_requests, config) 这个方法被用在3.2.3中，把静态网路加载到plugin上</strong></p>
+<li>
+<p><strong>ie.load_network(network, device_name, num_requests, config) 这个方法被用在3.2.3中，把静态网路加载到plugin上</strong></p>
   <figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">参数:</span></span><br><span class="line"><span class="string">  network= 传入一个实例化的network（非可执行）</span></span><br><span class="line"><span class="string">  device_name=</span></span><br><span class="line"><span class="string">  num_requests=1 整数，infer request to be created的个数</span></span><br><span class="line"><span class="string">  config=None 字典类型，plugin的配置</span></span><br><span class="line"><span class="string">返回值:</span></span><br><span class="line"><span class="string">  返回一个ExecutableNetwork对象</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line">network=IENetwork(model=model_xml, weights=model_bin)</span><br><span class="line">ie=IECore( )</span><br><span class="line">exec_net=ie.load_network(network=network, device_name=<span class="string">"CPU"</span>, num_requests=<span class="number">2</span>)</span><br></pre></td></tr></tbody></table></figure>
 </li>
-<li><p><strong>ie.query_network(network, device_name, config=None) 查询某个静态网络在某个插件上的支持情况</strong></p>
+<li>
+<p><strong>ie.query_network(network, device_name, config=None) 查询某个静态网络在某个插件上的支持情况</strong></p>
   <figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">参数：</span></span><br><span class="line"><span class="string">  network=传入一个实例化的静态network</span></span><br><span class="line"><span class="string">  device_name=</span></span><br><span class="line"><span class="string">  config=None 字典类型，插件的配置</span></span><br><span class="line"><span class="string">返回值：</span></span><br><span class="line"><span class="string">  字典{'层的名字':'支持的设备'}</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line">ie.query(network=net, device_name=<span class="string">'CPU'</span>)</span><br></pre></td></tr></tbody></table></figure>
 </li>
-<li><p><strong>还有很多感觉不常用</strong></p>
+<li>
+<p><strong>还有很多感觉不常用</strong></p>
 </li>
 </ul>
 </li>
 </ul>
-<h3 id="实例化静态网络IENetwork"><span class="post-title-index">3.2.2. </span><a href="#实例化静态网络IENetwork" class="headerlink" title="实例化静态网络IENetwork"></a>实例化静态网络IENetwork</h3><p>读取IR文件，得到实例化网络对象<code>IENetwork</code>，这个静态网络对象是平台无关的。</p>
+<h3 id="实例化静态网络IENetwork"><span class="post-title-index">3.2.2. </span>实例化静态网络IENetwork</h3>
+<p>读取IR文件，得到实例化网络对象<code>IENetwork</code>，这个静态网络对象是平台无关的。</p>
 <ul>
-<li><p><strong>实例化方法</strong></p>
+<li>
+<p><strong>实例化方法</strong></p>
   <figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line">network=IENetwork(model=, weights=，init_from_buffer=<span class="literal">False</span>)</span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">参数：</span></span><br><span class="line"><span class="string">  model= xml文件的路径</span></span><br><span class="line"><span class="string">  weights=bin文件的路径</span></span><br><span class="line"><span class="string">  init_from_buffer=False，False代表将model和weights参数作为文件名，True表示将model和weights作为Ptyhon bytes对象</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line">model_xml=<span class="string">"face_recog.xml"</span></span><br><span class="line">model_bin=<span class="string">"facce_recong.bin"</span></span><br><span class="line">network=IENetwork(model=model_xml, weights=model_bin)</span><br><span class="line"></span><br><span class="line"><span class="comment">#另一种情况</span></span><br><span class="line"><span class="keyword">with</span> open(path_to_xml,<span class="string">'rb'</span>) <span class="keyword">as</span> f:</span><br><span class="line">	model_xml=f.read()</span><br><span class="line"><span class="keyword">with</span> open(path_to_bin,<span class="string">'rb'</span>) <span class="keyword">as</span> f:</span><br><span class="line">	model_bin=f.read()</span><br><span class="line"> network=IENetwork(model=model_xml, model=model_bin, init_from_buffer=<span class="literal">True</span>)</span><br></pre></td></tr></tbody></table></figure>
 </li>
-<li><p><strong>数据成员</strong></p>
+<li>
+<p><strong>数据成员</strong></p>
 <ul>
-<li><p><strong>name：加载网络的名字</strong></p>
+<li>
+<p><strong>name：加载网络的名字</strong></p>
 </li>
-<li><p><strong>inputs：字典类型，映射输入层的名字to输入信息InputInfo( precision, layout, shape )</strong></p>
+<li>
+<p><strong>inputs：字典类型，映射输入层的名字to输入信息InputInfo( precision, layout, shape )</strong></p>
   <figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">>>> </span>net=IENetwork(model=model_xml, weights=model_bin)</span><br><span class="line"><span class="meta">>>> </span>net.inputs</span><br><span class="line">{<span class="string">'data'</span>:<一个InputInfo对象>}</span><br><span class="line"><span class="comment">#特别提示！这里的'data'只是个例子，不同的网络输入层的名字是不一样的！不要乱套</span></span><br><span class="line"><span class="meta">>>> </span>net.inputs[<span class="string">'data'</span>].shape <span class="comment">#获取输入层的形状</span></span><br><span class="line">[<span class="number">1</span>, <span class="number">3</span>, <span class="number">224</span>, <span class="number">224</span>]</span><br></pre></td></tr></tbody></table></figure>
 </li>
-<li><p><strong>outputs：字典类型，映射输层的名字to输出信息</strong>OutputInfo( precision, layout, shape )</p>
+<li>
+<p><strong>outputs：字典类型，映射输层的名字to输出信息</strong>OutputInfo( precision, layout, shape )</p>
   <figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line">>>>net.outputs</span><br><span class="line">{<span class="string">'prob'</span>:<一个OutputInfo对象>}</span><br><span class="line"><span class="comment">#特别提示！这里的'prob'只是个例子，不同的网络输出层的名字是不一样的！不要乱套</span></span><br><span class="line">>>>net.outputs[<span class="string">'prob'</span>].shape</span><br><span class="line">[<span class="number">1</span>,<span class="number">1000</span>]</span><br></pre></td></tr></tbody></table></figure>
 </li>
-<li><p><strong>batch_size：整数，可修改，影响输入层的shape</strong></p>
+<li>
+<p><strong>batch_size：整数，可修改，影响输入层的shape</strong></p>
   <figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line">>>>net.intputs[<span class="string">'data'</span>].shape</span><br><span class="line">[<span class="number">1</span>, <span class="number">3</span>, <span class="number">224</span>, <span class="number">224</span>]</span><br><span class="line">>>>net.batch_size</span><br><span class="line"><span class="number">1</span></span><br><span class="line">>>>net.batch_size=<span class="number">5</span></span><br><span class="line">>>>net.intputs[<span class="string">'data'</span>].shape</span><br><span class="line">[<span class="number">5</span>, <span class="number">3</span>, <span class="number">224</span>, <span class="number">224</span>]    <span class="comment">#可以看到，输入层的结构已经发生了变化</span></span><br></pre></td></tr></tbody></table></figure>
 </li>
-<li><p><strong>还有其他数据成员</strong></p>
+<li>
+<p><strong>还有其他数据成员</strong></p>
 </li>
 </ul>
 </li>
-<li><p><strong>常用方法</strong></p>
+<li>
+<p><strong>常用方法</strong></p>
 <ul>
-<li><p><strong>ienetwork.add_outputs(outputs) 提前截取某层作为一个输出，加入到net.outputs中</strong></p>
+<li>
+<p><strong>ienetwork.add_outputs(outputs) 提前截取某层作为一个输出，加入到net.outputs中</strong></p>
   <figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">参数：</span></span><br><span class="line"><span class="string">  outputs=[层的名字的列表]</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line">>>>net.outputs</span><br><span class="line">{<span class="string">'prob'</span>:<OutputInfo对象>}</span><br><span class="line">>>>net.add_outputs([<span class="string">"conv5_1/dwise"</span>,<span class="string">"conv2_1/expand"</span>])</span><br><span class="line">>>>net.outputs</span><br><span class="line">{<span class="string">'prob'</span>:<OutputInfo对象>, <span class="string">'conv5_1/dwise'</span>:<OutputInfo对象>, <span class="string">'conv2_1/expand'</span>:<OutputInfo对象>}</span><br></pre></td></tr></tbody></table></figure>
 </li>
-<li><p><strong>ienetwork.reshape(input_shapes) 修改输入层的结构，前面已经提过一个通过修改属性batch_size影响输入层结构的方法，这里则提供一个函数直接修改，但是不要乱改哦</strong></p>
+<li>
+<p><strong>ienetwork.reshape(input_shapes) 修改输入层的结构，前面已经提过一个通过修改属性batch_size影响输入层结构的方法，这里则提供一个函数直接修改，但是不要乱改哦</strong></p>
   <figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">参数：</span></span><br><span class="line"><span class="string">  input_shapes=一个字典{'输入层的名字': （n, c, h, w）}</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="comment">#因为输入层的名字不确定，需要先获取一下</span></span><br><span class="line">>>>input_layer_name=next(iter(net.inputs))  <span class="comment">#iter是获得dict的key的迭代器，next则返回第一个</span></span><br><span class="line">>>>n,c,h,w=net.inputs[<span class="string">'input_layer_name'</span>].shape</span><br><span class="line"><span class="comment">#将输入的长和宽乘2</span></span><br><span class="line">>>>net.reshape({input_layer_name:(n, c, <span class="number">2</span>*h, <span class="number">2</span>*w)})</span><br></pre></td></tr></tbody></table></figure>
 </li>
-<li><p><strong>还有其他方法</strong></p>
+<li>
+<p><strong>还有其他方法</strong></p>
 </li>
 </ul>
 </li>
 </ul>
-<h3 id="将网络加载到plugin获得ExecutableNetwork"><span class="post-title-index">3.2.3. </span><a href="#将网络加载到plugin获得ExecutableNetwork" class="headerlink" title="将网络加载到plugin获得ExecutableNetwork"></a>将网络加载到plugin获得ExecutableNetwork</h3><p>这一步获得<code>ExecutableNetwork</code>的方式不唯一，主要有两种。一种是通过<code>IECore</code>，前面已经说过，IECore是用于管理plugins的。另一种方式不通过IECore，直接操作<code>IEPlugin</code>。</p>
-<h4 id="通过IECore的方式"><span class="post-title-index">3.2.3.1. </span><a href="#通过IECore的方式" class="headerlink" title="通过IECore的方式"></a>通过IECore的方式</h4><p>借助IECore，将现有的静态网络，指定目标设备，加载到plugin中，得到可执行网络。使用的函数见3.2.1。</p>
+<h3 id="将网络加载到plugin获得ExecutableNetwork"><span class="post-title-index">3.2.3. </span>将网络加载到plugin获得ExecutableNetwork</h3>
+<p>这一步获得<code>ExecutableNetwork</code>的方式不唯一，主要有两种。一种是通过<code>IECore</code>，前面已经说过，IECore是用于管理plugins的。另一种方式不通过IECore，直接操作<code>IEPlugin</code>。</p>
+<h4 id="通过IECore的方式"><span class="post-title-index">3.2.3.1. </span>通过IECore的方式</h4>
+<p>借助IECore，将现有的静态网络，指定目标设备，加载到plugin中，得到可执行网络。使用的函数见3.2.1。</p>
 <figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line">net=IENetwork(model=<span class="string">''</span>, weights=<span class="string">''</span>)</span><br><span class="line">exec_net=ie.load_network(network=net, device_name=<span class="string">'CPU'</span>, num_requests=<span class="number">2</span>)</span><br></pre></td></tr></tbody></table></figure>
-<h4 id="通过IEPlugin这个类"><span class="post-title-index">3.2.3.2. </span><a href="#通过IEPlugin这个类" class="headerlink" title="通过IEPlugin这个类"></a>通过IEPlugin这个类</h4><ul>
-<li><p><strong>实例化方法</strong></p>
+<h4 id="通过IEPlugin这个类"><span class="post-title-index">3.2.3.2. </span>通过IEPlugin这个类</h4>
+<ul>
+<li>
+<p><strong>实例化方法</strong></p>
   <figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line">ieplugin=IEPlugin(device, plugin_dirs=<span class="literal">None</span>)</span><br><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">参数：</span></span><br><span class="line"><span class="string">  device：字符串类型，有CPU, GPU, FPGA, MYRAID, HETERO, 注意这里是device，iecore里面是device_name</span></span><br><span class="line"><span class="string">  plugin_dirs：列表，plugin目录</span></span><br><span class="line"><span class="string">'''</span></span><br></pre></td></tr></tbody></table></figure>
 </li>
-<li><p><strong>常用方法</strong></p>
+<li>
+<p><strong>常用方法</strong></p>
 <ul>
-<li><p><strong>ieplugin.load(network, num_requests=1, config=None)加载静态网络得到可执行网络</strong></p>
+<li>
+<p><strong>ieplugin.load(network, num_requests=1, config=None)加载静态网络得到可执行网络</strong></p>
   <figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">参数：</span></span><br><span class="line"><span class="string">  network=静态网络IENetwork实例</span></span><br><span class="line"><span class="string">  num_requests=1</span></span><br><span class="line"><span class="string">  config=None 字典类型，插件的配置</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line">ieplugin=IEPlugin(device=<span class="string">'CPU'</span>)</span><br><span class="line">exec_net=ieplugin.load(network=net, num_requests=<span class="number">2</span>)</span><br><span class="line"><span class="comment">#对比一下可以发现，感觉就是把IECore执行的ie.load_network(network,device_name,num_requests)拆成了两行</span></span><br></pre></td></tr></tbody></table></figure>
 </li>
-<li><p><strong>ieplugin.get_supported_layers(net) 获得一个静态网络在某插件上受支持的层，和IECore.query_network(network, device_name, config=None)功能接近</strong></p>
+<li>
+<p><strong>ieplugin.get_supported_layers(net) 获得一个静态网络在某插件上受支持的层，和IECore.query_network(network, device_name, config=None)功能接近</strong></p>
   <figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">参数：</span></span><br><span class="line"><span class="string">  net=静态网络IENetwork实例</span></span><br><span class="line"><span class="string">返回值：</span></span><br><span class="line"><span class="string">  集合，受支持的层</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line">supported_layer=ieplugin.get_supported_layers(net)</span><br></pre></td></tr></tbody></table></figure>
 </li>
 </ul>
 </li>
 </ul>
-<h3 id="构造Inference请求（可选）"><span class="post-title-index">3.2.4. </span><a href="#构造Inference请求（可选）" class="headerlink" title="构造Inference请求（可选）"></a>构造Inference请求（可选）</h3><ul>
-<li><p><strong>实例化方法</strong></p>
-<p>  没有显式构造，它暗藏在<code>ExecutableNetwork</code>的数据成员中。会在构造<code>ExecutableNetwork</code>的时候被指定。</p>
-</li>
-<li><p><strong>数据成员</strong></p>
+<h3 id="构造Inference请求（可选）"><span class="post-title-index">3.2.4. </span>构造Inference请求（可选）</h3>
 <ul>
-<li><p><strong>inputs</strong>：</p>
-<p>  一个字典{输入层的名字:numpy.ndarray}。注意区分<code>IENetwork</code>中的数据成员inputs，那里也是字典，但是由于是静态网络结构，并没有分配真实的空间，所以名字对应的是InputInfo对象仅保存信息。</p>
+<li>
+<p><strong>实例化方法</strong></p>
+<p>没有显式构造，它暗藏在<code>ExecutableNetwork</code>的数据成员中。会在构造<code>ExecutableNetwork</code>的时候被指定。</p>
 </li>
-<li><p><strong>outputs</strong>:</p>
-<p>  跟inputs类似，不再赘述。</p>
+<li>
+<p><strong>数据成员</strong></p>
+<ul>
+<li>
+<p><strong>inputs</strong>：</p>
+<p>一个字典{输入层的名字:numpy.ndarray}。注意区分<code>IENetwork</code>中的数据成员inputs，那里也是字典，但是由于是静态网络结构，并没有分配真实的空间，所以名字对应的是InputInfo对象仅保存信息。</p>
+</li>
+<li>
+<p><strong>outputs</strong>:</p>
+<p>跟inputs类似，不再赘述。</p>
 </li>
 </ul>
 </li>
-<li><p><strong>常用方法</strong></p>
+<li>
+<p><strong>常用方法</strong></p>
 <ul>
-<li><p><strong>infer(inputs=None)开始同步推理</strong></p>
-<p>  ==不建议直接使用InferRequest的infer方法，推荐通过ExecutbleNetwork==</p>
+<li>
+<p><strong>infer(inputs=None)开始同步推理</strong></p>
+<p>==不建议直接使用InferRequest的infer方法，推荐通过ExecutbleNetwork==</p>
   <figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">参数：</span></span><br><span class="line"><span class="string">  inputs=None字典类型，{输入层名：输入numpy.ndarray}</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line">exec_net=iecore.load_network(network=net,device_name=<span class="string">'CPU'</span>, num_requests=<span class="number">2</span>)</span><br><span class="line">exec_net.requests[<span class="number">0</span>].infer({<span class="string">'input_layer_name'</span>:image})</span><br><span class="line">res=exec_net.requests[<span class="number">0</span>].outputs[<span class="string">'output_layer_name'</span>]</span><br></pre></td></tr></tbody></table></figure>
 </li>
-<li><p><strong>async_infer(request_id, inputs=None)开始异步推理</strong></p>
+<li>
+<p><strong>async_infer(request_id, inputs=None)开始异步推理</strong></p>
   <figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">参数：</span></span><br><span class="line"><span class="string">  request_id=启动哪一个推理</span></span><br><span class="line"><span class="string">  inputs={输入层名：输入numpy.ndarray}</span></span><br><span class="line"><span class="string">返回值：</span></span><br><span class="line"><span class="string">  该request的handler</span></span><br><span class="line"><span class="string">'''</span></span><br></pre></td></tr></tbody></table></figure>
 </li>
-<li><p><strong>wait(timeout=-1)等待异步推理的时间</strong></p>
+<li>
+<p><strong>wait(timeout=-1)等待异步推理的时间</strong></p>
   <figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">陷入阻塞，直到推理结果可用或者达到了timeout毫秒，注意0和-1有特殊的含义。</span></span><br><span class="line"><span class="string">'''</span></span><br></pre></td></tr></tbody></table></figure>
 </li>
-<li><p>set_completion_callback(py_callback, py_data=None)</p>
+<li>
+<p>set_completion_callback(py_callback, py_data=None)</p>
   <figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">参数：</span></span><br><span class="line"><span class="string">  py_callback=</span></span><br><span class="line"><span class="string">  py_data=None传递给callback的参数</span></span><br><span class="line"><span class="string">'''</span></span><br></pre></td></tr></tbody></table></figure>
 </li>
-<li><p><strong>set_batch(size)在动态batching模式下为单个request调整batch size</strong></p>
+<li>
+<p><strong>set_batch(size)在动态batching模式下为单个request调整batch size</strong></p>
   <figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line">exe_net.requests[<span class="number">0</span>].set_batch(<span class="number">5</span>)</span><br></pre></td></tr></tbody></table></figure>
 </li>
-<li><p><strong>一个综合的例子</strong></p>
+<li>
+<p><strong>一个综合的例子</strong></p>
   <figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line">callback=<span class="keyword">lambda</span> status, py_data: print(<span class="string">"Request with id {} finished with status {}"</span>.format(py_data,status))</span><br><span class="line"><span class="keyword">for</span> id, req <span class="keyword">in</span> enumerate(exec_net.requests):</span><br><span class="line">      req.set_completion_callback(py_callback=callback, py_data=id)</span><br><span class="line"><span class="keyword">for</span> req <span class="keyword">in</span> exec_net.request:</span><br><span class="line">        req.async_infer({<span class="string">'data'</span>:img})</span><br></pre></td></tr></tbody></table></figure>
 </li>
 </ul>
 </li>
 </ul>
-<h3 id="使用ExecutableNetwork进行推理"><span class="post-title-index">3.2.5. </span><a href="#使用ExecutableNetwork进行推理" class="headerlink" title="使用ExecutableNetwork进行推理"></a>使用ExecutableNetwork进行推理</h3><p><code>ExecutableNetwork</code>代表这已经加载到plugin上的网络实例，准备好用于inference了。</p>
+<h3 id="使用ExecutableNetwork进行推理"><span class="post-title-index">3.2.5. </span>使用ExecutableNetwork进行推理</h3>
+<p><code>ExecutableNetwork</code>代表这已经加载到plugin上的网络实例，准备好用于inference了。</p>
 <p><code>excel</code></p>
-<h4 id="同步推理"><span class="post-title-index">3.2.5.1. </span><a href="#同步推理" class="headerlink" title="同步推理"></a>同步推理</h4><ul>
-<li><p><strong>infer(inputs=None)开始exec_net的同步推理</strong></p>
+<h4 id="同步推理"><span class="post-title-index">3.2.5.1. </span>同步推理</h4>
+<ul>
+<li>
+<p><strong>infer(inputs=None)开始exec_net的同步推理</strong></p>
   <figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line">res=exec_net.infer({<span class="string">'data'</span>:images})</span><br><span class="line"><span class="comment">#res得到的就是requests.outputs</span></span><br></pre></td></tr></tbody></table></figure>
 </li>
 </ul>
-<h4 id="异步推理"><span class="post-title-index">3.2.5.2. </span><a href="#异步推理" class="headerlink" title="异步推理"></a>异步推理</h4><ul>
-<li><p><strong>start_async(request_id, inputs=None)开始exec_net的某个request的异步推理，是对InferRequest的异步推理方法的封装</strong></p>
+<h4 id="异步推理"><span class="post-title-index">3.2.5.2. </span>异步推理</h4>
+<ul>
+<li>
+<p><strong>start_async(request_id, inputs=None)开始exec_net的某个request的异步推理，是对InferRequest的异步推理方法的封装</strong></p>
   <figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="string">'''</span></span><br><span class="line"><span class="string">返回值：</span></span><br><span class="line"><span class="string">  是该request的handler</span></span><br><span class="line"><span class="string">'''</span></span><br><span class="line">infer_req_handler=exec_net.start_async(request_id=<span class="number">1</span>, inputs={<span class="string">'data'</span>:imgs})</span><br><span class="line">infer_req_handler.wait()</span><br><span class="line">res=infer_req_handler.outputs[<span class="string">'output_layer_name'</span>]</span><br><span class="line"><span class="comment">#也可以通过exec_net.request[request_id].outputs来直接得到推理结果</span></span><br></pre></td></tr></tbody></table></figure>
 </li>
 </ul>
-<h3 id="准备输入输出格式"><span class="post-title-index">3.2.6. </span><a href="#准备输入输出格式" class="headerlink" title="准备输入输出格式"></a>准备输入输出格式</h3><p>一般人们常用的输入的维度为：<code>n, h, w, c</code>，但是<code>Inference Engine</code>采用的数据顺序为：<code>n, c, h, w</code></p>
+<h3 id="准备输入输出格式"><span class="post-title-index">3.2.6. </span>准备输入输出格式</h3>
+<p>一般人们常用的输入的维度为：<code>n, h, w, c</code>，但是<code>Inference Engine</code>采用的数据顺序为：<code>n, c, h, w</code></p>
 <p>所以通过opencv的<code>cv2</code>模块读取进来的图像需要做顺序的调整。</p>
 <figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> range(n):</span><br><span class="line">    image=cv2.imread(args.input[i])<span class="comment">#将图片转化为矩阵</span></span><br><span class="line">    <span class="keyword">if</span> image.shape[:<span class="number">-1</span>] !=(h, w):</span><br><span class="line">        <span class="comment">#调整图片大小</span></span><br><span class="line">        <span class="comment">#应该是先padding再resize</span></span><br><span class="line">        image=cv2.resize(image,(w,h))  <span class="comment">#注意cv2的维度顺序，太狗了！</span></span><br><span class="line">    image=image.transpose((<span class="number">2</span>,<span class="number">0</span>,<span class="number">1</span>)) <span class="comment">#从HWC换成CHW</span></span><br><span class="line">    images[i]=image</span><br><span class="line"><span class="comment">#整理之后的images可以作为输入了</span></span><br></pre></td></tr></tbody></table></figure>
-<h3 id="开始推理"><span class="post-title-index">3.2.7. </span><a href="#开始推理" class="headerlink" title="开始推理"></a>开始推理</h3><h1 id="Trouble-Shooting"><span class="post-title-index">4. </span><a href="#Trouble-Shooting" class="headerlink" title="Trouble Shooting"></a>Trouble Shooting</h1><h2 id="运行环境问题"><span class="post-title-index">4.1. </span><a href="#运行环境问题" class="headerlink" title="运行环境问题"></a>运行环境问题</h2><h3 id="用python2-7或者python3-6时导入openvino报错"><span class="post-title-index">4.1.1. </span><a href="#用python2-7或者python3-6时导入openvino报错" class="headerlink" title="用python2.7或者python3.6时导入openvino报错"></a>用<code>python2.7</code>或者<code>python3.6</code>时导入openvino报错</h3><ul>
-<li><p><strong>问题原因</strong></p>
-<p>  在设置环境变量的时候，默认是以python3.7作为支持的版本，如果需要使用其他版本的python就会出现不匹配的情况。</p>
+<h3 id="开始推理"><span class="post-title-index">3.2.7. </span>开始推理</h3>
+<h1><span class="post-title-index">4. </span>Trouble Shooting</h1>
+<h2 id="运行环境问题"><span class="post-title-index">4.1. </span>运行环境问题</h2>
+<h3 id="用python2-7或者python3-6时导入openvino报错"><span class="post-title-index">4.1.1. </span>用<code>python2.7</code>或者<code>python3.6</code>时导入openvino报错</h3>
+<ul>
+<li>
+<p><strong>问题原因</strong></p>
+<p>在设置环境变量的时候，默认是以python3.7作为支持的版本，如果需要使用其他版本的python就会出现不匹配的情况。</p>
 </li>
-<li><p><strong>解决方法</strong></p>
-<p>  在shell中设置环境变量的时候指定python的版本。通过<code>-pyver</code>选项。</p>
+<li>
+<p><strong>解决方法</strong></p>
+<p>在shell中设置环境变量的时候指定python的版本。通过<code>-pyver</code>选项。</p>
   <figure class="highlight shell"><table><tbody><tr><td class="code"><pre><span class="line">source /opt/intel/openvino/bin/setupvars.sh -pyver 2.7</span><br></pre></td></tr></tbody></table></figure>
 </li>
 </ul>
@@ -528,37 +928,53 @@ w_{s-i\times strides+padding,t-j\times strides+padding} & &{(s-i\times strides+p
   <entry>
     <title>面试知识：C++</title>
     <url>/interview-cpp.html</url>
-    <content><![CDATA[<html><head></head><body><h1 id="C-专题复习"><span class="post-title-index">1. </span><a href="#C-专题复习" class="headerlink" title="C++专题复习"></a>C++专题复习</h1><h2 id="细碎知识"><span class="post-title-index">1.1. </span><a href="#细碎知识" class="headerlink" title="细碎知识"></a>细碎知识</h2><h3 id="C-的关键字"><span class="post-title-index">1.1.1. </span><a href="#C-的关键字" class="headerlink" title="C++的关键字"></a>C++的关键字</h3><h4 id="static"><span class="post-title-index">1.1.1.1. </span><a href="#static" class="headerlink" title="static"></a><code>static</code></h4><ul>
-<li><p><strong>改变作用域（隐藏）</strong></p>
+    <content><![CDATA[<html><head></head><body><h1><span class="post-title-index">1. </span>C++专题复习</h1>
+<h2 id="细碎知识"><span class="post-title-index">1.1. </span>细碎知识</h2>
+<h3 id="C-的关键字"><span class="post-title-index">1.1.1. </span>C++的关键字</h3>
+<h4 id="static"><span class="post-title-index">1.1.1.1. </span><code>static</code></h4>
+<ul>
+<li>
+<p><strong>改变作用域（隐藏）</strong></p>
 <p><code>全局变量</code>分为<code>静态全局变量</code>和<code>外部全局变量</code>。</p>
 <p>加上static后对其他源文件隐藏，只在本源文件内有效。</p>
 </li>
-</ul>
-<ul>
-<li><p><strong>改变生存期</strong></p>
+<li>
+<p><strong>改变生存期</strong></p>
 <p>使用static生命的变量会在<code>静态/全局存储区</code>，会在程序刚开始就完成初始化，生存期为整个程序。但是对于静态局部变量而言，其作用域还是局部变量的作用域。</p>
-<a id="more"></a></li>
-<li><p><strong>赋值0</strong></p>
+</li>
+</ul>
+<a id="more"></a>
+<ul>
+<li>
+<p><strong>赋值0</strong></p>
 <p>普通局部变量如果未初始化，其值不可预测。加上static后，内存在<code>静态/全局存储区</code>，会赋初值为0。</p>
 </li>
-<li><p><strong>！！！特殊，类成员生命为static</strong></p>
+<li>
+<p><strong>！！！特殊，类成员生命为static</strong></p>
 <p>在类中声明static变量或者函数时，初始化时使用作用域运算符来标明它所属类，因此，静态数据成员是类的成员，而不是对象的成员，这样就出现以下作用：</p>
-<p>​    <strong>静态成员函数</strong></p>
+<p>​	<strong>静态成员函数</strong></p>
 <ul>
-<li><p>类的静态成员函数是属于整个类而非类的对象，所以它没有this指针，这就导致 了它仅能访问类的静态数据和静态成员函数。</p>
+<li>
+<p>类的静态成员函数是属于整个类而非类的对象，所以它没有this指针，这就导致 了它仅能访问类的静态数据和静态成员函数。</p>
 </li>
-<li><p>不能将静态成员函数定义为虚函数。      </p>
+<li>
+<p>不能将静态成员函数定义为虚函数。</p>
 </li>
-<li><p>由于静态成员函数没有this指针，所以就差不多等同于nonmember函数，结果就 产生了一个意想不到的好处：成为一个callback函数，使得我们得以将C++和C-based X W indow系统结合，同时也成功的应用于线程函数身上。 （这条没遇见过）  </p>
+<li>
+<p>由于静态成员函数没有this指针，所以就差不多等同于nonmember函数，结果就 产生了一个意想不到的好处：成为一个callback函数，使得我们得以将C++和C-based X W indow系统结合，同时也成功的应用于线程函数身上。 （这条没遇见过）</p>
 </li>
-<li><p>static并没有增加程序的时空开销，相反她还缩短了子类对父类静态成员的访问 时间，节省了子类的内存空间。 </p>
-<p><strong>静态数据成员</strong>     </p>
+<li>
+<p>static并没有增加程序的时空开销，相反她还缩短了子类对父类静态成员的访问 时间，节省了子类的内存空间。</p>
+<p><strong>静态数据成员</strong></p>
 </li>
-<li><p>静态数据成员在<定义或说明>时前面加关键字static。   </p>
+<li>
+<p>静态数据成员在<定义或说明>时前面加关键字static。</p>
 </li>
-<li><p>由于静态成员声明于类中，操作于其外，所以对其取地址操作，就多少有些特殊 ，变量地址是指向其数据类型的指针 ，函数地址类型是一个“nonmember函数指针”。  </p>
+<li>
+<p>由于静态成员声明于类中，操作于其外，所以对其取地址操作，就多少有些特殊 ，变量地址是指向其数据类型的指针 ，函数地址类型是一个“nonmember函数指针”。</p>
 </li>
-<li><p>静态数据成员是静态存储的，所以必须对它进行初始化。 （程序员手动初始化，不能再定义时初始化） </p>
+<li>
+<p>静态数据成员是静态存储的，所以必须对它进行初始化。 （程序员手动初始化，不能再定义时初始化）</p>
 <ul>
 <li>为了防止父类的影响，可以在子类定义一个与父类相同的静态变量，以屏蔽父类的影响。这里有一点需要注意：我们说静态成员为父类和子类共享，但我们有重复定义了静态成员，这会不会引起错误呢？不会，我们的编译器采用了一种绝妙的手法：name-mangling 用以生成唯一的标志。</li>
 </ul>
@@ -575,8 +991,8 @@ w_{s-i\times strides+padding,t-j\times strides+padding} & &{(s-i\times strides+p
 <li>修饰成员函数，修饰成员函数使得不需要生成对象就可以访问该函数，但是在 static 函数内不能访问非静态成员。</li>
 </ol>
 </blockquote>
-<h4 id="const"><span class="post-title-index">1.1.1.2. </span><a href="#const" class="headerlink" title="const"></a><code>const</code></h4><p><strong>1. const指针</strong></p>
-<div class="table-container">
+<h4 id="const"><span class="post-title-index">1.1.1.2. </span><code>const</code></h4>
+<p><strong>1. const指针</strong></p>
 <table>
 <thead>
 <tr>
@@ -588,7 +1004,7 @@ w_{s-i\times strides+padding,t-j\times strides+padding} & &{(s-i\times strides+p
 <tbody>
 <tr>
 <td style="text-align:center">指向常量的指针</td>
-<td style="text-align:center">const int <em>p;<br>int const </em>p;</td>
+<td style="text-align:center">const int *p;<br>int const *p;</td>
 <td style="text-align:center">只能通过该指针<strong>访问</strong>变量，不能<strong>修改</strong>该变量。另外，只有指向常量的指针可以指向常量，普通指针不可以。</td>
 </tr>
 <tr>
@@ -599,10 +1015,10 @@ w_{s-i\times strides+padding,t-j\times strides+padding} & &{(s-i\times strides+p
 <tr>
 <td style="text-align:center">指向常量的常指针</td>
 <td style="text-align:center">const int * const p;</td>
+<td style="text-align:center"></td>
 </tr>
 </tbody>
 </table>
-</div>
 <p><strong>2. 常对象</strong></p>
 <figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//const 类名 对象名(初始化实参表);</span></span><br><span class="line"><span class="comment">//类名 const 对象名(初始化实参表) </span></span><br><span class="line"><span class="function"><span class="keyword">const</span> Time <span class="title">t1</span><span class="params">(<span class="number">15</span>,<span class="number">23</span>,<span class="number">55</span>)</span></span>;</span><br><span class="line"><span class="function">Time <span class="keyword">const</span> <span class="title">t2</span><span class="params">(<span class="number">15</span>,<span class="number">24</span>,<span class="number">55</span>)</span></span>;</span><br></pre></td></tr></tbody></table></figure>
 <ul>
@@ -612,49 +1028,61 @@ w_{s-i\times strides+padding,t-j\times strides+padding} & &{(s-i\times strides+p
 <li>常对象，只能调用常成员函数。</li>
 </ul>
 <p>常对象的约束可能过于严格。可以使用<code>常数据成员</code>或<code>常成员函数</code></p>
-<p><strong>3. 常数据成员</strong>  </p>
+<p><strong>3. 常数据成员</strong></p>
 <ul>
 <li>常数据成员要遭构造函数中初始化，且使用中值不可变。</li>
 <li>==常数据成员的构造函数，必须用<strong>参数初始化表</strong>,不能用赋值的方式==。构造函数中，非成员成员变量可以用赋值的方式。</li>
 </ul>
 <p><strong>4. 常成员函数</strong></p>
 <ul>
-<li><p>常成员函数可以调用本类的另一个常成员函数，但是不能调用本类的非常成员函数（即使他什么都没做）</p>
+<li>
+<p>常成员函数可以调用本类的另一个常成员函数，但是不能调用本类的非常成员函数（即使他什么都没做）</p>
 </li>
-<li><p>常成员函数只能引用类的数据成员，不能修改（==除非是加了mutable的数据成员==）</p>
+<li>
+<p>常成员函数只能引用类的数据成员，不能修改（==除非是加了mutable的数据成员==）</p>
 </li>
-<li>==常成员函数声明时的const必须写在最后==</li>
+<li>
+<p>==常成员函数声明时的const必须写在最后==</p>
+</li>
 </ul>
 <figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Time</span>{</span></span><br><span class="line">    <span class="keyword">public</span>:</span><br><span class="line">        <span class="keyword">int</span> <span class="keyword">const</span> hour;</span><br><span class="line">        <span class="keyword">const</span> <span class="keyword">int</span> minute;</span><br><span class="line">        <span class="keyword">int</span> second;</span><br><span class="line">        <span class="comment">//这两种都行,等价</span></span><br><span class="line">        Time(<span class="keyword">int</span> h,<span class="keyword">int</span> m,<span class="keyword">int</span> s):hour(h),minute(m){</span><br><span class="line">            second=s;</span><br><span class="line">            <span class="comment">//hour和minute是常数据成员，必须用参数初始化表</span></span><br><span class="line">        }</span><br><span class="line">    <span class="keyword">private</span>:</span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">showHour</span><span class="params">()</span> <span class="keyword">const</span></span>;</span><br><span class="line">        <span class="comment">//加了const，在该函数中只能引用成员的值，不能修改</span></span><br><span class="line">        <span class="comment">//const必须写在后面</span></span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
 <p><strong>5. 一个非常全的例子</strong></p>
 <figure class="highlight c++"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">// 类</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">A</span></span></span><br><span class="line"><span class="class">{</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">int</span> a;                <span class="comment">// 常对象成员，只能在初始化列表赋值</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="comment">// 构造函数</span></span><br><span class="line">    A() : a(<span class="number">0</span>) { };</span><br><span class="line">    A(<span class="keyword">int</span> x) : a(x) { };        <span class="comment">// 初始化列表</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// const可用于对重载函数的区分</span></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">getValue</span><span class="params">()</span></span>;             <span class="comment">// 普通成员函数</span></span><br><span class="line">    <span class="function"><span class="keyword">int</span> <span class="title">getValue</span><span class="params">()</span> <span class="keyword">const</span></span>;       <span class="comment">// 常成员函数，不得修改类中的任何数据成员的值</span></span><br><span class="line">};</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">function</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>{</span><br><span class="line">    <span class="comment">// 对象</span></span><br><span class="line">    A b;                        <span class="comment">// 普通对象，可以调用全部成员函数、更新常成员变量</span></span><br><span class="line">    <span class="keyword">const</span> A a;                  <span class="comment">// 常对象，只能调用常成员函数</span></span><br><span class="line">    <span class="keyword">const</span> A *p = &a;            <span class="comment">// 常指针</span></span><br><span class="line">    <span class="keyword">const</span> A &q = a;             <span class="comment">// 常引用</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// 指针</span></span><br><span class="line">    <span class="keyword">char</span> greeting[] = <span class="string">"Hello"</span>;</span><br><span class="line">    <span class="keyword">char</span>* p1 = greeting;                <span class="comment">// 指针变量，指向字符数组变量</span></span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span>* p2 = greeting;          <span class="comment">// 指针变量，指向字符数组常量</span></span><br><span class="line">    <span class="keyword">char</span>* <span class="keyword">const</span> p3 = greeting;          <span class="comment">// 常指针，指向字符数组变量</span></span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span>* <span class="keyword">const</span> p4 = greeting;    <span class="comment">// 常指针，指向字符数组常量</span></span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="comment">// 函数</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">function1</span><span class="params">(<span class="keyword">const</span> <span class="keyword">int</span> Var)</span></span>;           <span class="comment">// 传递过来的参数在函数内不可变</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">function2</span><span class="params">(<span class="keyword">const</span> <span class="keyword">char</span>* Var)</span></span>;         <span class="comment">// 参数指针所指内容为常量</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">function3</span><span class="params">(<span class="keyword">char</span>* <span class="keyword">const</span> Var)</span></span>;         <span class="comment">// 参数指针为常指针</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">function4</span><span class="params">(<span class="keyword">const</span> <span class="keyword">int</span>& Var)</span></span>;          <span class="comment">// 引用参数在函数内为常量</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 函数返回值</span></span><br><span class="line"><span class="function"><span class="keyword">const</span> <span class="keyword">int</span> <span class="title">function5</span><span class="params">()</span></span>;      <span class="comment">// 返回一个常数</span></span><br><span class="line"><span class="function"><span class="keyword">const</span> <span class="keyword">int</span>* <span class="title">function6</span><span class="params">()</span></span>;     <span class="comment">// 返回一个指向常量的指针变量，使用：const int *p = function6();</span></span><br><span class="line"><span class="function"><span class="keyword">int</span>* <span class="keyword">const</span> <span class="title">function7</span><span class="params">()</span></span>;     <span class="comment">// 返回一个指向变量的常指针，使用：int* const p = function7();</span></span><br></pre></td></tr></tbody></table></figure>
-<h4 id="this"><span class="post-title-index">1.1.1.3. </span><a href="#this" class="headerlink" title="this"></a><code>this</code></h4><ul>
+<h4 id="this"><span class="post-title-index">1.1.1.3. </span><code>this</code></h4>
+<ul>
 <li><code>this</code>指针不占类的空间，也不占对象的空间（即sizeof不包括进去）。因为<code>this</code>指针是在<code>成员函数</code>中的，它隐含于每一个非静态成员函数中，指向调用该成员函数的那个的对象。</li>
 <li><code>this</code>指针被隐含的声明为<code>ClassName *const this</code>，意味着<code>this</code>指针是一个常指针，不能修改<code>this</code>指针的值。</li>
 <li>在类的<code>常成员函数</code>中，<code>this</code>指针被声明为<code>指向常量的常指针</code>,即<code>ClassName const * const this</code>，说明在常成员函数中，不能通过<code>this</code>指针修改对象。</li>
 </ul>
-<h4 id="inline"><span class="post-title-index">1.1.1.4. </span><a href="#inline" class="headerlink" title="inline"></a><code>inline</code></h4><ul>
+<h4 id="inline"><span class="post-title-index">1.1.1.4. </span><code>inline</code></h4>
+<ul>
 <li>相当于把内联函数里面的内容写在调用内联函数处；</li>
 <li>相当于不用执行进入函数的步骤，直接执行函数体；</li>
 <li>相当于宏，却比宏多了类型检查，真正具有函数特性；</li>
 <li>编译器一般不内联包含循环、递归、switch 等复杂操作的内联函数；</li>
 <li>==在类声明中定义的函数，除了虚函数的其他函数都会自动隐式地当成内联函数。==</li>
 </ul>
-<h4 id="volatile"><span class="post-title-index">1.1.1.5. </span><a href="#volatile" class="headerlink" title="volatile"></a><code>volatile</code></h4><ul>
+<h4 id="volatile"><span class="post-title-index">1.1.1.5. </span><code>volatile</code></h4>
+<ul>
 <li>volatile 关键字声明的变量，每次访问时都必须从内存中取出值（没有被 volatile 修饰的变量，可能由于编译器的优化，从 CPU 寄存器中取值）</li>
 <li>const 可以是 volatile （如只读的状态寄存器）</li>
 <li>指针可以是 volatile</li>
 </ul>
-<h4 id="pragma-pack-n"><span class="post-title-index">1.1.1.6. </span><a href="#pragma-pack-n" class="headerlink" title="#pragma pack(n)"></a><code>#pragma pack(n)</code></h4><p>设置对其方式</p>
+<h4 id="pragma-pack-n"><span class="post-title-index">1.1.1.6. </span><code>#pragma pack(n)</code></h4>
+<p>设置对其方式</p>
 <figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> pack(push)<span class="comment">//保存现有的对其方式，以便之后恢复</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> pack(4)<span class="comment">//设置四字节对齐</span></span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">test</span>{</span></span><br><span class="line">    <span class="keyword">char</span> m1;</span><br><span class="line">    <span class="keyword">double</span> m4;</span><br><span class="line">    <span class="keyword">int</span> m3;</span><br><span class="line">};</span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">pragma</span> pack(pop) <span class="comment">//恢复对其方式</span></span></span><br></pre></td></tr></tbody></table></figure>
-<h4 id="extern-quot-C-quot"><span class="post-title-index">1.1.1.7. </span><a href="#extern-quot-C-quot" class="headerlink" title="extern "C""></a><code>extern "C"</code></h4><ul>
+<h4 id="extern-C"><span class="post-title-index">1.1.1.7. </span><code>extern "C"</code></h4>
+<ul>
 <li>被 <code>extern "C"</code> 修饰的变量和函数是按照 C 语言方式编译和链接的</li>
 </ul>
 <figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">extern</span> <span class="string">"c"</span>{</span><br><span class="line">    ...</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
-<h4 id="union共用体-和机器大小端"><span class="post-title-index">1.1.1.8. </span><a href="#union共用体-和机器大小端" class="headerlink" title="union共用体(和机器大小端)"></a><code>union共用体(和机器大小端)</code></h4><ul>
-<li><p>所有成员从同一内存开始，union共用体的大小为其中占空间最大的成员的大小。</p>
+<h4 id="union共用体-和机器大小端"><span class="post-title-index">1.1.1.8. </span><code>union共用体(和机器大小端)</code></h4>
+<ul>
+<li>
+<p>所有成员从同一内存开始，union共用体的大小为其中占空间最大的成员的大小。</p>
 </li>
-<li><p>给共用体的一个成员赋值之后，会覆盖其他成员的值，因此只有最后一次存放的成员是有效的。</p>
+<li>
+<p>给共用体的一个成员赋值之后，会覆盖其他成员的值，因此只有最后一次存放的成员是有效的。</p>
 <p><img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/20201029162834_union.png" alt="1567838897988"></p>
 </li>
 </ul>
@@ -668,23 +1096,35 @@ w_{s-i\times strides+padding,t-j\times strides+padding} & &{(s-i\times strides+p
 <li>参数传递法</li>
 </ul>
 <figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">judgeBigLittle</span><span class="params">(<span class="keyword">char</span> c)</span></span>{</span><br><span class="line">	<span class="keyword">if</span>(c==<span class="number">0x44</span>){</span><br><span class="line">        <span class="built_in">cout</span><<<span class="string">"小端序"</span><<<span class="built_in">endl</span>;</span><br><span class="line">    }<span class="keyword">else</span>{</span><br><span class="line">        <span class="built_in">cout</span><<<span class="string">"大端序"</span><<<span class="built_in">endl</span>;</span><br><span class="line">    }    </span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="keyword">int</span> a = <span class="number">0x11223344</span>;</span><br><span class="line">judege(a);</span><br></pre></td></tr></tbody></table></figure>
-<h4 id="enum枚举类型"><span class="post-title-index">1.1.1.9. </span><a href="#enum枚举类型" class="headerlink" title="enum枚举类型"></a><code>enum枚举类型</code></h4><figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">enum</span> week{Monday,Tuesday};</span><br></pre></td></tr></tbody></table></figure>
+<h4 id="enum枚举类型"><span class="post-title-index">1.1.1.9. </span><code>enum枚举类型</code></h4>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">enum</span> week{Monday,Tuesday};</span><br></pre></td></tr></tbody></table></figure>
 <ul>
 <li>枚举类型是常量，按照整形常量处理。但是不能用常量直接赋值，要做强制类型转换。</li>
 </ul>
-<h4 id="explicit"><span class="post-title-index">1.1.1.10. </span><a href="#explicit" class="headerlink" title="explicit"></a><code>explicit</code></h4><p><code>explicit</code>的中文意思是<code>显式</code>。</p>
+<h4 id="explicit"><span class="post-title-index">1.1.1.10. </span><code>explicit</code></h4>
+<p><code>explicit</code>的中文意思是<code>显式</code>。</p>
 <ul>
 <li>用explicit修饰构造函数的时候，可以防止隐式转换和复制初始化</li>
 <li>用explicit修饰转换函数的时候，可以防止隐式转，但<code>按语境转换</code>除外</li>
 </ul>
-<h4 id="sizeof"><span class="post-title-index">1.1.1.11. </span><a href="#sizeof" class="headerlink" title="sizeof()"></a><code>sizeof()</code></h4><ul>
-<li><p>sizeof(数组)：数组所占空间大小</p>
+<h4 id="sizeof"><span class="post-title-index">1.1.1.11. </span><code>sizeof()</code></h4>
+<ul>
+<li>
+<p>sizeof(数组)：数组所占空间大小</p>
 </li>
-<li><p>sizeof(指针)：指针所占空间的大小</p>
+<li>
+<p>sizeof(指针)：指针所占空间的大小</p>
 <p>==有关对象的sizeof还需要讨论==</p>
 </li>
 </ul>
-<h4 id="friend"><span class="post-title-index">1.1.1.12. </span><a href="#friend" class="headerlink" title="friend"></a><code>friend</code></h4><h4 id="exit"><span class="post-title-index">1.1.1.13. </span><a href="#exit" class="headerlink" title="exit()"></a><code>exit()</code></h4><h4 id="using"><span class="post-title-index">1.1.1.14. </span><a href="#using" class="headerlink" title="using"></a><code>using</code></h4><h4 id="try-catch"><span class="post-title-index">1.1.1.15. </span><a href="#try-catch" class="headerlink" title="try catch"></a><code>try catch</code></h4><h4 id="size-t"><span class="post-title-index">1.1.1.16. </span><a href="#size-t" class="headerlink" title="size_t"></a><code>size_t</code></h4><h4 id="NULL"><span class="post-title-index">1.1.1.17. </span><a href="#NULL" class="headerlink" title="NULL"></a><code>NULL</code></h4><h3 id="C-的内存分布"><span class="post-title-index">1.1.2. </span><a href="#C-的内存分布" class="headerlink" title="C++的内存分布"></a>C++的内存分布</h3><blockquote>
+<h4 id="friend"><span class="post-title-index">1.1.1.12. </span><code>friend</code></h4>
+<h4 id="exit"><span class="post-title-index">1.1.1.13. </span><code>exit()</code></h4>
+<h4 id="using"><span class="post-title-index">1.1.1.14. </span><code>using</code></h4>
+<h4 id="try-catch"><span class="post-title-index">1.1.1.15. </span><code>try catch</code></h4>
+<h4 id="size-t"><span class="post-title-index">1.1.1.16. </span><code>size_t</code></h4>
+<h4 id="NULL"><span class="post-title-index">1.1.1.17. </span><code>NULL</code></h4>
+<h3 id="C-的内存分布"><span class="post-title-index">1.1.2. </span>C++的内存分布</h3>
+<blockquote>
 <p>复习C的内存分布：（按照逻辑地址从低到高）</p>
 <ol>
 <li>代码段</li>
@@ -700,11 +1140,12 @@ w_{s-i\times strides+padding,t-j\times strides+padding} & &{(s-i\times strides+p
 <li>常量存储区：这部分存储的内容与C语言中初始化数据段中的只读数据段是一样的，用来存储C++常量；</li>
 <li>全局/静态存储区：在C++中，不再区分数据段和BSS段，未初始化和初始化的全局/静态变量都会存储在这里，并且初始化为0；</li>
 <li>堆：堆又分为new分配的存储区和malloc分配的内存块，new分配的存储区会在程序结束之后，系统会帮助我们清理；</li>
-<li>栈：栈和C程序的栈相同。<br>C和C++的内存布局大致上是相同的，主要区别在于C++引进了对象，C++对象中的成员函数存储在代码段中，数据成员才会存储在栈中，同样静态变量会存储在在全局/静态存储区，并且必须初始化。当然C++对象内存布局会涉及到继承，多态而出现多种变化，以及内存对齐的影响。</li>
+<li>栈：栈和C程序的栈相同。<br>
+C和C++的内存布局大致上是相同的，主要区别在于C++引进了对象，C++对象中的成员函数存储在代码段中，数据成员才会存储在栈中，同样静态变量会存储在在全局/静态存储区，并且必须初始化。当然C++对象内存布局会涉及到继承，多态而出现多种变化，以及内存对齐的影响。</li>
 </ul>
 <p><strong>C函数栈帧的样子</strong></p>
-<p><img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/20201029162856_cframe.png" alt="1568560299990" style="zoom:50%;"></p>
-<h3 id="C-中的变量"><span class="post-title-index">1.1.3. </span><a href="#C-中的变量" class="headerlink" title="C++中的变量"></a>C++中的变量</h3><div class="table-container">
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/20201029162856_cframe.png" alt="1568560299990" style="zoom:50%;">
+<h3 id="C-中的变量"><span class="post-title-index">1.1.3. </span>C++中的变量</h3>
 <table>
 <thead>
 <tr>
@@ -741,43 +1182,58 @@ w_{s-i\times strides+padding,t-j\times strides+padding} & &{(s-i\times strides+p
 </tr>
 </tbody>
 </table>
-</div>
-<h3 id="操作符重载"><span class="post-title-index">1.1.4. </span><a href="#操作符重载" class="headerlink" title="操作符重载"></a>操作符重载</h3><h4 id="成员函数运算符重载"><span class="post-title-index">1.1.4.1. </span><a href="#成员函数运算符重载" class="headerlink" title="成员函数运算符重载"></a>成员函数运算符重载</h4><figure class="highlight cpp"><table><tbody><tr><td class="code"><pre><span class="line">形式：</span><br><span class="line">返回类型 <span class="keyword">operator</span> 运算符(形参表){</span><br><span class="line"></span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
-<h4 id="友元函数运算符重载"><span class="post-title-index">1.1.4.2. </span><a href="#友元函数运算符重载" class="headerlink" title="友元函数运算符重载"></a>友元函数运算符重载</h4><p>如果双目运算符的第一个参数不是对象，就不能用成员函数进行运算符的重载。</p>
-<h3 id="条件编译"><span class="post-title-index">1.1.5. </span><a href="#条件编译" class="headerlink" title="条件编译"></a>条件编译</h3><h3 id="浅拷贝与深拷贝（赋值与复制）"><span class="post-title-index">1.1.6. </span><a href="#浅拷贝与深拷贝（赋值与复制）" class="headerlink" title="浅拷贝与深拷贝（赋值与复制）"></a>浅拷贝与深拷贝（赋值与复制）</h3><ul>
-<li><p><strong>浅拷贝</strong></p>
+<h3 id="操作符重载"><span class="post-title-index">1.1.4. </span>操作符重载</h3>
+<h4 id="成员函数运算符重载"><span class="post-title-index">1.1.4.1. </span>成员函数运算符重载</h4>
+<figure class="highlight cpp"><table><tbody><tr><td class="code"><pre><span class="line">形式：</span><br><span class="line">返回类型 <span class="keyword">operator</span> 运算符(形参表){</span><br><span class="line"></span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<h4 id="友元函数运算符重载"><span class="post-title-index">1.1.4.2. </span>友元函数运算符重载</h4>
+<p>如果双目运算符的第一个参数不是对象，就不能用成员函数进行运算符的重载。</p>
+<h3 id="条件编译"><span class="post-title-index">1.1.5. </span>条件编译</h3>
+<h3 id="浅拷贝与深拷贝（赋值与复制）"><span class="post-title-index">1.1.6. </span>浅拷贝与深拷贝（赋值与复制）</h3>
+<ul>
+<li>
+<p><strong>浅拷贝</strong></p>
 <p><code>浅拷贝</code>又叫<code>赋值</code>，简单粗暴相当于把内存直接拷贝；</p>
 <p>在未定义<code>拷贝构造函数</code>的情况下，系统会调用默认的拷贝函数进行<code>浅拷贝</code>。</p>
 <p>如果数据成员中没有指针，浅拷贝也不是不可以。但是如果有动态内存申请的话，后果不可预料。</p>
 </li>
-<li><p><strong>深拷贝</strong></p>
+<li>
+<p><strong>深拷贝</strong></p>
 <p><code>深拷贝</code>又叫<code>复制</code>，会在堆内存中申请空间来存储数据，拷贝的指针会赋新的值。</p>
 </li>
 </ul>
-<h3 id="可变参数列表"><span class="post-title-index">1.1.7. </span><a href="#可变参数列表" class="headerlink" title="可变参数列表"></a>可变参数列表</h3><h2 id="类与对象专题"><span class="post-title-index">1.2. </span><a href="#类与对象专题" class="headerlink" title="类与对象专题"></a>类与对象专题</h2><h3 id="小知识"><span class="post-title-index">1.2.1. </span><a href="#小知识" class="headerlink" title="小知识"></a>小知识</h3><ul>
-<li><p><code>成员函数</code>的<strong>体内实现</strong>缺省为inline。是否inline由编译器决定。</p>
+<h3 id="可变参数列表"><span class="post-title-index">1.1.7. </span>可变参数列表</h3>
+<h2 id="类与对象专题"><span class="post-title-index">1.2. </span>类与对象专题</h2>
+<h3 id="小知识"><span class="post-title-index">1.2.1. </span>小知识</h3>
+<ul>
+<li>
+<p><code>成员函数</code>的<strong>体内实现</strong>缺省为inline。是否inline由编译器决定。</p>
 </li>
-<li><p>sizeof(类)=所有数据成员之和。并不包含隐藏的this指针。sizeof(空类)=1</p>
+<li>
+<p>sizeof(类)=所有数据成员之和。并不包含隐藏的this指针。sizeof(空类)=1</p>
 </li>
 </ul>
-<h3 id="构造函数"><span class="post-title-index">1.2.2. </span><a href="#构造函数" class="headerlink" title="构造函数"></a>构造函数</h3><h4 id="数据成员的初始化"><span class="post-title-index">1.2.2.1. </span><a href="#数据成员的初始化" class="headerlink" title="数据成员的初始化"></a>数据成员的初始化</h4><p>① 仿照<code>结构体</code>的方法，使用大括号</p>
+<h3 id="构造函数"><span class="post-title-index">1.2.2. </span>构造函数</h3>
+<h4 id="数据成员的初始化"><span class="post-title-index">1.2.2.1. </span>数据成员的初始化</h4>
+<p>① 仿照<code>结构体</code>的方法，使用大括号</p>
 <figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">Student s1={<span class="string">"MiHaodong"</span>,<span class="number">12</span>,<span class="string">"male"</span>};</span><br></pre></td></tr></tbody></table></figure>
 <p>② 写一个赋初始值的<code>public</code>方法，再其他成员被使用之前调用</p>
 <p>③ 新版的C++允许在声明时初始化。==static数据成员不可以！==</p>
 <figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Time</span>{</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="keyword">int</span> year=<span class="number">2019</span>;</span><br><span class="line">    <span class="keyword">int</span> month;</span><br><span class="line">    <span class="keyword">int</span> day;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
 <p>④ 正宗的方法，应当是通过<code>构造函数</code></p>
 <ul>
-<li><p>构造函数必须是<code>public</code>.如果定义了构造函数，则无参空体不复存在，不构成重载。</p>
+<li>
+<p>构造函数必须是<code>public</code>.如果定义了构造函数，则无参空体不复存在，不构成重载。</p>
 </li>
-<li><p><code>初始化形参表</code>，==const数据成员，只能用初始化形参表的方式==</p>
+<li>
+<p><code>初始化形参表</code>，==const数据成员，只能用初始化形参表的方式==</p>
 <figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line">Time(<span class="keyword">int</span> h, <span class="keyword">int</span> m, <span class="keyword">int</span> s): hour(h), minute(m), second(s){}</span><br></pre></td></tr></tbody></table></figure>
 </li>
 </ul>
-<h4 id="构造函数的调用"><span class="post-title-index">1.2.2.2. </span><a href="#构造函数的调用" class="headerlink" title="构造函数的调用"></a>构造函数的调用</h4><figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="function">Time <span class="title">t1</span><span class="params">(<span class="number">12</span>,<span class="number">34</span>,<span class="number">55</span>)</span></span>; <span class="comment">//隐式调用，栈上分配</span></span><br><span class="line">Time t1{<span class="number">12</span>,<span class="number">34</span>,<span class="number">55</span>}; <span class="comment">//跟上面的一样，隐式调用，栈上分配</span></span><br><span class="line">Time t2=Time(<span class="number">12</span>,<span class="number">34</span>,<span class="number">55</span>);<span class="comment">//显式调用，栈上分配</span></span><br><span class="line">Time t3=<span class="keyword">new</span> Time(<span class="number">21</span>,<span class="number">34</span>,<span class="number">55</span>);<span class="comment">//显示调用，堆上分配</span></span><br></pre></td></tr></tbody></table></figure>
+<h4 id="构造函数的调用"><span class="post-title-index">1.2.2.2. </span>构造函数的调用</h4>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="function">Time <span class="title">t1</span><span class="params">(<span class="number">12</span>,<span class="number">34</span>,<span class="number">55</span>)</span></span>; <span class="comment">//隐式调用，栈上分配</span></span><br><span class="line">Time t1{<span class="number">12</span>,<span class="number">34</span>,<span class="number">55</span>}; <span class="comment">//跟上面的一样，隐式调用，栈上分配</span></span><br><span class="line">Time t2=Time(<span class="number">12</span>,<span class="number">34</span>,<span class="number">55</span>);<span class="comment">//显式调用，栈上分配</span></span><br><span class="line">Time t3=<span class="keyword">new</span> Time(<span class="number">21</span>,<span class="number">34</span>,<span class="number">55</span>);<span class="comment">//显示调用，堆上分配</span></span><br></pre></td></tr></tbody></table></figure>
 <ul>
 <li><strong>构造函数的调用时机</strong></li>
 </ul>
-<div class="table-container">
 <table>
 <thead>
 <tr>
@@ -809,7 +1265,6 @@ w_{s-i\times strides+padding,t-j\times strides+padding} & &{(s-i\times strides+p
 </tr>
 </tbody>
 </table>
-</div>
 <ul>
 <li><strong>复制（拷贝）构造函数</strong></li>
 </ul>
@@ -817,54 +1272,78 @@ w_{s-i\times strides+padding,t-j\times strides+padding} & &{(s-i\times strides+p
 <ul>
 <li><strong>转换构造函数</strong></li>
 </ul>
-<h3 id="析构函数"><span class="post-title-index">1.2.3. </span><a href="#析构函数" class="headerlink" title="析构函数"></a>析构函数</h3><h4 id="析构函数注意问题"><span class="post-title-index">1.2.3.1. </span><a href="#析构函数注意问题" class="headerlink" title="析构函数注意问题"></a>析构函数注意问题</h4><h4 id="析构函数的调用时机"><span class="post-title-index">1.2.3.2. </span><a href="#析构函数的调用时机" class="headerlink" title="析构函数的调用时机"></a>析构函数的调用时机</h4><h2 id="继承派生专题"><span class="post-title-index">1.3. </span><a href="#继承派生专题" class="headerlink" title="继承派生专题"></a>继承派生专题</h2><h3 id="虚函数"><span class="post-title-index">1.3.1. </span><a href="#虚函数" class="headerlink" title="虚函数"></a>虚函数</h3><h4 id="空虚函数"><span class="post-title-index">1.3.1.1. </span><a href="#空虚函数" class="headerlink" title="- 空虚函数"></a>- <code>空虚函数</code></h4><blockquote>
+<h3 id="析构函数"><span class="post-title-index">1.2.3. </span>析构函数</h3>
+<h4 id="析构函数注意问题"><span class="post-title-index">1.2.3.1. </span>析构函数注意问题</h4>
+<h4 id="析构函数的调用时机"><span class="post-title-index">1.2.3.2. </span>析构函数的调用时机</h4>
+<h2 id="继承派生专题"><span class="post-title-index">1.3. </span>继承派生专题</h2>
+<h3 id="虚函数"><span class="post-title-index">1.3.1. </span>虚函数</h3>
+<h4 id="空虚函数"><span class="post-title-index">1.3.1.1. </span>- <code>空虚函数</code></h4>
+<blockquote>
 <p>在类的继承层次中，派生类都由同名函数，而基类没有。为了使用虚函数的机制，在基类中定义一个同名的<code>空虚函数</code>，从而建立一条从基类到派生类的虚函数路径。</p>
 </blockquote>
-<h4 id="纯虚函数与抽象类"><span class="post-title-index">1.3.1.2. </span><a href="#纯虚函数与抽象类" class="headerlink" title="- 纯虚函数与抽象类"></a>- <code>纯虚函数</code>与<code>抽象类</code></h4><blockquote>
+<h4 id="纯虚函数与抽象类"><span class="post-title-index">1.3.1.2. </span>- <code>纯虚函数</code>与<code>抽象类</code></h4>
+<blockquote>
 <p>无中生有地定义个抽象类，无实际意义，不进行具体操作。</p>
 </blockquote>
 <figure class="highlight cpp"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//纯虚函数的写法</span></span><br><span class="line"><span class="comment">//virtual 返回类型 函数名(形参表)=0;</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">AbstructClass</span>{</span></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="keyword">void</span> <span class="title">display</span><span class="params">(<span class="keyword">int</span> x)</span></span>=<span class="number">0</span>;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
 <p><strong>抽象类不能实例化，但是可以声明指针或者引用</strong></p>
-<h4 id="虚函数表"><span class="post-title-index">1.3.1.3. </span><a href="#虚函数表" class="headerlink" title="- 虚函数表"></a>- <code>虚函数表</code></h4><blockquote>
-<p>虚函数表是编译器在<code>编译时期</code>为我们创建好的，只存在一份。定义类的对象的时候，编译器自动将对象的<code>__vfptr</code>指向这个虚函数表。 </p>
+<h4 id="虚函数表"><span class="post-title-index">1.3.1.3. </span>- <code>虚函数表</code></h4>
+<blockquote>
+<p>虚函数表是编译器在<code>编译时期</code>为我们创建好的，只存在一份。定义类的对象的时候，编译器自动将对象的<code>__vfptr</code>指向这个虚函数表。</p>
 <p>含有虚函数的类，其对象中包含一个<code>_vfptr</code>，这是一个<code>指向数组（即虚函数表）的指针</code></p>
 </blockquote>
-<p><strong>一个类的不同对象，共用一份虚函数表。 </strong></p>
+<p>**一个类的不同对象，共用一份虚函数表。 **</p>
 <p><img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/20201029162913_virtualftable.png" alt="1568601998932"></p>
-<h2 id="STL专题"><span class="post-title-index">1.4. </span><a href="#STL专题" class="headerlink" title="STL专题"></a>STL专题</h2><h3 id="分类"><span class="post-title-index">1.4.1. </span><a href="#分类" class="headerlink" title="分类"></a>分类</h3><ul>
-<li><p>顺序容器(Sequence Container)</p>
+<h2 id="STL专题"><span class="post-title-index">1.4. </span>STL专题</h2>
+<h3 id="分类"><span class="post-title-index">1.4.1. </span>分类</h3>
 <ul>
-<li><p>Array <code>定长数组</code></p>
+<li>
+<p>顺序容器(Sequence Container)</p>
+<ul>
+<li>
+<p>Array <code>定长数组</code></p>
 <blockquote>
 <p>定长的数组。将C++的数组包装成一个Class.</p>
 </blockquote>
 </li>
-<li><p>Vector <code>单向扩充数组</code></p>
+<li>
+<p>Vector <code>单向扩充数组</code></p>
 <blockquote>
 <p>可变数组，起点不能动，尾部可以扩充，会自动增长（由Allocator做）.</p>
 </blockquote>
 </li>
-<li><p>Deque <code>双向扩充数组</code></p>
+<li>
+<p>Deque <code>双向扩充数组</code></p>
 </li>
-<li><p>List <code>双向链表</code></p>
+<li>
+<p>List <code>双向链表</code></p>
 <blockquote>
 <p>STL的List是双向的链表。</p>
 </blockquote>
 </li>
-<li><p>Forward-List <code>单向链表</code></p>
+<li>
+<p>Forward-List <code>单向链表</code></p>
 </li>
 </ul>
 </li>
+<li>
+<p>关联容器（Associative Container）</p>
+</li>
+<li>
+<p>不定序容器（Unordered Container）（特殊的注：候说这也是一种关联容器）</p>
+</li>
 </ul>
+<h3 id="string类"><span class="post-title-index">1.4.2. </span>string类</h3>
+<h4 id="sizeof-2"><span class="post-title-index">1.4.2.1. </span>sizeof</h4>
+<figure class="highlight c++"><table><tbody><tr><td class="code"><pre><span class="line"><span class="built_in">string</span> s=<span class="string">"abc13344"</span>;</span><br><span class="line"><span class="built_in">cout</span><<<span class="keyword">sizeof</span>(a)<<<span class="built_in">endl</span>;</span><br><span class="line"><span class="built_in">cout</span><<<span class="keyword">sizeof</span>(<span class="built_in">string</span>)<<<span class="built_in">endl</span>;</span><br><span class="line"><span class="comment">//结果是28（或者4，与编译器有关）</span></span><br></pre></td></tr></tbody></table></figure>
+<h4 id="string长度"><span class="post-title-index">1.4.2.2. </span>string长度</h4>
+<figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="built_in">string</span> s;</span><br><span class="line"><span class="built_in">cout</span><<<span class="string">"字符的个数为（不含\0）："</span><<s.length();</span><br><span class="line"><span class="built_in">cout</span><<<span class="string">"字符的个数为（不含\0）："</span><<s.<span class="built_in">size</span>();</span><br></pre></td></tr></tbody></table></figure>
+<h3 id="序列容器"><span class="post-title-index">1.4.3. </span>序列容器</h3>
+<h3 id="关联容器"><span class="post-title-index">1.4.4. </span>关联容器</h3>
+<h2 id="内存-指针专题"><span class="post-title-index">1.5. </span>内存&指针专题</h2>
+<h3 id="指针和引用"><span class="post-title-index">1.5.1. </span>指针和引用</h3>
+<h4 id="引用"><span class="post-title-index">1.5.1.1. </span>引用</h4>
 <ul>
-<li>关联容器（Associative Container）</li>
-</ul>
-<ul>
-<li>不定序容器（Unordered Container）（特殊的注：候说这也是一种关联容器）</li>
-</ul>
-<h3 id="string类"><span class="post-title-index">1.4.2. </span><a href="#string类" class="headerlink" title="string类"></a>string类</h3><h4 id="sizeof-1"><span class="post-title-index">1.4.2.1. </span><a href="#sizeof-1" class="headerlink" title="sizeof"></a>sizeof</h4><figure class="highlight c++"><table><tbody><tr><td class="code"><pre><span class="line"><span class="built_in">string</span> s=<span class="string">"abc13344"</span>;</span><br><span class="line"><span class="built_in">cout</span><<<span class="keyword">sizeof</span>(a)<<<span class="built_in">endl</span>;</span><br><span class="line"><span class="built_in">cout</span><<<span class="keyword">sizeof</span>(<span class="built_in">string</span>)<<<span class="built_in">endl</span>;</span><br><span class="line"><span class="comment">//结果是28（或者4，与编译器有关）</span></span><br></pre></td></tr></tbody></table></figure>
-<h4 id="string长度"><span class="post-title-index">1.4.2.2. </span><a href="#string长度" class="headerlink" title="string长度"></a>string长度</h4><figure class="highlight c"><table><tbody><tr><td class="code"><pre><span class="line"><span class="built_in">string</span> s;</span><br><span class="line"><span class="built_in">cout</span><<<span class="string">"字符的个数为（不含\0）："</span><<s.length();</span><br><span class="line"><span class="built_in">cout</span><<<span class="string">"字符的个数为（不含\0）："</span><<s.<span class="built_in">size</span>();</span><br></pre></td></tr></tbody></table></figure>
-<h3 id="序列容器"><span class="post-title-index">1.4.3. </span><a href="#序列容器" class="headerlink" title="序列容器"></a>序列容器</h3><h3 id="关联容器"><span class="post-title-index">1.4.4. </span><a href="#关联容器" class="headerlink" title="关联容器"></a>关联容器</h3><h2 id="内存-amp-指针专题"><span class="post-title-index">1.5. </span><a href="#内存-amp-指针专题" class="headerlink" title="内存&指针专题"></a>内存&指针专题</h2><h3 id="指针和引用"><span class="post-title-index">1.5.1. </span><a href="#指针和引用" class="headerlink" title="指针和引用"></a>指针和引用</h3><h4 id="引用"><span class="post-title-index">1.5.1.1. </span><a href="#引用" class="headerlink" title="引用"></a>引用</h4><ul>
 <li>引用相当于变量的别名；</li>
 <li>引用不分配单独的空间；</li>
 <li>引用需要在声明时初始化，并在整个生存期内不指向其他变量；</li>
@@ -872,17 +1351,21 @@ w_{s-i\times strides+padding,t-j\times strides+padding} & &{(s-i\times strides+p
 <li>==✔==指向数组元素的引用，==✔==指针的引用；</li>
 </ul>
 <figure class="highlight cpp"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> 稍后再补充</span><br></pre></td></tr></tbody></table></figure>
-<h4 id="左值-右值引用"><span class="post-title-index">1.5.1.2. </span><a href="#左值-右值引用" class="headerlink" title="左值/右值引用"></a>左值/右值引用</h4><ul>
-<li><p><strong>左值/右值的定义</strong></p>
+<h4 id="左值-右值引用"><span class="post-title-index">1.5.1.2. </span>左值/右值引用</h4>
+<ul>
+<li>
+<p><strong>左值/右值的定义</strong></p>
 <p><code>lvalue</code>又叫做<code>左值</code>，代表一个在内存中占有确定位置的对象。</p>
 <p><code>rvalue</code>又叫做<code>右值</code>，代表在内存中不占有确定的位置。</p>
 </li>
-<li><p><strong>C++11中新定义了右值引用</strong></p>
+<li>
+<p><strong>C++11中新定义了右值引用</strong></p>
 <p>临时对象即将消亡，但里面的数据还是要用的，所以用移动构造</p>
-<p><img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/20201029163241_right.png" alt="image-20201029163233846" style="zoom:50%;"></p>
+<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/20201029163241_right.png" alt="image-20201029163233846" style="zoom:50%;">
 </li>
 </ul>
-<h4 id="移动语义"><span class="post-title-index">1.5.1.3. </span><a href="#移动语义" class="headerlink" title="移动语义"></a>移动语义</h4><ul>
+<h4 id="移动语义"><span class="post-title-index">1.5.1.3. </span>移动语义</h4>
+<ul>
 <li><strong>移动构造函数/移动赋值运算符</strong></li>
 </ul>
 <figure class="highlight cpp"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">/*移动构造函数*/</span></span><br><span class="line">A(A&& other) <span class="keyword">noexcept</span>    </span><br><span class="line"><span class="comment">// C++11 - specifying non-exception throwing functions</span></span><br><span class="line">{</span><br><span class="line">  mData =  other.mData;  <span class="comment">// shallow copy or referential copy</span></span><br><span class="line">  other.mData = <span class="literal">nullptr</span>;</span><br><span class="line">}</span><br><span class="line"><span class="comment">/*移动赋值运算符*/</span></span><br><span class="line">A& <span class="keyword">operator</span>=(A&& other) <span class="keyword">noexcept</span>{</span><br><span class="line">    mData=other.mdata;</span><br><span class="line">    other.mData=nullPtr;</span><br><span class="line">    <span class="keyword">return</span> *<span class="keyword">this</span>;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
@@ -891,9 +1374,12 @@ w_{s-i\times strides+padding,t-j\times strides+padding} & &{(s-i\times strides+p
 </ul>
 <figure class="highlight cpp"><table><tbody><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span> <span class="params">()</span> </span>{</span><br><span class="line">  <span class="built_in">std</span>::<span class="built_in">string</span> foo = <span class="string">"foo-string"</span>;</span><br><span class="line">  <span class="built_in">std</span>::<span class="built_in">string</span> bar = <span class="string">"bar-string"</span>;</span><br><span class="line">  <span class="built_in">std</span>::<span class="built_in">vector</span><<span class="built_in">std</span>::<span class="built_in">string</span>> myvector;</span><br><span class="line"></span><br><span class="line">  myvector.push_back (foo);                    <span class="comment">// copies</span></span><br><span class="line">  myvector.push_back (<span class="built_in">std</span>::move(bar));         <span class="comment">// moves</span></span><br><span class="line"></span><br><span class="line">  <span class="built_in">std</span>::<span class="built_in">cout</span> << <span class="string">"myvector contains:"</span>;</span><br><span class="line">  <span class="keyword">for</span> (<span class="built_in">std</span>::<span class="built_in">string</span>& x:myvector) <span class="built_in">std</span>::<span class="built_in">cout</span> << <span class="string">' '</span> << x;</span><br><span class="line">  <span class="built_in">std</span>::<span class="built_in">cout</span> << <span class="string">'\n'</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
 <blockquote>
-<p>The first call to <code>myvector.push_back</code> copies the value of foo into the vector (foo keeps the value it had before the call).<br>The second call moves the value of bar into the vector. This transfers its content into the vector (while bar loses its value, and now is in a valid but unspecified state).</p>
+<p>The first call to <code>myvector.push_back</code> copies the value of foo into the vector (foo keeps the value it had before the call).<br>
+The second call moves the value of bar into the vector. This transfers its content into the vector (while bar loses its value, and now is in a valid but unspecified state).</p>
 </blockquote>
-<h3 id="动态内存分配与管理"><span class="post-title-index">1.5.2. </span><a href="#动态内存分配与管理" class="headerlink" title="动态内存分配与管理"></a>动态内存分配与管理</h3><h4 id="malloc、calloc、realloc"><span class="post-title-index">1.5.2.1. </span><a href="#malloc、calloc、realloc" class="headerlink" title="malloc、calloc、realloc"></a>malloc、calloc、realloc</h4><ul>
+<h3 id="动态内存分配与管理"><span class="post-title-index">1.5.2. </span>动态内存分配与管理</h3>
+<h4 id="malloc、calloc、realloc"><span class="post-title-index">1.5.2.1. </span>malloc、calloc、realloc</h4>
+<ul>
 <li>malloc申请的内存区域，保持原样不做初始化</li>
 <li>calloc与malloc的区别是不仅申请区域，还对申请的内存进行0化</li>
 </ul>
@@ -903,7 +1389,8 @@ w_{s-i\times strides+padding,t-j\times strides+padding} & &{(s-i\times strides+p
 </ul>
 <figure class="highlight cpp"><table><tbody><tr><td class="code"><pre><span class="line">Time *p_time=(Time *)<span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(Time));</span><br><span class="line"><span class="keyword">new</span>(p_time)Time();</span><br><span class="line"><span class="comment">/////////////////////////</span></span><br><span class="line">p_time->~Time();</span><br><span class="line"><span class="built_in">free</span>(p_time);</span><br></pre></td></tr></tbody></table></figure>
 <p>比较麻烦，所以一般不推荐使用malloc创建对象。</p>
-<h4 id="new、delete"><span class="post-title-index">1.5.2.2. </span><a href="#new、delete" class="headerlink" title="new、delete"></a>new、delete</h4><ul>
+<h4 id="new、delete"><span class="post-title-index">1.5.2.2. </span>new、delete</h4>
+<ul>
 <li>new / new[]：完成两件事，先底层调用 malloc 分配了内存，然后调用构造函数（创建对象）。</li>
 <li>delete/delete[]：也完成两件事，先调用析构函数（清理资源），然后底层调用 free 释放空间。</li>
 <li>new 在申请内存时会自动计算所需字节数，而 malloc 则需我们自己输入申请内存空间的字节数。</li>
@@ -912,49 +1399,60 @@ w_{s-i\times strides+padding,t-j\times strides+padding} & &{(s-i\times strides+p
 <blockquote>
 <p>delete可以用在malloc创建出的对象上吗？</p>
 </blockquote>
-<h4 id="operator-new和new-operator的区别"><span class="post-title-index">1.5.2.3. </span><a href="#operator-new和new-operator的区别" class="headerlink" title="operator new和new operator的区别"></a>operator new和new operator的区别</h4><ul>
+<h4 id="operator-new和new-operator的区别"><span class="post-title-index">1.5.2.3. </span>operator new和new operator的区别</h4>
+<ul>
 <li><strong>new operator</strong></li>
 </ul>
 <figure class="highlight cpp"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">int</span> *p=<span class="keyword">new</span> <span class="keyword">int</span>; <span class="comment">//这是new operator</span></span><br></pre></td></tr></tbody></table></figure>
-<p>​    new operator做的事情：分配内存+调用构造函数（如果有）初始化。</p>
+<p>​	new operator做的事情：分配内存+调用构造函数（如果有）初始化。</p>
 <ul>
-<li><p><strong>operator new</strong></p>
+<li>
+<p><strong>operator new</strong></p>
 <p>operator new是完成内存分配的操作符（类似于malloc），它只对内存分配负责，对构造函数一无所知。</p>
-<p>==重载operator new== </p>
+<p>==重载operator new==</p>
 </li>
 </ul>
 <figure class="highlight cpp"><table><tbody><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> *<span class="keyword">operator</span> <span class="title">new</span><span class="params">(<span class="keyword">size_t</span> size)</span></span></span><br></pre></td></tr></tbody></table></figure>
-<h4 id="限定对象只能在堆上（栈上）"><span class="post-title-index">1.5.2.4. </span><a href="#限定对象只能在堆上（栈上）" class="headerlink" title="限定对象只能在堆上（栈上）"></a>限定对象只能在堆上（栈上）</h4><ul>
-<li><p><strong>只能在栈上</strong></p>
-<p><strong>方法：</strong>将new、delete重载为私有</p>
-<p><strong>原因：</strong>在堆上创建对象分两步 分配空间->调用构造函数初始化。new私有之后，第一步就无法进行。</p>
+<h4 id="限定对象只能在堆上（栈上）"><span class="post-title-index">1.5.2.4. </span>限定对象只能在堆上（栈上）</h4>
+<ul>
+<li>
+<p><strong>只能在栈上</strong></p>
+<p>**方法：**将new、delete重载为私有</p>
+<p>**原因：**在堆上创建对象分两步 分配空间->调用构造函数初始化。new私有之后，第一步就无法进行。</p>
 </li>
-<li><p><strong>只能在堆上</strong></p>
-<p><strong>方法：</strong>将析构函数设置为<code>private</code></p>
-<p><strong>原因：</strong>编译器在为类对象分配栈空间的时候，会检查析构函数的可访问性，如果不可访问的话，就不能在栈上创建对象。</p>
+<li>
+<p><strong>只能在堆上</strong></p>
+<p>**方法：**将析构函数设置为<code>private</code></p>
+<p>**原因：**编译器在为类对象分配栈空间的时候，会检查析构函数的可访问性，如果不可访问的话，就不能在栈上创建对象。</p>
 </li>
 </ul>
-<h3 id="智能指针"><span class="post-title-index">1.5.3. </span><a href="#智能指针" class="headerlink" title="智能指针"></a>智能指针</h3><h4 id="为什么需要智能指针"><span class="post-title-index">1.5.3.1. </span><a href="#为什么需要智能指针" class="headerlink" title="为什么需要智能指针"></a>为什么需要智能指针</h4><blockquote>
+<h3 id="智能指针"><span class="post-title-index">1.5.3. </span>智能指针</h3>
+<h4 id="为什么需要智能指针"><span class="post-title-index">1.5.3.1. </span>为什么需要智能指针</h4>
+<blockquote>
 <p>为了防止程序还没有执行到delete就跳转了，或者函数在没有执行到最后的delete语句就返回了。如果我们没有在每一个可能返回或者跳转的地方提前释放资源，就会造成内存泄漏</p>
 <p>智能指针是一个类，当超出类的作用域的时候，会自动调用析构函数，从而释放资源。</p>
 </blockquote>
-<h4 id="auto-ptr-被c-11弃用"><span class="post-title-index">1.5.3.2. </span><a href="#auto-ptr-被c-11弃用" class="headerlink" title="auto_ptr(被c++11弃用)"></a>auto_ptr(被c++11弃用)</h4><figure class="highlight cpp"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string"><memory></span></span></span><br><span class="line"><span class="built_in">auto_ptr</span><Test>p_auto(<span class="keyword">new</span> Test(<span class="string">"hello"</span>));</span><br><span class="line">Test* p_test=p_auto.get();  <span class="comment">//获得auto_ptr管理的对象的指针</span></span><br><span class="line">p_auto.reset(<span class="keyword">new</span> Test(<span class="string">"i am new obj"</span>)); <span class="comment">//这步先new一个新的对象，会调新对象的构造函数。在执行到reset函数的时候，重新绑定对象会将原来管理的对象析构掉。</span></span><br></pre></td></tr></tbody></table></figure>
+<h4 id="auto-ptr-被c-11弃用"><span class="post-title-index">1.5.3.2. </span>auto_ptr(被c++11弃用)</h4>
+<figure class="highlight cpp"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string"><memory></span></span></span><br><span class="line"><span class="built_in">auto_ptr</span><Test>p_auto(<span class="keyword">new</span> Test(<span class="string">"hello"</span>));</span><br><span class="line">Test* p_test=p_auto.get();  <span class="comment">//获得auto_ptr管理的对象的指针</span></span><br><span class="line">p_auto.reset(<span class="keyword">new</span> Test(<span class="string">"i am new obj"</span>)); <span class="comment">//这步先new一个新的对象，会调新对象的构造函数。在执行到reset函数的时候，重新绑定对象会将原来管理的对象析构掉。</span></span><br></pre></td></tr></tbody></table></figure>
 <ul>
 <li>auto_ptr进行赋值的时候，如ptest2=ptest1，ptest2会接管原先ptest1管理的内存，若ptest2原先不为空指针则需要释放原先管理的，ptest1就成了空指针。</li>
 <li>判断一个auto_ptr是否为空，应该用<code>if (ptest.get()==NULL)</code></li>
 </ul>
 <figure class="highlight cpp"><table><tbody><tr><td class="code"><pre><span class="line">p_auto.reset();<span class="comment">//提前释放p_auto管理的内存</span></span><br><span class="line">p_auto.release();<span class="comment">//撤销管理权，不释放内存（可能会存在内存泄漏）</span></span><br></pre></td></tr></tbody></table></figure>
-<h4 id="unique-ptr"><span class="post-title-index">1.5.3.3. </span><a href="#unique-ptr" class="headerlink" title="unique_ptr"></a>unique_ptr</h4><ul>
+<h4 id="unique-ptr"><span class="post-title-index">1.5.3.3. </span>unique_ptr</h4>
+<ul>
 <li><code>unique_ptr</code>是独享所有权的智能指针，无法让两个unique_ptr指向同一个对象</li>
 <li><code>unique_ptr</code>无法进行复制构造，无法进行赋值复制。</li>
-<li><code>unique_ptr</code>除了<code>auto_ptr</code>的功能之外，还有别的功能：<ul>
+<li><code>unique_ptr</code>除了<code>auto_ptr</code>的功能之外，还有别的功能：
+<ul>
 <li>将动态申请内存的所有权传递给某个函数</li>
 <li>从某个函数返回动态申请内存的所有权</li>
 <li>在容器中使用<code>unique_ptr</code></li>
 <li>为动态申请的内存提供异常安全</li>
 </ul>
 </li>
-<li><code>unique_ptr</code>和<code>auto_ptr</code>的用法非常相似，特别注意一下<code>区别</code>:<ul>
+<li><code>unique_ptr</code>和<code>auto_ptr</code>的用法非常相似，特别注意一下<code>区别</code>:
+<ul>
 <li>unique_p2=unique_p2的用法是不可以的，需要用std::move</li>
 <li>可以用<code>if(p_unique==NULL)</code>来判断是否为空指针，这点是<code>auto_ptr</code>做不到的</li>
 <li><strong>并不是说=一定不能用于unique_ptr，譬如作为函数返回值赋值可以使用=</strong></li>
@@ -963,61 +1461,93 @@ w_{s-i\times strides+padding,t-j\times strides+padding} & &{(s-i\times strides+p
 </li>
 </ul>
 <figure class="highlight cpp"><table><tbody><tr><td class="code"><pre><span class="line"><span class="function"><span class="built_in">unique_ptr</span><<span class="built_in">string</span>> <span class="title">p3</span> <span class="params">(<span class="keyword">new</span> <span class="built_in">string</span> (<span class="string">"auto"</span>))</span></span>;           </span><br><span class="line"><span class="built_in">unique_ptr</span><<span class="built_in">string</span>> p4；</span><br><span class="line">p4 = p3;<span class="comment">//此时会报错！！</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//编译器认为p4=p3非法，避免了p3不再指向有效数据的问题。因此，unique_ptr比auto_ptr更安全。</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//另外unique_ptr还有更聪明的地方：当程序试图将一个 unique_ptr 赋值给另一个时，如果源 unique_ptr 是个临时右值，编译器允许这么做；如果源 unique_ptr 将存在一段时间，编译器将禁止这么做，比如：</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="built_in">unique_ptr</span><<span class="built_in">string</span>> <span class="title">pu1</span><span class="params">(<span class="keyword">new</span> <span class="built_in">string</span> (<span class="string">"hello world"</span>))</span></span>;</span><br><span class="line"><span class="built_in">unique_ptr</span><<span class="built_in">string</span>> pu2;</span><br><span class="line">pu2 = pu1;    <span class="comment">// #1 not allowed</span></span><br><span class="line"><span class="built_in">unique_ptr</span><<span class="built_in">string</span>> pu3;</span><br><span class="line">pu3 = <span class="built_in">unique_ptr</span><<span class="built_in">string</span>>(<span class="keyword">new</span> <span class="built_in">string</span> (<span class="string">"You"</span>));   <span class="comment">// #2 allowed</span></span><br></pre></td></tr></tbody></table></figure>
-<h4 id="shared-ptr"><span class="post-title-index">1.5.3.4. </span><a href="#shared-ptr" class="headerlink" title="shared_ptr"></a>shared_ptr</h4><h4 id="weak-ptr"><span class="post-title-index">1.5.3.5. </span><a href="#weak-ptr" class="headerlink" title="weak_ptr"></a>weak_ptr</h4><h3 id="移动语义-1"><span class="post-title-index">1.5.4. </span><a href="#移动语义-1" class="headerlink" title="移动语义"></a>移动语义</h3><blockquote>
+<h4 id="shared-ptr"><span class="post-title-index">1.5.3.4. </span>shared_ptr</h4>
+<h4 id="weak-ptr"><span class="post-title-index">1.5.3.5. </span>weak_ptr</h4>
+<h3 id="移动语义-2"><span class="post-title-index">1.5.4. </span>移动语义</h3>
+<blockquote>
 <p><code>移动</code>和<code>拷贝</code>的区别是什么呢？</p>
 </blockquote>
-<h2 id="泛型编程"><span class="post-title-index">1.6. </span><a href="#泛型编程" class="headerlink" title="泛型编程"></a>泛型编程</h2><h3 id="函数模板"><span class="post-title-index">1.6.1. </span><a href="#函数模板" class="headerlink" title="函数模板"></a>函数模板</h3><h3 id="类模板"><span class="post-title-index">1.6.2. </span><a href="#类模板" class="headerlink" title="类模板"></a>类模板</h3><h2 id="C-多线程"><span class="post-title-index">1.7. </span><a href="#C-多线程" class="headerlink" title="C++多线程"></a>C++多线程</h2><h3 id="phtread"><span class="post-title-index">1.7.1. </span><a href="#phtread" class="headerlink" title="phtread"></a>phtread</h3><h2 id="字符串"><span class="post-title-index">1.8. </span><a href="#字符串" class="headerlink" title="字符串"></a>字符串</h2><h3 id="数据结构-amp-类"><span class="post-title-index">1.8.1. </span><a href="#数据结构-amp-类" class="headerlink" title="数据结构&类"></a>数据结构&类</h3><h4 id="char-和char"><span class="post-title-index">1.8.1.1. </span><a href="#char-和char" class="headerlink" title="char[ ]和char*"></a>char[ ]和char*</h4><h4 id="string类-1"><span class="post-title-index">1.8.1.2. </span><a href="#string类-1" class="headerlink" title="string类"></a>string类</h4><ul>
-<li><p><strong>访问/遍历字符</strong></p>
+<h2 id="泛型编程"><span class="post-title-index">1.6. </span>泛型编程</h2>
+<h3 id="函数模板"><span class="post-title-index">1.6.1. </span>函数模板</h3>
+<h3 id="类模板"><span class="post-title-index">1.6.2. </span>类模板</h3>
+<h2 id="C-多线程"><span class="post-title-index">1.7. </span>C++多线程</h2>
+<h3 id="phtread"><span class="post-title-index">1.7.1. </span>phtread</h3>
+<h2 id="字符串"><span class="post-title-index">1.8. </span>字符串</h2>
+<h3 id="数据结构-类"><span class="post-title-index">1.8.1. </span>数据结构&类</h3>
+<h4 id="char-和char"><span class="post-title-index">1.8.1.1. </span>char[ ]和char*</h4>
+<h4 id="string类-2"><span class="post-title-index">1.8.1.2. </span>string类</h4>
+<ul>
+<li>
+<p><strong>访问/遍历字符</strong></p>
 <figure class="highlight cpp"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//访问第i个字符（从0开始）</span></span><br><span class="line"><span class="function"><span class="built_in">string</span> <span class="title">str</span><span class="params">(<span class="string">"1234567"</span>)</span></span>;</span><br><span class="line">str.at(i);</span><br><span class="line">str[i];</span><br><span class="line">str.front();<span class="comment">//第一个</span></span><br><span class="line">str.back(); <span class="comment">//最后一个</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//遍历每个字符的方法</span></span><br><span class="line"><span class="comment">//方法1：</span></span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">char</span>& c:str){</span><br><span class="line">    <span class="comment">//do sth</span></span><br><span class="line">}</span><br><span class="line">注意区别：</span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">char</span> c:str){</span><br><span class="line">	<span class="comment">//do sth</span></span><br><span class="line">}</span><br><span class="line"><span class="comment">//方法2</span></span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">auto</span> it=str.begin();it!=str.end();it++){</span><br><span class="line">	<span class="comment">// 对*it做什么</span></span><br><span class="line">}</span><br><span class="line"><span class="comment">//方法3</span></span><br><span class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i<str.size();i++){</span><br><span class="line">	<span class="built_in">cout</span><<str[i];</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
 </li>
-<li><p><strong>查看string属性</strong></p>
+<li>
+<p><strong>查看string属性</strong></p>
 <figure class="highlight cpp"><table><tbody><tr><td class="code"><pre><span class="line"><span class="built_in">string</span> s;</span><br><span class="line"><span class="comment">//查看字符串的长度（不包含\0）</span></span><br><span class="line">s.size();</span><br><span class="line">s.length();</span><br><span class="line"><span class="comment">//容量相关（类似vector，空间也是动态申请的）</span></span><br><span class="line">s.capacity();</span><br></pre></td></tr></tbody></table></figure>
 </li>
-<li><p><strong>修改string</strong></p>
+<li>
+<p><strong>修改string</strong></p>
 <figure class="highlight cpp"><table><tbody><tr><td class="code"><pre><span class="line"><span class="built_in">string</span> s;</span><br><span class="line"><span class="comment">//1.增</span></span><br><span class="line">s.push_back(<span class="string">'c'</span>);<span class="comment">//末尾添加字符</span></span><br><span class="line">s.append(<span class="string">"abc"</span>);<span class="comment">//末尾添加字符串</span></span><br><span class="line">s.append(<span class="number">1</span>,<span class="string">'a'</span>);<span class="comment">//末尾添加n个字符，必须指定个数</span></span><br><span class="line">s.insert(pos,<span class="built_in">string</span>); <span class="comment">//在第pos位置之前插入</span></span><br><span class="line"></span><br><span class="line"><span class="comment">//2.改</span></span><br><span class="line">通过前面的“访问字符”方法，可以直接修改单个字符</span><br><span class="line">s.replace(startPos,n_len,str);</span><br><span class="line">    </span><br><span class="line"><span class="comment">//3.删</span></span><br><span class="line">s.erase(pos,len);<span class="comment">//删除若干个字符</span></span><br><span class="line">s.clear();<span class="comment">//直接清空字符</span></span><br></pre></td></tr></tbody></table></figure>
 </li>
-<li><p><strong>从string中取子串</strong></p>
+<li>
+<p><strong>从string中取子串</strong></p>
 <figure class="highlight cpp"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//将string转化为char*</span></span><br><span class="line"><span class="built_in">string</span> s=<span class="string">"123456"</span>;</span><br><span class="line"><span class="keyword">char</span> *cstr=s.c_str();</span><br><span class="line"><span class="keyword">char</span> *cstr=s.data();</span><br><span class="line"></span><br><span class="line"><span class="comment">//string.substr()方法</span></span><br><span class="line"><span class="function"><span class="built_in">string</span> <span class="title">substr</span> <span class="params">(<span class="keyword">size_t</span> pos = <span class="number">0</span>, <span class="keyword">size_t</span> len = npos)</span> <span class="keyword">const</span></span>;</span><br></pre></td></tr></tbody></table></figure>
 </li>
 </ul>
-<h3 id="字符串处理函数str"><span class="post-title-index">1.8.2. </span><a href="#字符串处理函数str" class="headerlink" title="字符串处理函数str"></a>字符串处理函数str</h3><ul>
-<li><p><strong>头文件</strong></p>
+<h3 id="字符串处理函数str"><span class="post-title-index">1.8.2. </span>字符串处理函数str</h3>
+<ul>
+<li>
+<p><strong>头文件</strong></p>
 <figure class="highlight cpp"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string"><cstring></span></span></span><br><span class="line">或者</span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string"><string.h></span></span></span><br></pre></td></tr></tbody></table></figure>
 </li>
-<li><p><strong>strcpy、strncpy</strong></p>
+<li>
+<p><strong>strcpy、strncpy</strong></p>
 <figure class="highlight cpp"><table><tbody><tr><td class="code"><pre><span class="line"><span class="built_in">strcpy</span>(<span class="keyword">char</span> s[],<span class="keyword">const</span> <span class="keyword">char</span> t[]); </span><br><span class="line"><span class="comment">//将字符串t复制到字符串s中，覆盖原串</span></span><br><span class="line"><span class="built_in">strncpy</span>(<span class="keyword">char</span> s[],<span class="keyword">const</span> <span class="keyword">char</span> t[]);</span><br><span class="line"><span class="comment">//将字符串t的前n个字符复制到字符串s中。</span></span><br></pre></td></tr></tbody></table></figure>
 </li>
-<li><p><strong>strcat、strncat</strong></p>
+<li>
+<p><strong>strcat、strncat</strong></p>
 <figure class="highlight cpp"><table><tbody><tr><td class="code"><pre><span class="line"><span class="built_in">strcat</span>(<span class="keyword">char</span> s[],<span class="keyword">const</span> <span class="keyword">char</span> t[]);</span><br><span class="line"><span class="comment">//将字符串t的内容接在s尾部</span></span><br><span class="line"><span class="built_in">strncat</span>(<span class="keyword">char</span> s[],<span class="keyword">const</span> <span class="keyword">char</span> t[]);</span><br><span class="line"><span class="comment">//将字符串t的前n个字符接在字符串s的尾部</span></span><br></pre></td></tr></tbody></table></figure>
 </li>
-<li><p><strong>strcmp、strncmp</strong></p>
+<li>
+<p><strong>strcmp、strncmp</strong></p>
 <figure class="highlight cpp"><table><tbody><tr><td class="code"><pre><span class="line"><span class="built_in">strcmp</span>(<span class="keyword">const</span> <span class="keyword">char</span> s[],<span class="keyword">const</span> <span class="keyword">char</span> t[]);</span><br><span class="line"><span class="comment">//对比两个字符串是否对应相等。相等则返回0</span></span><br><span class="line"><span class="built_in">strncmp</span>(<span class="keyword">const</span> <span class="keyword">char</span> s[],<span class="keyword">const</span> <span class="keyword">char</span> t[],n);</span><br><span class="line"><span class="comment">//对比两个字符串的前n个字符的大小</span></span><br></pre></td></tr></tbody></table></figure>
 </li>
-<li><p><strong>strlen</strong></p>
+<li>
+<p><strong>strlen</strong></p>
 <figure class="highlight cpp"><table><tbody><tr><td class="code"><pre><span class="line"><span class="built_in">strlen</span>(<span class="keyword">const</span> <span class="keyword">char</span> s[]);</span><br><span class="line"><span class="comment">//返回第一个'\0'前的字符数量（不含）。</span></span><br></pre></td></tr></tbody></table></figure>
 </li>
-<li><p><strong>memcpy、memcmp、memset</strong></p>
+<li>
+<p><strong>memcpy、memcmp、memset</strong></p>
 <figure class="highlight cpp"><table><tbody><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> * <span class="title">memcpy</span><span class="params">(<span class="keyword">void</span> *dst,<span class="keyword">void</span> *src,<span class="keyword">size_t</span> num)</span></span>;</span><br><span class="line"><span class="comment">//从src地址开始拷贝num个字节到dst指向的内存区域。</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">memcmp</span><span class="params">(<span class="keyword">const</span> <span class="keyword">void</span> *ptr1,<span class="keyword">const</span> <span class="keyword">void</span> *ptr2,<span class="keyword">size_t</span> n)</span></span>;</span><br><span class="line"><span class="comment">//比较两个区域内存是否是一样的。</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">memset</span><span class="params">(<span class="keyword">void</span> *dst,<span class="keyword">int</span> value,<span class="keyword">size_t</span> num)</span></span>;</span><br><span class="line"><span class="comment">//从dst开始num个字节的内存区域，设置成value。</span></span><br></pre></td></tr></tbody></table></figure>
 </li>
 </ul>
-<h2 id="文件I-O"><span class="post-title-index">1.9. </span><a href="#文件I-O" class="headerlink" title="文件I/O"></a>文件I/O</h2><h3 id="C-方式"><span class="post-title-index">1.9.1. </span><a href="#C-方式" class="headerlink" title="C++方式"></a>C++方式</h3><h4 id="输入输出流"><span class="post-title-index">1.9.1.1. </span><a href="#输入输出流" class="headerlink" title="输入输出流"></a>输入输出流</h4><h4 id="文件"><span class="post-title-index">1.9.1.2. </span><a href="#文件" class="headerlink" title="文件"></a>文件</h4><ul>
-<li><p><strong>打开/关闭文件流</strong></p>
+<h2 id="文件I-O"><span class="post-title-index">1.9. </span>文件I/O</h2>
+<h3 id="C-方式"><span class="post-title-index">1.9.1. </span>C++方式</h3>
+<h4 id="输入输出流"><span class="post-title-index">1.9.1.1. </span>输入输出流</h4>
+<h4 id="文件"><span class="post-title-index">1.9.1.2. </span>文件</h4>
+<ul>
+<li>
+<p><strong>打开/关闭文件流</strong></p>
 <figure class="highlight cpp"><table><tbody><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string"><fstream></span></span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>{</span><br><span class="line">   	ofstream ofs;</span><br><span class="line">    ofs.open(<span class="string">"data.txt"</span>,ios::out|ios::nocreate);</span><br><span class="line">    <span class="keyword">if</span>(!ofs.is_open()){</span><br><span class="line">        <span class="built_in">cout</span><<<span class="string">"Failed to open file"</span><<<span class="built_in">endl</span>;</span><br><span class="line">    }<span class="keyword">else</span>{</span><br><span class="line">        <span class="comment">//succeed in opening</span></span><br><span class="line">        ofs.close();</span><br><span class="line">    }</span><br><span class="line">    </span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
 </li>
-<li><p><strong>对ASCII文件的操作</strong></p>
+<li>
+<p><strong>对ASCII文件的操作</strong></p>
 <figure class="highlight cpp"><table><tbody><tr><td class="code"><pre><span class="line">对ASCII文件的文件流的操作和<span class="built_in">cin</span>、<span class="built_in">cout</span>一样。</span><br><span class="line">同样有:</span><br><span class="line">get、getline、put、eof、peak、putback、ignore这些成员函数。</span><br></pre></td></tr></tbody></table></figure>
 </li>
-<li><p><strong>对二进制文件的操作</strong></p>
+<li>
+<p><strong>对二进制文件的操作</strong></p>
 <figure class="highlight cpp"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">char</span> buf[BUF_SIZE];</span><br><span class="line"><span class="comment">//从文件流中读</span></span><br><span class="line"><span class="comment">//文件流对象名.read(buf首地址，字节长度)</span></span><br><span class="line">ifs.read(buf,size);  <span class="comment">//从文件中读取size个字节，放在</span></span><br><span class="line"><span class="comment">//往文件流中写</span></span><br><span class="line"><span class="comment">//文件流对象名.write(buf首地址，字节长度)</span></span><br><span class="line">ofs.write(buf,size);  <span class="comment">//将buf中的连续size个字节写入文件中。</span></span><br></pre></td></tr></tbody></table></figure>
 </li>
 </ul>
-<h3 id="C方式"><span class="post-title-index">1.9.2. </span><a href="#C方式" class="headerlink" title="C方式"></a>C方式</h3><h4 id="文件-1"><span class="post-title-index">1.9.2.1. </span><a href="#文件-1" class="headerlink" title="文件"></a>文件</h4><ul>
-<li><p><strong>文件指针FILE *</strong></p>
+<h3 id="C方式"><span class="post-title-index">1.9.2. </span>C方式</h3>
+<h4 id="文件-2"><span class="post-title-index">1.9.2.1. </span>文件</h4>
+<ul>
+<li>
+<p>**文件指针FILE ***</p>
 <figure class="highlight cpp"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">//头文件</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string"><cstdio></span></span></span><br><span class="line">FILE *fp;</span><br><span class="line"><span class="comment">//fp=fopen(文件名，打开方式)</span></span><br><span class="line">fp=fopen(<span class="string">"data.txt"</span>,<span class="string">"rb"</span>);</span><br><span class="line">fclose(fp);</span><br></pre></td></tr></tbody></table></figure>
 </li>
 </ul>
-<p>​        </p>
-<div class="table-container">
+<p>​</p>
 <table>
 <thead>
 <tr>
@@ -1048,7 +1578,6 @@ w_{s-i\times strides+padding,t-j\times strides+padding} & &{(s-i\times strides+p
 </tr>
 </tbody>
 </table>
-</div>
 </body></html>]]></content>
       <categories>
         <category>C++</category>
