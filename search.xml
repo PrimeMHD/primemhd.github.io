@@ -3,16 +3,17 @@
   <entry>
     <title>强化学习理论</title>
     <url>/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%90%86%E8%AE%BA.html</url>
-    <content><![CDATA[<html><head></head><body><h2 id="基本概念"><span class="post-title-index">.1. </span>基本概念</h2>
+    <content><![CDATA[<html><head></head><body><h1><span class="post-title-index">1. </span>强化学习理论</h1>
+<h2 id="基本概念"><span class="post-title-index">1.1. </span>基本概念</h2>
 <blockquote>
 <p>注意，大写字母是随机变量，小写字母是观测（采样）值。</p>
 </blockquote>
-<h3 id="策略函数π"><span class="post-title-index">.1.1. </span>策略函数π</h3>
+<h3 id="策略函数π"><span class="post-title-index">1.1.1. </span>策略函数π</h3>
 <p>策略函数是一个概率密度函数。</p>
 <p>$A\sim\pi(\cdot\mid s)$ 输入为当前状态s，然后随机采样出一个动作a。</p>
-<h3 id="轨迹trajectory、rollout"><span class="post-title-index">.1.2. </span>轨迹trajectory、rollout</h3>
+<h3 id="轨迹trajectory、rollout"><span class="post-title-index">1.1.2. </span>轨迹trajectory、rollout</h3>
 <img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112131555011.png" alt="image-20211213155558969" style="zoom: 50%;">
-<h3 id="Return和reward"><span class="post-title-index">.1.3. </span>Return和reward</h3>
+<h3 id="Return和reward"><span class="post-title-index">1.1.3. </span>Return和reward</h3>
 <ul>
 <li>
 <p>reward是一个立刻可以知道的值，一般是人为定义的。</p>
@@ -23,21 +24,21 @@
 </li>
 </ul>
 <img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112131602575.png" alt="image-20211213160216542" style="zoom: 67%;">
-<h3 id="动作价值函数"><span class="post-title-index">.1.4. </span>动作价值函数</h3>
+<h3 id="动作价值函数"><span class="post-title-index">1.1.4. </span>动作价值函数</h3>
 <p>==动作价值函数==：$Q_\pi(s_t, a_t)$</p>
 <p>它的定义是：对给定的状态$s_t$下做出动作$a_t$，带来的Return的期望。</p>
 <img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112131625199.png" alt="image-20211213162505158" style="zoom:50%;">
 <img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112131625936.png" alt="image-20211213162536897" style="zoom:50%;">
 <p>这个期望是<u>不能直接求的</u>，只能近似/拟合。</p>
-<h3 id="状态价值函数"><span class="post-title-index">.1.5. </span>状态价值函数</h3>
+<h3 id="状态价值函数"><span class="post-title-index">1.1.5. </span>状态价值函数</h3>
 <p>==状态价值函数==：$V_\pi(s_t)$</p>
 <p>它的定义是，在给定状态$s_t$下，做出各种可能的动作，带来的Return的期望。其实就是对动作价值函数在动作空间上求期望。</p>
 <img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112131628491.png" alt="image-20211213162836465" style="zoom:50%;">
-<h3 id="On-policy-Off-policy"><span class="post-title-index">.1.6. </span>On-policy/Off-policy</h3>
-<h4 id="同策略on-policy"><span class="post-title-index">.1.6.1. </span>同策略on-policy</h4>
+<h3 id="On-policy-Off-policy"><span class="post-title-index">1.1.6. </span>On-policy/Off-policy</h3>
+<h4 id="同策略on-policy"><span class="post-title-index">1.1.6.1. </span>同策略on-policy</h4>
 <p><code>行为策略</code>（Behavior Policy）和<code>目标策略</code>（Target Policy）相同，两者都是策略网络$\pi_{\theta_{now}}$</p>
-<h4 id="异策略off-policy"><span class="post-title-index">.1.6.2. </span>异策略off-policy</h4>
-<h2 id="贝尔曼方程Bellman-Equations"><span class="post-title-index">.2. </span>贝尔曼方程Bellman Equations</h2>
+<h4 id="异策略off-policy"><span class="post-title-index">1.1.6.2. </span>异策略off-policy</h4>
+<h2 id="贝尔曼方程Bellman-Equations"><span class="post-title-index">1.2. </span>贝尔曼方程Bellman Equations</h2>
 <p>贝尔曼方程式是4个价值函数的自洽表达。</p>
 <blockquote>
 <p>Bellman Equations里包含着人生的哲理。</p>
@@ -50,18 +51,18 @@
 <img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211228111636802.png" alt="image-20211228111636802" style="zoom:50%;">
 <p>再稍加变形就得到了$V^\pi(s)$的公式。</p>
 <p>注：可以看到$\pi$有时候放在上标有时候放在下标，这其实没有区别，只是不同地方书写习惯不同。</p>
-<h2 id="价值学习value-based-learning"><span class="post-title-index">.3. </span>价值学习value-based learning</h2>
-<h3 id="价值学习的目标"><span class="post-title-index">.3.1. </span>价值学习的目标</h3>
+<h2 id="价值学习value-based-learning"><span class="post-title-index">1.3. </span>价值学习value-based learning</h2>
+<h3 id="价值学习的目标"><span class="post-title-index">1.3.1. </span>价值学习的目标</h3>
 <p>价值学习就是学出一个Q函数。</p>
 <img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112131625936.png" alt="image-20211213162536897" style="zoom:50%;">
 <p>有了这个函数，我们就能把$Q^<em>(s_t,a_t)$作为agent的行为准则，在任意一个state找到一个让$Q^</em>$最大的action即可。</p>
 <p>example：<img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211228112547907.png" alt="image-20211228112547907" style="zoom: 50%;"></p>
 <p>以上是一个超级玛丽agent在状态$s_t$的最优动作价值函数的取值，可见应当向上。</p>
-<h3 id="DQN"><span class="post-title-index">.3.2. </span>DQN</h3>
+<h3 id="DQN"><span class="post-title-index">1.3.2. </span>DQN</h3>
 <p>理想很丰满，现实是$Q*$只具备理论意义，无法得到其函数表达式。但是我们可以借助深度神经网络来近似$Q_<em>$函数。这个用于近似$Q_</em>$函数的网络叫做Deep Q Network（深度Q网络）。</p>
 <p>一个DQN的例子：</p>
 <img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/image-20211228113152923.png" alt="image-20211228113152923" style="zoom:50%;">
-<h3 id="TD算法"><span class="post-title-index">.3.3. </span>TD算法</h3>
+<h3 id="TD算法"><span class="post-title-index">1.3.3. </span>TD算法</h3>
 <blockquote>
 <p>用一句话概括：采用梯度下降法minimize TD error。</p>
 </blockquote>
@@ -79,9 +80,9 @@
 <blockquote>
 <p>注：这里把$\hat{y}$看做常数了，尽管它是$\mathbf{w}$的的函数。</p>
 </blockquote>
-<h3 id="TD训练DQN"><span class="post-title-index">.3.4. </span>TD训练DQN</h3>
-<h2 id="策略学习policy-based-learning"><span class="post-title-index">.4. </span>策略学习policy-based learning</h2>
-<h3 id="策略学习的目标"><span class="post-title-index">.4.1. </span>策略学习的目标</h3>
+<h3 id="TD训练DQN"><span class="post-title-index">1.3.4. </span>TD训练DQN</h3>
+<h2 id="策略学习policy-based-learning"><span class="post-title-index">1.4. </span>策略学习policy-based learning</h2>
+<h3 id="策略学习的目标"><span class="post-title-index">1.4.1. </span>策略学习的目标</h3>
 <p>策略学习就是学出一个$\pi(\cdot\mid s;\theta)$函数，根绝这个策略函数让agent做决策就可以了，做决策时通过对策略函数采样得到动作a。</p>
 <ul>
 <li>
@@ -95,12 +96,12 @@
 </ul>
 <p><strong>什么是一个好的策略函数呢？</strong></p>
 <p>最直观的评价指标就是让状态价值函数的期望最大化。$V_\pi(s_t)$</p>
-<h3 id="如何训练策略网络"><span class="post-title-index">.4.2. </span>如何训练策略网络</h3>
-<h4 id="目标函数"><span class="post-title-index">.4.2.1. </span>目标函数</h4>
+<h3 id="如何训练策略网络"><span class="post-title-index">1.4.2. </span>如何训练策略网络</h3>
+<h4 id="目标函数"><span class="post-title-index">1.4.2.1. </span>目标函数</h4>
 <img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112131644112.png" alt="image-20211213164442068" style="zoom:50%;">
 <p>采用梯度下降的优化算法，让$V_\pi(S)$的期望值最大化。</p>
 <p>但是S经常是无穷的，一个思路是：让$V_\pi(S)$的期望值最大化，只需要让每个s的$V_\pi(s)$的值都尽可能大。</p>
-<h4 id="Policy-Gradient"><span class="post-title-index">.4.2.2. </span>Policy Gradient</h4>
+<h4 id="Policy-Gradient"><span class="post-title-index">1.4.2.2. </span>Policy Gradient</h4>
 <p>想用梯度下降法来做参数的优化，那么最关键的就是计算$\pi$策略网络参数的梯度</p>
 <img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112131650336.png" alt="image-20211213165040295" style="zoom:50%;">
 <p>这里就是用到了<u>样本梯度代替期望梯度</u>的思想。</p>
@@ -109,7 +110,7 @@
 <p>这个期望采用<code>蒙特卡洛</code>来求（说人话：用随机抽样代替期望）</p>
 <img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112131657746.png" alt="image-20211213165743708" style="zoom:50%;">
 <p>可以看到，PG经过推导之后，还剩下$Q_\pi$这个需要未知量。根据$Q_\pi$的近似方法可以分为两类。</p>
-<h5 id="PG-One-REINFORCE算法"><span class="post-title-index">.4.2.2.1. </span>PG One: REINFORCE算法</h5>
+<h5 id="PG-One-REINFORCE算法"><span class="post-title-index">1.4.2.2.1. </span>PG One: REINFORCE算法</h5>
 <p>REINFORCE: 把一次rollout的实际Return观测值作为$Q_\pi(s_t,\hat{a})$</p>
 <img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112131709819.png" alt="image-20211213170905788" style="zoom:50%;">
 <p>==REINFORCE是On-Policy同策略方法。==这样才能保证观测值作为$Q_\pi(s_t,\hat{a})$估计值的合理性。</p>
@@ -117,7 +118,7 @@
 <img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112131711397.png" alt="image-20211213171110354" style="zoom:50%;">
 <p>构造训练数据集${(s_t,a_t,q_t)}_{t=1}^{n}$</p>
 <img data-src="https://miimages.oss-cn-hangzhou.aliyuncs.com/imgs/202112131715014.png" alt="image-20211213171545987" style="zoom:33%;">
-<h5 id="PG-TWO-NN来近似-Q-pi"><span class="post-title-index">.4.2.2.2. </span>PG TWO: NN来近似$Q_\pi$</h5>
+<h5 id="PG-TWO-NN来近似-Q-pi"><span class="post-title-index">1.4.2.2.2. </span>PG TWO: NN来近似$Q_\pi$</h5>
 </body></html>]]></content>
       <categories>
         <category>机器学习</category>
